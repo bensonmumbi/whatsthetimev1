@@ -1,0 +1,701 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+<title>whatsthetime.com — Exact time & web services</title>
+<link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=DM+Sans:wght@300;400;500;600&family=JetBrains+Mono:wght@300;400;600&display=swap" rel="stylesheet"/>
+<style>
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+:root{
+  --bg:#ffffff;--fg:#0d0d0d;--fg-muted:#555;--fg-subtle:#999;
+  --border:#e5e5e5;--accent:#e8261e;--surface:#f5f5f5;--dark:#0d0d0d;
+  --mono:'JetBrains Mono',monospace;--sans:'DM Sans',sans-serif;--display:'Bebas Neue',sans-serif;
+}
+html{scroll-behavior:smooth}
+body{font-family:var(--sans);background:var(--bg);color:var(--fg);min-height:100vh;-webkit-font-smoothing:antialiased}
+
+.page{display:none;animation:fadeIn .3s ease}
+.page.active{display:block}
+@keyframes fadeIn{from{opacity:0;transform:translateY(8px)}to{opacity:1;transform:translateY(0)}}
+
+/* HEADER */
+header{position:sticky;top:0;z-index:200;background:rgba(255,255,255,.96);backdrop-filter:blur(12px);border-bottom:1px solid var(--border);display:flex;align-items:center;justify-content:center;padding:0 24px;height:70px}
+.logo{font-family:var(--display);font-size:28px;color:var(--accent);letter-spacing:1px;cursor:pointer;border:none;background:none;position:absolute;left:24px}
+nav{display:flex;align-items:center;gap:12px}
+nav a{font-size:16px;font-weight:600;color:var(--fg-muted);text-decoration:none;padding:10px 20px;border-radius:8px;cursor:pointer;transition:all .15s}
+nav a:hover{background:var(--fg);color:#fff}
+nav a.active{background:var(--accent);color:#fff}
+
+/* ── PAGE 1: TIME ── */
+#page-time main{max-width:900px;margin:0 auto;padding:0 24px 60px}
+.hero{position:relative;display:flex;flex-direction:column;align-items:center;color:var(--fg);border:none;width:100%;overflow:hidden;background:#fff}
+.hero-inner{max-width:900px;width:100%;margin:0 auto;padding:90px 24px 70px;display:flex;flex-direction:column;align-items:center;position:relative;z-index:1}
+.hero::before{content:'';position:absolute;inset:0;background:linear-gradient(135deg,rgba(255,255,255,0.95),rgba(232,38,30,0.05)),url('nw.svg') no-repeat center center;background-size:cover;opacity:.4;z-index:0;filter:brightness(1.1) grayscale(0.8)}
+.hero::after{content:'';position:absolute;bottom:0;left:0;width:100%;height:1px;background:linear-gradient(to right,transparent,var(--accent),transparent);opacity:0.3}
+.loc-label{font-size:12.5px;color:var(--fg-muted);margin-bottom:10px;display:flex;align-items:center;gap:6px;font-weight:500;text-transform:uppercase;letter-spacing:1px}
+.loc-label svg{width:14px;height:14px;color:var(--accent)}
+#clock{font-family:var(--mono);font-size:clamp(52px,11vw,120px);font-weight:300;letter-spacing:-4px;line-height:0.9;user-select:none;color:#000;margin:10px 0}
+#clock .sep{animation:blink 1s step-end infinite;color:var(--accent)}
+@keyframes blink{0%,100%{opacity:1}50%{opacity:.2}}
+.date-disp{font-size:17px;font-weight:500;color:var(--fg-subtle);margin-top:5px;letter-spacing:0.5px}
+.tz-row{display:flex;align-items:center;gap:12px;margin-top:22px}
+.tz-badge{background:#fff;border:1px solid var(--border);color:var(--fg);border-radius:6px;padding:4px 12px;font-family:var(--mono);font-size:12.5px;box-shadow:0 2px 10px rgba(0,0,0,0.03)}
+.utc-off{font-family:var(--mono);font-size:12.5px;color:var(--accent);background:rgba(232,38,30,0.05);border:1px solid var(--accent);border-radius:6px;padding:4px 12px;font-weight:600}
+.acc-row{margin-top:20px;display:flex;align-items:center;gap:8px;font-size:12px;color:var(--fg-subtle);font-weight:500}
+.dot{width:8px;height:8px;border-radius:50%;background:#22c55e;animation:pulse 2s infinite}
+@keyframes pulse{0%,100%{box-shadow:0 0 0 0 rgba(34,197,94,.4)}50%{box-shadow:0 0 0 5px rgba(34,197,94,0)}}
+.t-section{padding:28px 0;border-bottom:1px solid var(--border)}
+.sec-title{font-size:11px;font-weight:600;text-transform:uppercase;letter-spacing:.9px;color:var(--fg-subtle);margin-bottom:16px}
+.info-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(185px,1fr));gap:1px;background:var(--border);border:1px solid var(--border);border-radius:8px;overflow:hidden}
+.ic{background:var(--bg);padding:14px 18px}
+.ic-label{font-size:10.5px;color:var(--fg-subtle);text-transform:uppercase;letter-spacing:.5px;margin-bottom:3px}
+.ic-val{font-size:13.5px;font-weight:500;font-family:var(--mono)}
+.astro-row{display:flex;gap:24px;margin-top:16px;flex-wrap:wrap}
+.astro-item{display:flex;align-items:center;gap:8px;font-size:13px;color:var(--fg-muted)}
+.astro-t{font-family:var(--mono);font-weight:600;color:var(--fg)}
+.cities-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(155px,1fr));gap:8px}
+.city-card{border:1px solid var(--border);border-radius:8px;padding:12px 14px;cursor:pointer;transition:all .15s}
+.city-card:hover{border-color:#bbb;box-shadow:0 2px 8px rgba(0,0,0,.07)}
+.city-name{font-size:11.5px;color:var(--fg-muted);margin-bottom:2px}
+.city-time{font-family:var(--mono);font-size:21px;font-weight:300;letter-spacing:-.5px}
+.city-off{font-size:10px;color:var(--fg-subtle);margin-top:2px;font-family:var(--mono)}
+
+
+.mini-cal{max-width:270px}
+.cal-hdr{display:flex;align-items:center;justify-content:space-between;margin-bottom:12px}
+.cal-nav-btn{background:none;border:1px solid var(--border);border-radius:4px;width:24px;height:24px;cursor:pointer;display:flex;align-items:center;justify-content:center;font-size:14px;color:var(--fg-muted);transition:background .1s}
+.cal-nav-btn:hover{background:var(--surface)}
+.cal-grid{display:grid;grid-template-columns:repeat(7,1fr);gap:2px}
+.cdn{text-align:center;font-size:10px;font-weight:600;color:var(--fg-subtle);text-transform:uppercase;padding:4px 0}
+.cd{text-align:center;font-size:12px;padding:5px 0;border-radius:50%;cursor:pointer;color:var(--fg-muted);transition:all .1s}
+.cd:hover{background:var(--surface);color:var(--fg)}
+.cd.today{background:var(--accent);color:#fff;font-weight:600}
+.cd.fm{position:relative}
+.cd.fm::after{content:'🌕';position:absolute;top:-4px;right:-4px;font-size:9px;opacity:0.8}
+.cd.om{color:var(--border);pointer-events:none}
+
+/* ── MONETIZATION & ENHANCEMENTS ── */
+.ad-banner{background:var(--surface);border:1px dashed var(--border);color:var(--fg-subtle);text-align:center;padding:24px;border-radius:12px;margin:32px 0 0;font-size:12px;letter-spacing:1px;text-transform:uppercase;width:100%}
+.ad-sticky{position:fixed;bottom:0;left:0;width:100%;background:var(--surface);border-top:1px solid var(--border);color:var(--fg-subtle);text-align:center;padding:12px;font-size:11px;z-index:400;text-transform:uppercase;box-shadow:0 -4px 12px rgba(0,0,0,0.05)}
+.native-ad{background:#fffbeb;border:1px dashed #fcd34d;}
+.native-ad:hover{border-color:#fbbf24;}
+.ad-tag{font-size:9px;background:#fef3c7;color:#d97706;padding:2px 6px;border-radius:4px;display:inline-block;margin-bottom:4px;font-weight:600}
+.map-city-lbl{fill:var(--fg-muted);font-size:10px;font-family:var(--sans);font-weight:600;pointer-events:none}
+.map-city-line{stroke:var(--fg-subtle);stroke-width:1;opacity:0.5;pointer-events:none}
+
+/* ── PAGE 3: BUILD ── */
+#page-build{background:var(--bg)}
+.bld-hero{background:var(--dark);padding:76px 28px 66px;text-align:center;position:relative;overflow:hidden}
+.bld-hero::after{content:'';position:absolute;inset:0;background:radial-gradient(ellipse 60% 60% at 50% 100%,rgba(232,38,30,.18),transparent);pointer-events:none}
+.bld-hero h1{font-family:var(--display);font-size:clamp(44px,6.5vw,76px);letter-spacing:2px;line-height:.95;color:#fff;margin-bottom:14px;position:relative;z-index:1}
+.bld-hero h1 em{font-style:normal;color:var(--accent)}
+.bld-hero p{font-size:15px;color:rgba(255,255,255,.5);max-width:460px;margin:0 auto 34px;line-height:1.7;position:relative;z-index:1}
+.hero-btns{display:flex;gap:12px;justify-content:center;flex-wrap:wrap;position:relative;z-index:1}
+.btn-pri{background:var(--accent);color:#fff;border:none;border-radius:10px;padding:13px 26px;font-size:14px;font-weight:600;cursor:pointer;font-family:var(--sans);transition:all .15s}
+.btn-pri:hover{background:#c01f18;transform:translateY(-1px)}
+.btn-out{background:transparent;color:#fff;border:1px solid rgba(255,255,255,.25);border-radius:10px;padding:13px 26px;font-size:14px;font-weight:600;cursor:pointer;font-family:var(--sans);transition:all .15s}
+.btn-out:hover{border-color:#fff;background:rgba(255,255,255,.06)}
+.bld-body{max-width:1000px;margin:0 auto;padding:56px 24px}
+.sec-lbl{font-size:11px;font-weight:600;text-transform:uppercase;letter-spacing:1px;color:var(--accent);margin-bottom:8px}
+.sec-hd{font-family:var(--display);font-size:clamp(32px,4vw,48px);letter-spacing:1px;color:var(--fg);margin-bottom:12px;line-height:1}
+.sec-sub{font-size:14px;color:var(--fg-muted);max-width:500px;line-height:1.7;margin-bottom:38px}
+.svc-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(280px,1fr));gap:18px;margin-bottom:64px}
+.svc-card{border:1px solid var(--border);border-radius:14px;padding:24px 22px;transition:all .2s}
+.svc-card:hover{border-color:var(--accent);box-shadow:0 0 0 3px rgba(232,38,30,.05)}
+.svc-icon{font-size:30px;margin-bottom:12px}
+.svc-title{font-size:15px;font-weight:600;margin-bottom:6px}
+.svc-desc{font-size:13px;color:var(--fg-muted);line-height:1.6}
+.svc-tags{display:flex;flex-wrap:wrap;gap:6px;margin-top:12px}
+.tag{background:var(--surface);border-radius:4px;padding:3px 9px;font-size:11px;color:var(--fg-muted);font-weight:500}
+.steps{display:grid;grid-template-columns:repeat(auto-fill,minmax(200px,1fr));gap:14px;margin-bottom:64px;counter-reset:step}
+.step{padding:20px;border:1px solid var(--border);border-radius:12px;counter-increment:step;position:relative}
+.step::before{content:counter(step);font-family:var(--display);font-size:46px;color:var(--border);position:absolute;bottom:8px;right:12px;line-height:1}
+.step h4{font-size:14px;font-weight:600;margin-bottom:6px}
+.step p{font-size:12.5px;color:var(--fg-muted);line-height:1.55}
+.price-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(260px,1fr));gap:18px;margin-bottom:64px}
+.prc{border:1px solid var(--border);border-radius:16px;padding:28px 24px;position:relative;transition:all .2s}
+.prc.feat{border-color:var(--accent);background:var(--dark);color:#fff}
+.prc.feat .prc-name{color:rgba(255,255,255,.5)}
+.prc.feat li{border-bottom-color:rgba(255,255,255,.08)!important;color:rgba(255,255,255,.7)}
+.feat-badge{position:absolute;top:-12px;left:50%;transform:translateX(-50%);background:var(--accent);color:#fff;font-size:11px;font-weight:600;padding:3px 14px;border-radius:20px;white-space:nowrap}
+.prc-name{font-size:11px;font-weight:600;text-transform:uppercase;letter-spacing:.8px;color:var(--fg-subtle);margin-bottom:10px}
+.prc-amt{font-family:var(--display);font-size:52px;letter-spacing:-1px;line-height:1;margin-bottom:4px}
+.prc-amt span{font-family:var(--sans);font-size:14px;font-weight:400;opacity:.6}
+.prc-period{font-size:12px;color:var(--fg-subtle);margin-bottom:22px}
+.prc-features{list-style:none;margin-bottom:24px}
+.prc-features li{font-size:13px;color:var(--fg-muted);padding:6px 0;border-bottom:1px solid var(--border);display:flex;align-items:center;gap:8px}
+.prc-features li::before{content:'✓';color:var(--accent);font-weight:700;font-size:12px}
+.prc-btn{width:100%;border-radius:10px;padding:12px;font-size:13px;font-weight:600;cursor:pointer;font-family:var(--sans);transition:all .15s;border:none}
+.prc-btn.lt{background:var(--surface);color:var(--fg)}
+.prc-btn.lt:hover{background:var(--border)}
+.prc-btn.dk{background:var(--accent);color:#fff}
+.prc-btn.dk:hover{background:#c01f18}
+.port-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(280px,1fr));gap:14px;margin-bottom:60px}
+.port-card{border-radius:12px;overflow:hidden;cursor:pointer;transition:transform .2s}
+.port-card:hover{transform:scale(1.02)}
+.port-thumb{height:164px;display:flex;align-items:center;justify-content:center;font-family:var(--display);font-size:22px;letter-spacing:2px;color:#fff}
+.port-meta{background:var(--bg);padding:14px 16px;border:1px solid var(--border);border-top:none;border-radius:0 0 12px 12px}
+.port-meta h4{font-size:13.5px;font-weight:600}
+.port-meta p{font-size:11.5px;color:var(--fg-muted);margin-top:3px}
+.testis{display:grid;grid-template-columns:repeat(auto-fill,minmax(270px,1fr));gap:14px;margin-bottom:60px}
+.testi{border:1px solid var(--border);border-radius:12px;padding:20px}
+.testi-stars{color:#f59e0b;font-size:13px;margin-bottom:10px}
+.testi-text{font-size:13px;color:var(--fg-muted);line-height:1.6;margin-bottom:12px;font-style:italic}
+.testi-author{display:flex;align-items:center;gap:10px}
+.testi-av{width:34px;height:34px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:14px;font-weight:700;color:#fff;flex-shrink:0}
+.testi-nm{font-size:13px;font-weight:600}
+.testi-role{font-size:11px;color:var(--fg-subtle)}
+.faq-list{max-width:640px;margin-bottom:60px}
+.faq-item{border-bottom:1px solid var(--border)}
+.faq-q{display:flex;align-items:center;justify-content:space-between;padding:16px 0;cursor:pointer;font-size:14px;font-weight:500;gap:12px}
+.faq-ico{font-size:18px;color:var(--accent);flex-shrink:0;transition:transform .2s;display:inline-block}
+.faq-a{font-size:13px;color:var(--fg-muted);line-height:1.7;max-height:0;overflow:hidden;transition:max-height .3s ease,padding .3s}
+.faq-item.open .faq-a{max-height:200px;padding-bottom:14px}
+.faq-item.open .faq-ico{transform:rotate(45deg)}
+.cbox{background:var(--surface);border-radius:16px;padding:38px;max-width:560px}
+.f-row{display:grid;grid-template-columns:1fr 1fr;gap:14px;margin-bottom:14px}
+.fg{display:flex;flex-direction:column;gap:6px;margin-bottom:14px}
+.fg label{font-size:12px;font-weight:600;text-transform:uppercase;letter-spacing:.5px;color:var(--fg-muted)}
+.fg input,.fg textarea,.fg select{background:var(--bg);border:1px solid var(--border);border-radius:8px;padding:10px 14px;font-size:13.5px;font-family:var(--sans);color:var(--fg);transition:border-color .15s;outline:none}
+.fg input:focus,.fg textarea:focus,.fg select:focus{border-color:var(--accent)}
+.fg textarea{min-height:110px;resize:vertical}
+.f-success{display:none;background:#f0fdf4;border:1px solid #bbf7d0;border-radius:10px;padding:16px;color:#166534;font-size:13px;margin-top:14px}
+.f-success.show{display:block}
+
+/* BUY ME A COFFEE */
+.bmc-btn{position:fixed;bottom:24px;right:24px;z-index:300;background:#FFDD00;color:#000;border:none;border-radius:50px;display:flex;align-items:center;gap:8px;padding:11px 20px;font-size:13px;font-weight:700;cursor:pointer;box-shadow:0 4px 20px rgba(0,0,0,.15);font-family:var(--sans);transition:all .2s}
+.bmc-btn:hover{transform:translateY(-2px);box-shadow:0 8px 28px rgba(0,0,0,.2)}
+.bmc-icon{font-size:18px}
+.modal-ov{position:fixed;inset:0;background:rgba(0,0,0,.5);z-index:600;display:none;align-items:center;justify-content:center}
+.modal-ov.show{display:flex}
+.modal{background:#fff;border-radius:20px;padding:36px;max-width:400px;width:90%;text-align:center;position:relative;animation:mIn .3s ease}
+@keyframes mIn{from{opacity:0;transform:scale(.9)}to{opacity:1;transform:scale(1)}}
+.m-close{position:absolute;top:14px;right:18px;background:none;border:none;font-size:20px;cursor:pointer;color:var(--fg-muted)}
+.modal h2{font-family:var(--display);font-size:32px;margin-bottom:8px;letter-spacing:1px}
+.modal p{font-size:13.5px;color:var(--fg-muted);margin-bottom:22px;line-height:1.6}
+.ca-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:10px;margin-bottom:18px}
+.ca{border:2px solid var(--border);border-radius:10px;padding:14px 8px;cursor:pointer;transition:all .15s;text-align:center;font-family:var(--sans)}
+.ca:hover,.ca.sel{border-color:#FFDD00;background:#fffce0}
+.ca-icon{font-size:24px;margin-bottom:4px}
+.ca-lbl{font-size:11px;color:var(--fg-muted)}
+.ca-price{font-family:var(--mono);font-size:16px;font-weight:700;color:var(--fg)}
+.bmc-sbtn{width:100%;background:#FFDD00;color:#000;border:none;border-radius:10px;padding:14px;font-size:14px;font-weight:700;cursor:pointer;font-family:var(--sans);margin-bottom:10px;transition:all .15s}
+.bmc-sbtn:hover{background:#f0ce00;transform:translateY(-1px)}
+.m-note{font-size:11px;color:var(--fg-subtle)}
+
+/* FOOTER */
+.site-foot{border-top:1px solid var(--border);padding:18px 24px;font-size:11.5px;color:var(--fg-subtle);display:flex;align-items:center;justify-content:center;gap:18px;flex-wrap:wrap}
+.site-foot a{color:var(--fg-subtle);text-decoration:none;cursor:pointer}
+.site-foot a:hover{color:var(--fg)}
+
+@media(max-width:640px){
+  header{justify-content:space-between;padding:0 14px;height:60px}
+  .logo{position:static;font-size:22px}
+  nav{gap:4px}
+  nav a{font-size:13px;padding:6px 10px}
+  .bld-body{padding:36px 14px}
+  #page-time main{padding:0 14px 48px}
+  .f-row{grid-template-columns:1fr}
+  .ca-grid{grid-template-columns:1fr 1fr}
+  .hero-inner{padding:60px 14px 40px}
+}
+.legal-body{max-width:800px;margin:0 auto;padding:60px 24px;line-height:1.7}
+.legal-body h2{font-size:24px;margin:40px 0 16px;color:var(--fg)}
+.legal-body p{margin-bottom:16px;color:var(--fg-muted)}
+.legal-body ul{margin:16px 0 24px 20px;color:var(--fg-muted)}
+.legal-body li{margin-bottom:8px}
+</style>
+</head>
+<body>
+
+<header>
+  <button class="logo" onclick="showPage('time')"><span style="color:var(--fg)">WHATS</span><span style="color:var(--accent)">THE</span><span style="color:var(--fg)">TIME</span></button>
+  <nav>
+    <a onclick="showPage('time')" id="nav-time" class="active">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" style="width:16px;height:16px"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg> Time
+    </a>
+    <a onclick="showPage('build')" id="nav-build">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" style="width:16px;height:16px"><path d="M12 2L2 7l10 5 10-5-10-5zM2 17l10 5 10-5M2 12l10 5 10-5"/></svg> Build Your Site
+    </a>
+  </nav>
+</header>
+
+<!-- ══ TIME PAGE ══ -->
+<div id="page-time" class="page active">
+  <section class="hero">
+    <div class="hero-inner">
+      <div class="loc-label">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0118 0z"/><circle cx="12" cy="10" r="3"/></svg>
+        <span id="locLabel">Detecting…</span>
+      </div>
+      <div id="clock"><span id="hh">00</span><span class="sep">:</span><span id="mm">00</span><span class="sep">:</span><span id="ss">00</span></div>
+      <div class="date-disp" id="datDisp">—</div>
+      <div class="tz-row"><span class="tz-badge" id="tzName">—</span><span class="utc-off" id="utcOff">UTC+0</span></div>
+      <div class="acc-row"><div class="dot"></div><span>Your clock is accurate</span></div>
+
+      <div class="ad-banner">Advertisement (728x90)</div>
+    </div>
+  </section>
+<main>
+  <section class="t-section">
+    <div class="sec-title">Current Time Details</div>
+    <div class="info-grid">
+      <div class="ic"><div class="ic-label">Unix Timestamp</div><div class="ic-val" id="unixTs">—</div></div>
+      <div class="ic"><div class="ic-label">Week Number</div><div class="ic-val" id="weekNum">—</div></div>
+      <div class="ic"><div class="ic-label">Day of Year</div><div class="ic-val" id="doy">—</div></div>
+      <div class="ic"><div class="ic-label">Quarter</div><div class="ic-val" id="qtr">—</div></div>
+      <div class="ic"><div class="ic-label">ISO 8601</div><div class="ic-val" id="isoD" style="font-size:11px">—</div></div>
+      <div class="ic"><div class="ic-label">Time Zone</div><div class="ic-val" id="tzFull" style="font-size:11px;font-family:var(--sans);font-weight:400">—</div></div>
+    </div>
+    <div class="astro-row">
+      <div class="astro-item">🌅 Sunrise <span class="astro-t">06:12</span></div>
+      <div class="astro-item">🌇 Sunset <span class="astro-t">18:28</span></div>
+      <div class="astro-item">🌙 Day length <span class="astro-t">12h 16m</span></div>
+    </div>
+  </section>
+  <section class="t-section">
+    <div class="sec-title">World Clock</div>
+    <div class="cities-grid" id="citiesGrid"></div>
+  </section>
+  <section class="t-section">
+    <div class="sec-title">Calendar — <span id="calMonLbl"></span></div>
+    <div class="mini-cal">
+      <div class="cal-hdr">
+        <button class="cal-nav-btn" onclick="shiftMonth(-1)">‹</button>
+        <span id="calTitle" style="font-size:13px;font-weight:600"></span>
+        <button class="cal-nav-btn" onclick="shiftMonth(1)">›</button>
+      </div>
+      <div class="cal-grid" id="calGrid"></div>
+    </div>
+  </section>
+  <section class="t-section">
+    <div class="sec-title">Recommended Watches (Affiliate)</div>
+    <div class="cities-grid">
+      <div class="city-card native-ad"><div class="ad-tag">Amazon</div><div class="city-name" style="color:var(--fg)">Casio F91W-1</div><div class="city-time" style="font-size:14px;margin-top:4px;color:var(--accent)">$15.99 →</div></div>
+      <div class="city-card native-ad"><div class="ad-tag">Amazon</div><div class="city-name" style="color:var(--fg)">Seiko 5 Automatic</div><div class="city-time" style="font-size:14px;margin-top:4px;color:var(--accent)">$120.00 →</div></div>
+      <div class="city-card native-ad"><div class="ad-tag">Apple</div><div class="city-name" style="color:var(--fg)">Apple Watch SE</div><div class="city-time" style="font-size:14px;margin-top:4px;color:var(--accent)">$249.00 →</div></div>
+    </div>
+  </section>
+  <section class="t-section" style="border-bottom:none">
+    <div class="sec-title">Embed this clock</div>
+    <p style="font-size:12px;color:var(--fg-muted);margin-bottom:8px">Copy the code below to add a free timezone clock widget to your site.</p>
+    <textarea readonly style="width:100%;height:60px;background:var(--surface);border:1px solid var(--border);border-radius:8px;padding:10px;font-family:var(--mono);font-size:11px;color:var(--fg-subtle)" onclick="this.select()"><iframe src="https://whatsthetime.com/widget" width="300" height="150" style="border:none;border-radius:8px"></iframe></textarea>
+    <div style="margin-top:12px;background:#fffbeb;border:1px solid #fcd34d;padding:14px;border-radius:8px;font-size:12px;display:flex;align-items:center;justify-content:space-between">
+      <div><strong>Want an ad-free, white-label version?</strong><br/><span style="color:var(--fg-muted)">Remove the "Powered by whatsthetime.com" branding for a $5/mo fee.</span></div>
+      <button class="btn-pri" style="padding:6px 12px;font-size:11px;color:#000;background:#fcd34d" onclick="scrollTo2('contact-form')">Get White-Label</button>
+    </div>
+  </section>
+
+  <section class="t-section">
+    <div class="sec-title">Timezone Converter</div>
+    <div style="background:var(--surface);border:1px solid var(--border);border-radius:12px;padding:24px;display:flex;gap:16px;align-items:center;flex-wrap:wrap">
+      <div style="flex:1;min-width:200px">
+        <label style="font-size:11px;font-weight:600;text-transform:uppercase;color:var(--fg-muted);display:block;margin-bottom:6px">From</label>
+        <div style="display:flex;gap:8px">
+          <input type="time" id="convTime" value="12:00" onchange="calcConversion()" style="background:var(--bg);border:1px solid var(--border);border-radius:8px;padding:8px 12px;font-family:var(--mono);font-size:14px;color:var(--fg);outline:none">
+          <select id="convFrom" onchange="calcConversion()" style="flex:1;background:var(--bg);border:1px solid var(--border);border-radius:8px;padding:8px 12px;font-family:var(--sans);font-size:13px;color:var(--fg);outline:none">
+            <option value="America/New_York" selected>New York (EST/EDT)</option>
+            <option value="Europe/London">London (GMT/BST)</option>
+            <option value="Asia/Tokyo">Tokyo (JST)</option>
+            <option value="Australia/Sydney">Sydney (AEST/AEDT)</option>
+            <option value="America/Los_Angeles">Los Angeles (PST/PDT)</option>
+            <option value="UTC">UTC</option>
+          </select>
+        </div>
+      </div>
+      <div style="font-size:20px;color:var(--fg-subtle);margin-top:20px;text-align:center">→</div>
+      <div style="flex:1;min-width:200px">
+        <label style="font-size:11px;font-weight:600;text-transform:uppercase;color:var(--fg-muted);display:block;margin-bottom:6px">To</label>
+        <select id="convTo" onchange="calcConversion()" style="width:100%;background:var(--bg);border:1px solid var(--border);border-radius:8px;padding:8px 12px;font-family:var(--sans);font-size:13px;color:var(--fg);outline:none">
+          <option value="America/New_York">New York (EST/EDT)</option>
+          <option value="Europe/London" selected>London (GMT/BST)</option>
+          <option value="Asia/Tokyo">Tokyo (JST)</option>
+          <option value="Australia/Sydney">Sydney (AEST/AEDT)</option>
+          <option value="America/Los_Angeles">Los Angeles (PST/PDT)</option>
+          <option value="UTC">UTC</option>
+        </select>
+      </div>
+    </div>
+    <div id="convResult" style="margin-top:16px;font-size:16px;font-weight:500;text-align:center;font-family:var(--sans)">12:00 in New York is <span style="color:var(--accent);font-family:var(--mono)">17:00</span> in London</div>
+  </section>
+
+  <section class="t-section" style="border-bottom:none">
+    <div class="sec-title">City Time Directory (SEO)</div>
+    <div style="display:flex;flex-wrap:wrap;gap:8px">
+      <a href="/time-in-new-york" style="font-size:12px;color:var(--accent);text-decoration:none;background:var(--surface);padding:6px 10px;border-radius:6px;border:1px solid var(--border)">⏱ Time in New York</a>
+      <a href="/time-in-london" style="font-size:12px;color:var(--accent);text-decoration:none;background:var(--surface);padding:6px 10px;border-radius:6px;border:1px solid var(--border)">⏱ Time in London</a>
+      <a href="/time-in-tokyo" style="font-size:12px;color:var(--accent);text-decoration:none;background:var(--surface);padding:6px 10px;border-radius:6px;border:1px solid var(--border)">⏱ Time in Tokyo</a>
+      <a href="/time-in-sydney" style="font-size:12px;color:var(--accent);text-decoration:none;background:var(--surface);padding:6px 10px;border-radius:6px;border:1px solid var(--border)">⏱ Time in Sydney</a>
+      <a href="/time-in-dubai" style="font-size:12px;color:var(--accent);text-decoration:none;background:var(--surface);padding:6px 10px;border-radius:6px;border:1px solid var(--border)">⏱ Time in Dubai</a>
+    </div>
+  </section>
+</main>
+</div>
+
+<!-- ══ BUILD PAGE ══ -->
+<div id="page-build" class="page">
+  <div class="bld-hero">
+    <h1>I BUILD<br/>WEBSITES<br/>LIKE <em>THIS ONE</em></h1>
+    <p>Fast, beautiful, affordable. Whether you need a landing page, a full web app, or a clock site like this — I've got you.</p>
+    <div class="hero-btns">
+      <button class="btn-pri" onclick="scrollTo2('contact-form')">Get a Free Quote</button>
+      <button class="btn-out" onclick="scrollTo2('pricing')">See Pricing</button>
+    </div>
+  </div>
+  <div class="bld-body">
+
+    <div class="sec-lbl">Services</div>
+    <div class="sec-hd">WHAT I BUILD</div>
+    <div class="sec-sub">From simple landing pages to full web applications. Every project is fast, mobile-first and SEO-ready.</div>
+    <div class="svc-grid">
+      <div class="svc-card"><div class="svc-icon">⏱</div><div class="svc-title">Clock &amp; Time Sites</div><div class="svc-desc">Custom timezone apps, countdowns, world clocks — exactly like time.is but with your brand.</div><div class="svc-tags"><span class="tag">HTML/CSS/JS</span><span class="tag">No backend</span><span class="tag">Lightning fast</span></div></div>
+      <div class="svc-card"><div class="svc-icon">🛍</div><div class="svc-title">E-Commerce &amp; Merch</div><div class="svc-desc">Product pages, shopping carts, <a href="https://shopify.com/?ref=whatsthetime" target="_blank" style="color:var(--accent);text-decoration:underline;font-weight:600">Shopify</a> or PayPal integration. Sell anything online within days.</div><div class="svc-tags"><span class="tag">Shopify</span><span class="tag">Custom cart</span><span class="tag">Payment</span></div></div>
+      <div class="svc-card"><div class="svc-icon">🏢</div><div class="svc-title">Business Landing Pages</div><div class="svc-desc">Clean professional pages that convert visitors into customers. Built for speed and Google ranking.</div><div class="svc-tags"><span class="tag">SEO</span><span class="tag">Responsive</span><span class="tag">Analytics</span></div></div>
+      <div class="svc-card"><div class="svc-icon">📱</div><div class="svc-title">Portfolio &amp; Personal Sites</div><div class="svc-desc">Stand out with a memorable personal website. Showcase your work, CV, or creative projects.</div><div class="svc-tags"><span class="tag">Unique design</span><span class="tag">Mobile-first</span></div></div>
+      <div class="svc-card"><div class="svc-icon">📰</div><div class="svc-title">Blogs &amp; News Sites</div><div class="svc-desc">Content-heavy sites optimized for AdSense revenue. Fast load, clean reading experience.</div><div class="svc-tags"><span class="tag">WordPress</span><span class="tag">AdSense ready</span><span class="tag">CMS</span></div></div>
+      <div class="svc-card"><div class="svc-icon">🔧</div><div class="svc-title">Hostinger Setup &amp; Deploy</div><div class="svc-desc">Full setup: <a href="https://hostinger.com/?REF=whatsthetime" target="_blank" style="color:var(--accent);text-decoration:underline;font-weight:600">Hostinger</a>, domain, SSL, Cloudflare, security, AdSense integration — done for you.</div><div class="svc-tags"><span class="tag">Hostinger</span><span class="tag">Cloudflare</span><span class="tag">SSL</span></div></div>
+    </div>
+
+    <div class="sec-lbl">Process</div>
+    <div class="sec-hd">HOW IT WORKS</div>
+    <div class="sec-sub">Simple, fast, no jargon.</div>
+    <div class="steps">
+      <div class="step"><h4>You Tell Me</h4><p>Fill the form with what you need. Budget, style, deadline — be as detailed or vague as you like.</p></div>
+      <div class="step"><h4>I Design</h4><p>Within 24–48h you get a first draft or mockup. We refine together until it's exactly right.</p></div>
+      <div class="step"><h4>We Build</h4><p>I code it clean — fast, mobile-ready, SEO optimised. You get the full source files.</p></div>
+      <div class="step"><h4>I Deploy</h4><p>I set up your hosting, SSL, domain, analytics and hand you the keys. Done.</p></div>
+    </div>
+
+    <div id="pricing">
+      <div class="sec-lbl">Pricing</div>
+      <div class="sec-hd">PREMIUM PACKAGES</div>
+      <div class="sec-sub">High-end websites with ongoing professional management.</div>
+    </div>
+    <div class="price-grid">
+      <div class="prc">
+        <div class="prc-name">Starter</div>
+        <div class="prc-amt">$500<span>+</span></div>
+        <div class="prc-period">+$399/mo management</div>
+        <ul class="prc-features">
+          <li>Custom landing page</li><li>Mobile responsive</li>
+          <li>Custom domain setup</li><li>Ongoing SEO tweaks</li><li>Monthly updates</li>
+        </ul>
+        <button class="prc-btn lt" onclick="preselectPlan('Starter — $500 + $399/mo')">Get Started</button>
+      </div>
+      <div class="prc feat">
+        <div class="feat-badge">Most Popular</div>
+        <div class="prc-name">Pro</div>
+        <div class="prc-amt">$1,500<span>+</span></div>
+        <div class="prc-period">+$599/mo management</div>
+        <ul class="prc-features">
+          <li>Up to 5 pages</li><li>E-commerce integration</li>
+          <li>Analytics & AdSense setup</li><li>Cloudflare & Security management</li>
+          <li>Priority support</li><li>Weekly updates</li>
+        </ul>
+        <button class="prc-btn dk" onclick="preselectPlan('Pro — $1500 + $599/mo')">Get Started</button>
+      </div>
+      <div class="prc">
+        <div class="prc-name">Business</div>
+        <div class="prc-amt">$3,500<span>+</span></div>
+        <div class="prc-period">+$999/mo management</div>
+        <ul class="prc-features">
+          <li>Unlimited pages</li><li>Full Custom Application</li>
+          <li>Custom Backend / API</li><li>Dedicated account manager</li>
+          <li>Unlimited revisions</li><li>24/7 priority support</li>
+        </ul>
+        <button class="prc-btn lt" onclick="preselectPlan('Business — $3500 + $999/mo')">Get Started</button>
+      </div>
+    </div>
+
+    <div class="sec-lbl">Work</div>
+    <div class="sec-hd">RECENT PROJECTS</div>
+    <div class="sec-sub">A sample of what I've built.</div>
+    <div class="port-grid">
+      <div class="port-card"><div class="port-thumb" style="background:linear-gradient(135deg,#0d0d0d,#1a1a2e)">CLOCK APP</div><div class="port-meta"><h4>time.is Clone</h4><p>World clock + merch + services in one file</p></div></div>
+      <div class="port-card"><div class="port-thumb" style="background:linear-gradient(135deg,#e8261e,#ff6b2b)">SHOP</div><div class="port-meta"><h4>Merch Store</h4><p>T-shirts, hoodies, caps with full cart</p></div></div>
+      <div class="port-card"><div class="port-thumb" style="background:linear-gradient(135deg,#1d4ed8,#7c3aed)">SAAS</div><div class="port-meta"><h4>SaaS Landing Page</h4><p>Pricing, features, waitlist form</p></div></div>
+    </div>
+
+    <div class="sec-lbl">Reviews</div>
+    <div class="sec-hd">WHAT CLIENTS SAY</div>
+    <div class="testis">
+      <div class="testi"><div class="testi-stars">★★★★★</div><div class="testi-text">"Delivered my whole site in 2 days. Clean code, fast load, already getting AdSense revenue."</div><div class="testi-author"><div class="testi-av" style="background:#e8261e">M</div><div><div class="testi-nm">Marcus O.</div><div class="testi-role">Blog owner</div></div></div></div>
+      <div class="testi"><div class="testi-stars">★★★★★</div><div class="testi-text">"Set up my Hostinger + Cloudflare + domain in one session. Explained everything clearly."</div><div class="testi-author"><div class="testi-av" style="background:#1d4ed8">A</div><div><div class="testi-nm">Amara K.</div><div class="testi-role">Small business owner</div></div></div></div>
+      <div class="testi"><div class="testi-stars">★★★★★</div><div class="testi-text">"The merch page looks amazing. Customers keep complimenting the design."</div><div class="testi-author"><div class="testi-av" style="background:#059669">J</div><div><div class="testi-nm">James T.</div><div class="testi-role">Online store owner</div></div></div></div>
+    </div>
+
+    <div class="sec-lbl">FAQ</div>
+    <div class="sec-hd">QUESTIONS</div>
+    <div class="faq-list">
+      <div class="faq-item"><div class="faq-q" onclick="toggleFaq(this)">Do I need to know coding? <span class="faq-ico">+</span></div><div class="faq-a">No. I handle everything. You just tell me what you want and I build it.</div></div>
+      <div class="faq-item"><div class="faq-q" onclick="toggleFaq(this)">How long does it take? <span class="faq-ico">+</span></div><div class="faq-a">A single-page site: 24–48 hours. A full multi-page site with merch and backend: 3–7 days.</div></div>
+      <div class="faq-item"><div class="faq-q" onclick="toggleFaq(this)">Can you work with my Hostinger account? <span class="faq-ico">+</span></div><div class="faq-a">Yes. I can set everything up directly on your existing Hostinger account with full guidance.</div></div>
+      <div class="faq-item"><div class="faq-q" onclick="toggleFaq(this)">Will my site work on mobile? <span class="faq-ico">+</span></div><div class="faq-a">Every site I build is fully mobile responsive and tested on Android and iOS before delivery.</div></div>
+      <div class="faq-item"><div class="faq-q" onclick="toggleFaq(this)">Do you offer support after delivery? <span class="faq-ico">+</span></div><div class="faq-a">Business plan: 1 month. Starter &amp; Pro: 2 weeks of minor fix support. Extended support available.</div></div>
+    </div>
+
+    <div id="contact-form">
+      <div class="sec-lbl">Contact</div>
+      <div class="sec-hd">GET A FREE QUOTE</div>
+      <div class="sec-sub">Tell me about your project. I'll reply within 24 hours.</div>
+    </div>
+    <div class="cbox">
+      <div class="f-row">
+        <div class="fg"><label>Your Name</label><input type="text" id="fname" placeholder="John Doe"/></div>
+        <div class="fg"><label>Email</label><input type="email" id="femail" placeholder="you@email.com"/></div>
+      </div>
+      <div class="fg"><label>Plan / Budget</label>
+        <select id="fplan">
+          <option value="">Select a plan...</option>
+          <option>Starter — $500 + $399/mo</option>
+          <option>Pro — $1500 + $599/mo</option>
+          <option>Business — $3500 + $999/mo</option>
+          <option>Custom / Not sure yet</option>
+        </select>
+      </div>
+      <div class="fg"><label>Tell me about your project</label><textarea id="fmsg" placeholder="e.g. I want a clock site with a merch page and AdSense, similar to what I saw here..."></textarea></div>
+      <button class="btn-pri" style="width:100%;padding:13px;font-size:14px" onclick="submitForm()">Send Message 🚀</button>
+      <div class="f-success" id="fSuccess">✅ Message sent! I'll reply within 24 hours.</div>
+    </div>
+  </div>
+</div>
+
+<div class="page" id="page-privacy">
+  <div class="legal-body">
+    <div class="sec-lbl">Legal</div>
+    <div class="sec-hd">PRIVACY POLICY</div>
+    <p>Last updated: April 24, 2026</p>
+    <p>At whatsthetime.com, we prioritize your privacy. This policy explains how we handle your information when you use our clock tools and web development services.</p>
+    
+    <h2>1. Information We Collect</h2>
+    <p>We do not require user accounts to use our clock tools. However, we may collect:</p>
+    <ul>
+      <li><strong>Usage Data:</strong> Anonymous data like your IP address, browser type, and pages visited to help us improve the site.</li>
+      <li><strong>Contact Information:</strong> If you use our "Get a Free Quote" form, we collect your name and email address to respond to your inquiry.</li>
+    </ul>
+
+    <h2>2. How We Use Information</h2>
+    <p>We use your information to:</p>
+    <ul>
+      <li>Provide and maintain our world clock services.</li>
+      <li>Respond to your service inquiries and quotes.</li>
+      <li>Show relevant advertisements via Google AdSense.</li>
+    </ul>
+
+    <h2>3. Cookies & Third-Party Ads</h2>
+    <p>We use cookies to enhance your experience. We also use Google AdSense to serve ads. Google may use cookies (like the DART cookie) to serve ads based on your visit to this and other sites on the Internet.</p>
+
+    <h2>4. Data Security</h2>
+    <p>We use industry-standard security measures to protect your data. However, no method of transmission over the internet is 100% secure.</p>
+  </div>
+</div>
+
+<div class="page" id="page-terms">
+  <div class="legal-body">
+    <div class="sec-lbl">Legal</div>
+    <div class="sec-hd">TERMS OF USE</div>
+    <p>Last updated: April 24, 2026</p>
+    <p>By accessing whatsthetime.com, you agree to the following terms and conditions.</p>
+
+    <h2>1. Acceptance of Terms</h2>
+    <p>By using this website, you confirm that you have read, understood, and agreed to be bound by these Terms of Use.</p>
+
+    <h2>2. Use of Service</h2>
+    <p>The time data provided is for informational purposes only. While we strive for 100% accuracy, we are not responsible for any losses or damages resulting from inaccurate time data.</p>
+
+    <h2>3. Intellectual Property</h2>
+    <p>The design, code, and content of whatsthetime.com are owned by us. You may not copy, reproduce, or distribute any part of this site without express written permission.</p>
+
+    <h2>4. External Links</h2>
+    <p>Our site contains links to external websites (like Hostinger or Shopify). We are not responsible for the content or privacy practices of these third-party sites.</p>
+
+    <h2>5. Changes to Terms</h2>
+    <p>We reserve the right to modify these terms at any time. Your continued use of the site after changes are posted constitutes acceptance of the new terms.</p>
+  </div>
+</div>
+
+<!-- BUY ME A COFFEE -->
+<button class="bmc-btn" onclick="openBmc()"><span class="bmc-icon">☕</span> Buy Me a Coffee</button>
+
+<!-- BMC MODAL -->
+<div class="modal-ov" id="bmcModal" onclick="closeBmcOv(event)">
+  <div class="modal">
+    <button class="m-close" onclick="closeBmc()">×</button>
+    <div style="font-size:42px;margin-bottom:8px">☕</div>
+    <h2>BUY ME A COFFEE</h2>
+    <p>If this site helped you, consider supporting my work. Every coffee keeps the code flowing!</p>
+    <div class="ca-grid">
+      <div class="ca sel" onclick="selCoffee(this,'$3')"><div class="ca-icon">☕</div><div class="ca-lbl">1 Coffee</div><div class="ca-price">$3</div></div>
+      <div class="ca" onclick="selCoffee(this,'$9')"><div class="ca-icon">☕☕☕</div><div class="ca-lbl">3 Coffees</div><div class="ca-price">$9</div></div>
+      <div class="ca" onclick="selCoffee(this,'$18')"><div class="ca-icon">🎉</div><div class="ca-lbl">Big Thanks</div><div class="ca-price">$18</div></div>
+    </div>
+    <button class="bmc-sbtn" onclick="supportBmc()">Support — <span id="bmcAmt">$3</span></button>
+    <div class="m-note">Redirects to a secure payment page. Thank you so much! 🙏</div>
+  </div>
+</div>
+
+<footer class="site-foot">
+  <span>© 2026 whatsthetime.com</span>
+  <a onclick="showPage('time')">Time</a>
+  <a onclick="showPage('build')">Build Your Site</a>
+  <a onclick="showPage('privacy')">Privacy Policy</a>
+  <a onclick="showPage('terms')">Terms of Use</a>
+  <a onclick="scrollTo2('contact-form')">Contact</a>
+</footer>
+
+<script>
+// ── NAVIGATION ──────────────────────────────────────────────────────────────
+function showPage(n){
+  document.querySelectorAll('.page').forEach(p=>p.classList.remove('active'));
+  document.querySelectorAll('nav a').forEach(a=>a.classList.remove('active'));
+  const p = document.getElementById('page-'+n);
+  if(p) p.classList.add('active');
+  const nav = document.getElementById('nav-'+n);
+  if(nav) nav.classList.add('active');
+  window.scrollTo({top:0,behavior:'smooth'});
+}
+function scrollTo2(id){
+  showPage('build');
+  setTimeout(()=>document.getElementById(id).scrollIntoView({behavior:'smooth'}),350);
+}
+
+// ── CLOCK ────────────────────────────────────────────────────────────────────
+const TZ=Intl.DateTimeFormat().resolvedOptions().timeZone;
+document.getElementById('locLabel').textContent=TZ.split('/').pop().replace(/_/g,' ');
+document.getElementById('tzFull').textContent=TZ;
+function pad(n){return String(n).padStart(2,'0')}
+function weekNum(d){const dt=new Date(Date.UTC(d.getFullYear(),d.getMonth(),d.getDate()));dt.setUTCDate(dt.getUTCDate()+4-(dt.getUTCDay()||7));const ys=new Date(Date.UTC(dt.getUTCFullYear(),0,1));return Math.ceil((((dt-ys)/86400000)+1)/7)}
+function doy(d){return Math.floor((d-new Date(d.getFullYear(),0,0))/86400000)}
+function utcOff(tz){try{const n=new Date(),u=new Date(n.toLocaleString('en-US',{timeZone:'UTC'})),l=new Date(n.toLocaleString('en-US',{timeZone:tz}));const df=(l-u)/3600000,h=Math.floor(Math.abs(df)),m=Math.round((Math.abs(df)-h)*60);return`UTC${df>=0?'+':'-'}${pad(h)}:${pad(m)}`}catch{return'UTC'}}
+function tick(){
+  const n=new Date();
+  document.getElementById('hh').textContent=pad(n.getHours());
+  document.getElementById('mm').textContent=pad(n.getMinutes());
+  document.getElementById('ss').textContent=pad(n.getSeconds());
+  const D=['Sunday','Monday','Tuesday','Wednesday','Thursday','Friday','Saturday'];
+  const M=['January','February','March','April','May','June','July','August','September','October','November','December'];
+  document.getElementById('datDisp').textContent=`${D[n.getDay()]}, ${M[n.getMonth()]} ${n.getDate()}, ${n.getFullYear()}`;
+  const tzs=new Intl.DateTimeFormat('en-US',{timeZoneName:'short'}).formatToParts(n).find(p=>p.type==='timeZoneName')?.value||'';
+  document.getElementById('tzName').textContent=tzs;
+  document.getElementById('utcOff').textContent=utcOff(TZ);
+  document.getElementById('unixTs').textContent=Math.floor(n/1000).toLocaleString();
+  document.getElementById('weekNum').textContent='Week '+weekNum(n);
+  document.getElementById('doy').textContent=doy(n)+' / 365';
+  document.getElementById('qtr').textContent='Q'+(Math.floor(n.getMonth()/3)+1);
+  document.getElementById('isoD').textContent=n.toISOString().slice(0,19).replace('T',' ');
+  updateCities();
+}
+function cityTime(tz){const n=new Date();const p=new Intl.DateTimeFormat('en-US',{timeZone:tz,hour:'2-digit',minute:'2-digit',hour12:false}).formatToParts(n);return{h:p.find(x=>x.type==='hour')?.value||'00',m:p.find(x=>x.type==='minute')?.value||'00'}}
+
+// ── WORLD CITIES ─────────────────────────────────────────────────────────────
+const CITIES=[
+  {name:'Washington D.C.', tz:'America/New_York'},
+  {name:'London',        tz:'Europe/London'},
+  {name:'Paris',         tz:'Europe/Paris'},
+  {name:'Berlin',        tz:'Europe/Berlin'},
+  {name:'Rome',          tz:'Europe/Rome'},
+  {name:'Tokyo',         tz:'Asia/Tokyo'},
+  {name:'Ottawa',        tz:'America/Toronto'},
+  {name:'New York',      tz:'America/New_York'},
+  {name:'Dubai',         tz:'Asia/Dubai'},
+  {name:'Singapore',     tz:'Asia/Singapore'},
+  {name:'Hong Kong',     tz:'Asia/Hong_Kong'},
+  {name:'Mumbai',        tz:'Asia/Kolkata'},
+  {name:'Sydney',        tz:'Australia/Sydney'},
+  {name:'Shanghai',      tz:'Asia/Shanghai'},
+  {name:'Frankfurt',     tz:'Europe/Berlin'},
+  {name:'Sao Paulo',     tz:'America/Sao_Paulo'},
+];
+
+function buildCities(){const g=document.getElementById('citiesGrid');g.innerHTML='';
+  // Native Ad
+  const adCard=document.createElement('div');adCard.className='city-card native-ad';
+  adCard.innerHTML=`<div class="ad-tag">Sponsored</div><div class="city-name" style="color:#b45309">Casio G-Shock</div><div class="city-time" style="font-size:14px;margin-top:4px;color:#92400e">Shop Now →</div>`;
+  g.appendChild(adCard);
+  CITIES.forEach(c=>{const{h,m}=cityTime(c.tz);const el=document.createElement('div');el.className='city-card';el.innerHTML=`<div class="city-name">${c.name}</div><div class="city-time" data-tz="${c.tz}">${h}:${m}</div><div class="city-off">${utcOff(c.tz)}</div>`;g.appendChild(el)})
+}
+function updateCities(){document.querySelectorAll('.city-time[data-tz]').forEach(el=>{const{h,m}=cityTime(el.dataset.tz);el.textContent=`${h}:${m}`});}
+
+
+// ── CALENDAR ─────────────────────────────────────────────────────────────────
+let calDate=new Date();
+function renderCal(){
+  const y=calDate.getFullYear(),mo=calDate.getMonth();
+  const MO=['January','February','March','April','May','June','July','August','September','October','November','December'];
+  document.getElementById('calTitle').textContent=`${MO[mo]} ${y}`;
+  document.getElementById('calMonLbl').textContent=`${MO[mo]} ${y}`;
+  const g=document.getElementById('calGrid');g.innerHTML='';
+  ['Su','Mo','Tu','We','Th','Fr','Sa'].forEach(d=>{const e=document.createElement('div');e.className='cdn';e.textContent=d;g.appendChild(e)});
+  const first=new Date(y,mo,1).getDay(),days=new Date(y,mo+1,0).getDate(),today=new Date();
+  const prev=new Date(y,mo,0).getDate();
+  for(let i=0;i<first;i++){const e=document.createElement('div');e.className='cd om';e.textContent=prev-first+1+i;g.appendChild(e)}
+  for(let d=1;d<=days;d++){
+    const e=document.createElement('div');e.className='cd';e.textContent=d;
+    const curD=new Date(y,mo,d);
+    if(d===today.getDate()&&mo===today.getMonth()&&y===today.getFullYear())e.classList.add('today');
+    // Full Moon calculation (Synodic month ~29.53 days, ref: Jan 13, 2025)
+    const ref=new Date(Date.UTC(2025,0,13,22,27));
+    const phase=((curD-ref)/86400000/29.53059)%1;
+    if(Math.abs(phase)<0.02||Math.abs(phase)>0.98) e.classList.add('fm');
+    g.appendChild(e);
+  }
+}
+function shiftMonth(dir){calDate.setMonth(calDate.getMonth()+dir);renderCal()}
+
+// ── BUILD PAGE HELPERS ────────────────────────────────────────────────────────
+function preselectPlan(plan){showPage('build');setTimeout(()=>{document.getElementById('fplan').value=plan;document.getElementById('contact-form').scrollIntoView({behavior:'smooth'})},400)}
+function toggleFaq(el){el.parentElement.classList.toggle('open')}
+function submitForm(){
+  const name=document.getElementById('fname').value.trim();
+  const email=document.getElementById('femail').value.trim();
+  if(!name||!email){alert('Please fill in your name and email.');return}
+  const s=document.getElementById('fSuccess');
+  s.classList.add('show');
+  setTimeout(()=>s.classList.remove('show'),5000);
+}
+
+// ── BUY ME A COFFEE ───────────────────────────────────────────────────────────
+let bmcAmt='$3';
+function openBmc(){document.getElementById('bmcModal').classList.add('show')}
+function closeBmc(){document.getElementById('bmcModal').classList.remove('show')}
+function closeBmcOv(e){if(e.target===document.getElementById('bmcModal'))closeBmc()}
+function selCoffee(el,amt){bmcAmt=amt;document.querySelectorAll('.ca').forEach(c=>c.classList.remove('sel'));el.classList.add('sel');document.getElementById('bmcAmt').textContent=amt}
+function supportBmc(){alert(`Thank you so much! ☕\nYou chose: ${bmcAmt}\n\nIn production this links to: buymeacoffee.com/yourusername`);closeBmc()}
+
+function calcConversion(){
+  const t = document.getElementById('convTime').value;
+  const from = document.getElementById('convFrom').value;
+  const to = document.getElementById('convTo').value;
+  if(!t) return;
+  const [h,m] = t.split(':');
+  
+  const now = new Date();
+  const fromTz = new Date(now.toLocaleString('en-US',{timeZone:from}));
+  const toTz = new Date(now.toLocaleString('en-US',{timeZone:to}));
+  const diffMs = toTz - fromTz;
+  
+  const tempDate = new Date();
+  tempDate.setHours(parseInt(h), parseInt(m), 0, 0);
+  const resDate = new Date(tempDate.getTime() + diffMs);
+  
+  const fromName = document.getElementById('convFrom').options[document.getElementById('convFrom').selectedIndex].text.split(' (')[0];
+  const toName = document.getElementById('convTo').options[document.getElementById('convTo').selectedIndex].text.split(' (')[0];
+  
+  const dt1 = new Date(tempDate.getFullYear(), tempDate.getMonth(), tempDate.getDate());
+  const dt2 = new Date(resDate.getFullYear(), resDate.getMonth(), resDate.getDate());
+  const diffDays = Math.round((dt2 - dt1)/86400000);
+  let dayStr = '';
+  if(diffDays === 1) dayStr = ' (Next day)';
+  if(diffDays === -1) dayStr = ' (Prev day)';
+
+  document.getElementById('convResult').innerHTML = `${t} in ${fromName} is <span style="color:var(--accent);font-family:var(--mono)">${pad(resDate.getHours())}:${pad(resDate.getMinutes())}</span> in ${toName}${dayStr}`;
+}
+
+// ── INIT ─────────────────────────────────────────────────────────────────────
+buildCities();
+renderCal();tick();calcConversion();setInterval(tick,1000);
+</script>
+<div class="ad-sticky">Advertisement (Mobile Anchor / Desktop Bottom)</div>
+</body>
+</html>
