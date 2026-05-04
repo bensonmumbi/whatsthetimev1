@@ -28,23 +28,29 @@ nav a:hover{background:var(--fg);color:#fff}
 nav a.active{background:var(--accent);color:#fff}
 
 /* ── PAGE 1: TIME ── */
+.hero{background:#f8d7da;padding:40px;position:relative;overflow:hidden;border-bottom:1px solid #000;min-height:95vh;display:flex;flex-direction:column;justify-content:space-between;gap:20px}
+.hero-top{display:flex;justify-content:flex-end}
+.tag-box{border:1px solid #000;padding:8px 24px;font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:1px;background:rgba(255,255,255,0.3)}
+.hero-mid{display:flex;align-items:center;justify-content:center;flex:1}
+.main-box{border:1px solid #000;padding:40px;width:100%;max-width:1200px;text-align:left;position:relative;background:transparent;display:flex;flex-direction:column;min-height:400px;justify-content:space-between}
+.main-box .m-top{font-size:14px;font-weight:700;text-transform:uppercase;letter-spacing:1px;color:#000}
+.main-box h1{font-family:var(--display);font-size:clamp(60px,16vw,200px);letter-spacing:-6px;line-height:0.75;color:#1a1a2e;text-transform:uppercase;font-weight:900;margin:20px 0}
+.main-box .m-btm{font-family:var(--mono);font-size:14px;font-weight:700;color:#000;border:1px solid #000;padding:6px 12px;width:fit-content}
+.hero-btm{display:flex;justify-content:space-between;align-items:stretch;width:100%;gap:0}
+.btm-info{display:flex;gap:0;flex:1}
+.info-sq{border:1px solid #000;padding:20px;width:200px;background:transparent;margin-right:-1px;display:flex;align-items:center}
+.info-sq p{font-size:12px;line-height:1.4;color:#1a1a2e;font-weight:500}
+.ad-slot{border:1px solid #000;flex:2;margin-right:-1px;display:flex;align-items:center;justify-content:center;font-size:10px;text-transform:uppercase;letter-spacing:2px;color:rgba(0,0,0,0.3);background:rgba(255,255,255,0.1)}
+.hero-cta-btn{background:#059669;color:#fff;border:1px solid #000;padding:16px 40px;font-size:12px;font-weight:700;text-transform:uppercase;letter-spacing:1px;cursor:pointer;white-space:nowrap}
+.hero-cta-btn:hover{background:#047857}
+.hero-tz-strip{display:flex;justify-content:center;width:100%;max-width:1200px;margin:0 auto;border:1px solid #000;border-top:none;background:rgba(255,255,255,0.4)}
+.hero-tz-item{flex:1;text-align:center;padding:14px 10px;border-right:1px solid #000;position:relative}
+.hero-tz-item:last-child{border-right:none}
+.hero-tz-item .tz-city{font-size:13px;font-weight:700;color:#1a1a2e;text-transform:uppercase;letter-spacing:.5px;margin-bottom:2px}
+.hero-tz-item .tz-time{font-family:var(--mono);font-size:20px;font-weight:300;color:#555;letter-spacing:-0.5px}
+@media(max-width:640px){.hero-tz-strip{flex-wrap:wrap}.hero-tz-item{flex:1 1 33%;border-bottom:1px solid #000}.hero-tz-item:nth-child(3){border-right:none}}
+
 #page-time main{max-width:900px;margin:0 auto;padding:0 24px 60px}
-.hero{position:relative;display:flex;flex-direction:column;align-items:center;color:var(--fg);border:none;width:100%;overflow:hidden;background:#fff}
-.hero-inner{max-width:900px;width:100%;margin:0 auto;padding:90px 24px 70px;display:flex;flex-direction:column;align-items:center;position:relative;z-index:1}
-.hero::before{content:'';position:absolute;inset:0;background:linear-gradient(135deg,rgba(255,255,255,0.95),rgba(232,38,30,0.05)),url('nw.svg') no-repeat center center;background-size:cover;opacity:.4;z-index:0;filter:brightness(1.1) grayscale(0.8)}
-.hero::after{content:'';position:absolute;bottom:0;left:0;width:100%;height:1px;background:linear-gradient(to right,transparent,var(--accent),transparent);opacity:0.3}
-.loc-label{font-size:12.5px;color:var(--fg-muted);margin-bottom:10px;display:flex;align-items:center;gap:6px;font-weight:500;text-transform:uppercase;letter-spacing:1px}
-.loc-label svg{width:14px;height:14px;color:var(--accent)}
-#clock{font-family:var(--mono);font-size:clamp(52px,11vw,120px);font-weight:300;letter-spacing:-4px;line-height:0.9;user-select:none;color:#000;margin:10px 0}
-#clock .sep{animation:blink 1s step-end infinite;color:var(--accent)}
-@keyframes blink{0%,100%{opacity:1}50%{opacity:.2}}
-.date-disp{font-size:17px;font-weight:500;color:var(--fg-subtle);margin-top:5px;letter-spacing:0.5px}
-.tz-row{display:flex;align-items:center;gap:12px;margin-top:22px}
-.tz-badge{background:#fff;border:1px solid var(--border);color:var(--fg);border-radius:6px;padding:4px 12px;font-family:var(--mono);font-size:12.5px;box-shadow:0 2px 10px rgba(0,0,0,0.03)}
-.utc-off{font-family:var(--mono);font-size:12.5px;color:var(--accent);background:rgba(232,38,30,0.05);border:1px solid var(--accent);border-radius:6px;padding:4px 12px;font-weight:600}
-.acc-row{margin-top:20px;display:flex;align-items:center;gap:8px;font-size:12px;color:var(--fg-subtle);font-weight:500}
-.dot{width:8px;height:8px;border-radius:50%;background:#22c55e;animation:pulse 2s infinite}
-@keyframes pulse{0%,100%{box-shadow:0 0 0 0 rgba(34,197,94,.4)}50%{box-shadow:0 0 0 5px rgba(34,197,94,0)}}
 .t-section{padding:28px 0;border-bottom:1px solid var(--border)}
 .sec-title{font-size:11px;font-weight:600;text-transform:uppercase;letter-spacing:.9px;color:var(--fg-subtle);margin-bottom:16px}
 .info-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(185px,1fr));gap:1px;background:var(--border);border:1px solid var(--border);border-radius:8px;overflow:hidden}
@@ -86,16 +92,17 @@ nav a.active{background:var(--accent);color:#fff}
 
 /* ── PAGE 3: BUILD ── */
 #page-build{background:var(--bg)}
-.bld-hero{background:var(--dark);padding:76px 28px 66px;text-align:center;position:relative;overflow:hidden}
-.bld-hero::after{content:'';position:absolute;inset:0;background:radial-gradient(ellipse 60% 60% at 50% 100%,rgba(232,38,30,.18),transparent);pointer-events:none}
-.bld-hero h1{font-family:var(--display);font-size:clamp(44px,6.5vw,76px);letter-spacing:2px;line-height:.95;color:#fff;margin-bottom:14px;position:relative;z-index:1}
+.bld-hero{background:var(--bg);padding:100px 24px 90px;text-align:center;position:relative;overflow:hidden;border-bottom:1px solid var(--border)}
+.bld-hero::before{content:'';position:absolute;inset:0;background:url('build_page_bg.png') no-repeat center center;background-size:cover;opacity:0.4;z-index:0;filter:grayscale(1) brightness(1.1)}
+.bld-hero::after{content:'';position:absolute;inset:0;background:radial-gradient(circle at 50% 50%, rgba(255,255,255,0.9) 0%, rgba(255,255,255,0.2) 70%, transparent 100%);z-index:1;pointer-events:none}
+.bld-hero h1{font-family:var(--display);font-size:clamp(44px,7vw,82px);letter-spacing:1px;line-height:.9;color:var(--fg);margin-bottom:18px;position:relative;z-index:2}
 .bld-hero h1 em{font-style:normal;color:var(--accent)}
-.bld-hero p{font-size:15px;color:rgba(255,255,255,.5);max-width:460px;margin:0 auto 34px;line-height:1.7;position:relative;z-index:1}
+.bld-hero p{font-size:15px;color:var(--fg-muted);max-width:460px;margin:0 auto 34px;line-height:1.7;position:relative;z-index:1}
 .hero-btns{display:flex;gap:12px;justify-content:center;flex-wrap:wrap;position:relative;z-index:1}
 .btn-pri{background:var(--accent);color:#fff;border:none;border-radius:10px;padding:13px 26px;font-size:14px;font-weight:600;cursor:pointer;font-family:var(--sans);transition:all .15s}
 .btn-pri:hover{background:#c01f18;transform:translateY(-1px)}
-.btn-out{background:transparent;color:#fff;border:1px solid rgba(255,255,255,.25);border-radius:10px;padding:13px 26px;font-size:14px;font-weight:600;cursor:pointer;font-family:var(--sans);transition:all .15s}
-.btn-out:hover{border-color:#fff;background:rgba(255,255,255,.06)}
+.btn-out{background:transparent;color:var(--fg);border:1px solid var(--border);border-radius:10px;padding:13px 26px;font-size:14px;font-weight:600;cursor:pointer;font-family:var(--sans);transition:all .15s}
+.btn-out:hover{border-color:var(--fg);background:rgba(0,0,0,.03)}
 .bld-body{max-width:1000px;margin:0 auto;padding:56px 24px}
 .sec-lbl{font-size:11px;font-weight:600;text-transform:uppercase;letter-spacing:1px;color:var(--accent);margin-bottom:8px}
 .sec-hd{font-family:var(--display);font-size:clamp(32px,4vw,48px);letter-spacing:1px;color:var(--fg);margin-bottom:12px;line-height:1}
@@ -223,21 +230,52 @@ nav a.active{background:var(--accent);color:#fff}
 
 <!-- ══ TIME PAGE ══ -->
 <div id="page-time" class="page active">
-  <section class="hero">
-    <div class="hero-inner">
-      <div class="loc-label">
-        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0118 0z"/><circle cx="12" cy="10" r="3"/></svg>
-        <span id="locLabel">Detecting…</span>
-      </div>
-      <div id="clock"><span id="hh">00</span><span class="sep">:</span><span id="mm">00</span><span class="sep">:</span><span id="ss">00</span></div>
-      <div class="date-disp" id="datDisp">—</div>
-      <div class="tz-row"><span class="tz-badge" id="tzName">—</span><span class="utc-off" id="utcOff">UTC+0</span></div>
-      <div class="acc-row"><div class="dot"></div><span>Your clock is accurate</span></div>
-
-      <div class="ad-banner">Advertisement (728x90)</div>
+  <div class="hero">
+    <div class="hero-top">
+      <div class="tag-box">STAY AHEAD OF TIME</div>
     </div>
-  </section>
-<main>
+    
+    <div class="hero-mid">
+      <div class="main-box">
+        <div class="m-top" id="datDisp">MONDAY, JANUARY 1, 2024</div>
+        <h1 id="mainClock">00:00:00</h1>
+        <div class="m-btm">
+          <span id="mainCityName" style="font-weight:900;text-transform:uppercase;margin-right:15px;letter-spacing:1px"></span>
+          <span id="tzName" style="background:#000;color:#fff;padding:4px 10px;margin-right:10px;font-size:12px;border-radius:4px"></span>
+          <span id="utcOff" style="opacity:0.6">UTC+00:00</span>
+        </div>
+      </div>
+    </div>
+
+    <div class="hero-tz-strip" id="heroTzStrip">
+      <div class="hero-tz-item"><div class="tz-city">Los Angeles</div><div class="tz-time" data-hero-tz="America/Los_Angeles">--:--</div></div>
+      <div class="hero-tz-item"><div class="tz-city">New York</div><div class="tz-time" data-hero-tz="America/New_York">--:--</div></div>
+      <div class="hero-tz-item"><div class="tz-city">London</div><div class="tz-time" data-hero-tz="Europe/London">--:--</div></div>
+      <div class="hero-tz-item"><div class="tz-city">Paris</div><div class="tz-time" data-hero-tz="Europe/Paris">--:--</div></div>
+      <div class="hero-tz-item"><div class="tz-city">Beijing</div><div class="tz-time" data-hero-tz="Asia/Shanghai">--:--</div></div>
+      <div class="hero-tz-item"><div class="tz-city">Tokyo</div><div class="tz-time" data-hero-tz="Asia/Tokyo">--:--</div></div>
+    </div>
+
+    <!-- Ad slot: hero leaderboard (728x90) -->
+    <div style="width:100%;max-width:1200px;margin:0 auto;border:1px solid #000;border-top:none;padding:16px 0;display:flex;align-items:center;justify-content:center;background:rgba(255,255,255,0.3)">
+      <div style="width:728px;max-width:100%;height:90px;border:1px dashed rgba(0,0,0,0.2);display:flex;align-items:center;justify-content:center;font-size:10px;text-transform:uppercase;letter-spacing:2px;color:rgba(0,0,0,0.3);border-radius:4px">Advertisement (728×90)</div>
+    </div>
+    
+    <div class="hero-btm">
+      <div class="btm-info">
+        <div class="info-sq">
+          <p>You are in <span id="mainCity" style="font-weight:700">...</span>. Atomic sync active.</p>
+        </div>
+        <div class="info-sq">
+          <p>Global markets: <span style="font-weight:700">ACTIVE</span>.</p>
+        </div>
+      </div>
+      <div class="ad-slot">Advertisement (728x90)</div>
+      <button class="hero-cta-btn" onclick="scrollTo2('timezone-converter')">Browse Times</button>
+    </div>
+  </div>
+  
+  <main>
   <section class="t-section">
     <div class="sec-title">Current Time Details</div>
     <div class="info-grid">
@@ -267,14 +305,6 @@ nav a.active{background:var(--accent);color:#fff}
         <button class="cal-nav-btn" onclick="shiftMonth(1)">›</button>
       </div>
       <div class="cal-grid" id="calGrid"></div>
-    </div>
-  </section>
-  <section class="t-section">
-    <div class="sec-title">Recommended Watches (Affiliate)</div>
-    <div class="cities-grid">
-      <div class="city-card native-ad"><div class="ad-tag">Amazon</div><div class="city-name" style="color:var(--fg)">Casio F91W-1</div><div class="city-time" style="font-size:14px;margin-top:4px;color:var(--accent)">$15.99 →</div></div>
-      <div class="city-card native-ad"><div class="ad-tag">Amazon</div><div class="city-name" style="color:var(--fg)">Seiko 5 Automatic</div><div class="city-time" style="font-size:14px;margin-top:4px;color:var(--accent)">$120.00 →</div></div>
-      <div class="city-card native-ad"><div class="ad-tag">Apple</div><div class="city-name" style="color:var(--fg)">Apple Watch SE</div><div class="city-time" style="font-size:14px;margin-top:4px;color:var(--accent)">$249.00 →</div></div>
     </div>
   </section>
   <section class="t-section" style="border-bottom:none">
@@ -440,24 +470,23 @@ nav a.active{background:var(--accent);color:#fff}
       <div class="sec-hd">GET A FREE QUOTE</div>
       <div class="sec-sub">Tell me about your project. I'll reply within 24 hours.</div>
     </div>
-    <div class="cbox">
-      <div class="f-row">
-        <div class="fg"><label>Your Name</label><input type="text" id="fname" placeholder="John Doe"/></div>
-        <div class="fg"><label>Email</label><input type="email" id="femail" placeholder="you@email.com"/></div>
-      </div>
-      <div class="fg"><label>Plan / Budget</label>
-        <select id="fplan">
-          <option value="">Select a plan...</option>
-          <option>Starter — $500 + $399/mo</option>
-          <option>Pro — $1500 + $599/mo</option>
-          <option>Business — $3500 + $999/mo</option>
-          <option>Custom / Not sure yet</option>
-        </select>
-      </div>
-      <div class="fg"><label>Tell me about your project</label><textarea id="fmsg" placeholder="e.g. I want a clock site with a merch page and AdSense, similar to what I saw here..."></textarea></div>
-      <button class="btn-pri" style="width:100%;padding:13px;font-size:14px" onclick="submitForm()">Send Message 🚀</button>
-      <div class="f-success" id="fSuccess">✅ Message sent! I'll reply within 24 hours.</div>
-    </div>
+      <form action="https://formspree.io/f/YOUR_ID_HERE" method="POST" id="form-actual">
+        <div class="f-row">
+          <div class="fg"><label>Your Name</label><input type="text" name="name" id="fname" placeholder="John Doe" required/></div>
+          <div class="fg"><label>Email</label><input type="email" name="email" id="femail" placeholder="you@email.com" required/></div>
+        </div>
+        <div class="fg"><label>Plan / Budget</label>
+          <select name="plan" id="fplan">
+            <option value="">Select a plan...</option>
+            <option>Starter — $500 + $399/mo</option>
+            <option>Pro — $1500 + $599/mo</option>
+            <option>Business — $3500 + $999/mo</option>
+            <option>Custom / Not sure yet</option>
+          </select>
+        </div>
+        <div class="fg"><label>Tell me about your project</label><textarea name="message" id="fmsg" placeholder="e.g. I want a clock site with a merch page and AdSense..."></textarea></div>
+        <button type="submit" class="btn-pri" style="width:100%;padding:13px;font-size:14px">Send Message 🚀</button>
+      </form>
   </div>
 </div>
 
@@ -523,15 +552,36 @@ nav a.active{background:var(--accent);color:#fff}
   <div class="modal">
     <button class="m-close" onclick="closeBmc()">×</button>
     <div style="font-size:42px;margin-bottom:8px">☕</div>
-    <h2>BUY ME A COFFEE</h2>
-    <p>If this site helped you, consider supporting my work. Every coffee keeps the code flowing!</p>
-    <div class="ca-grid">
-      <div class="ca sel" onclick="selCoffee(this,'$3')"><div class="ca-icon">☕</div><div class="ca-lbl">1 Coffee</div><div class="ca-price">$3</div></div>
-      <div class="ca" onclick="selCoffee(this,'$9')"><div class="ca-icon">☕☕☕</div><div class="ca-lbl">3 Coffees</div><div class="ca-price">$9</div></div>
-      <div class="ca" onclick="selCoffee(this,'$18')"><div class="ca-icon">🎉</div><div class="ca-lbl">Big Thanks</div><div class="ca-price">$18</div></div>
+    <h2>SUPPORT MY WORK</h2>
+    <p>Every coffee keeps the site running and free for everyone!</p>
+    
+    <div style="margin-bottom:20px">
+      <label style="font-size:11px;text-transform:uppercase;color:var(--fg-subtle);display:block;margin-bottom:8px">Select Currency</label>
+      <select id="bmcCurr" style="width:100%;padding:8px;border-radius:6px;border:1px solid var(--border)" onchange="updateBmcCur()">
+        <option value="$">USD — US Dollar ($)</option>
+        <option value="€">EUR — Euro (€)</option>
+        <option value="£">GBP — British Pound (£)</option>
+        <option value="¥">JPY — Japanese Yen (¥)</option>
+        <option value="C$">CAD — Canadian Dollar (C$)</option>
+      </select>
     </div>
-    <button class="bmc-sbtn" onclick="supportBmc()">Support — <span id="bmcAmt">$3</span></button>
-    <div class="m-note">Redirects to a secure payment page. Thank you so much! 🙏</div>
+
+    <div class="ca-grid">
+      <div class="ca sel" onclick="selCoffee(this,5)"><div class="ca-icon">☕</div><div class="ca-lbl">1 Coffee</div><div class="ca-price"><span class="cur">$</span>5</div></div>
+      <div class="ca" onclick="selCoffee(this,10)"><div class="ca-icon">☕☕</div><div class="ca-lbl">2 Coffees</div><div class="ca-price"><span class="cur">$</span>10</div></div>
+      <div class="ca" onclick="selCoffee(this,20)"><div class="ca-icon">🎉</div><div class="ca-lbl">Big Support</div><div class="ca-price"><span class="cur">$</span>20</div></div>
+    </div>
+    
+    <div style="margin:20px 0">
+      <label style="font-size:11px;text-transform:uppercase;color:var(--fg-subtle);display:block;margin-bottom:8px">Custom Amount (Min <span class="cur">$</span>5)</label>
+      <div style="position:relative">
+        <span class="cur" style="position:absolute;left:12px;top:50%;transform:translateY(-50%);font-weight:600">$</span>
+        <input type="number" id="bmcCustom" min="5" placeholder="Enter amount" style="width:100%;padding:10px 10px 10px 30px;border-radius:6px;border:1px solid var(--border);font-family:var(--mono)" oninput="useCustomBmc(this.value)">
+      </div>
+    </div>
+
+    <button class="bmc-sbtn" onclick="supportBmc()">Support — <span id="bmcAmtDisplay">$5</span></button>
+    <div class="m-note">Payments are secure and encrypted. Thank you! 🙏</div>
   </div>
 </div>
 
@@ -562,31 +612,48 @@ function scrollTo2(id){
 
 // ── CLOCK ────────────────────────────────────────────────────────────────────
 const TZ=Intl.DateTimeFormat().resolvedOptions().timeZone;
-document.getElementById('locLabel').textContent=TZ.split('/').pop().replace(/_/g,' ');
-document.getElementById('tzFull').textContent=TZ;
+const mainCityEl = document.getElementById('mainCity');
+const cityName = TZ.split('/').pop().replace(/_/g,' ');
+if(mainCityEl) mainCityEl.textContent = cityName;
+const mainCityNameEl = document.getElementById('mainCityName');
+if(mainCityNameEl) mainCityNameEl.textContent = cityName;
+const tzFullEl = document.getElementById('tzFull');
+if(tzFullEl) tzFullEl.textContent = TZ;
 function pad(n){return String(n).padStart(2,'0')}
 function weekNum(d){const dt=new Date(Date.UTC(d.getFullYear(),d.getMonth(),d.getDate()));dt.setUTCDate(dt.getUTCDate()+4-(dt.getUTCDay()||7));const ys=new Date(Date.UTC(dt.getUTCFullYear(),0,1));return Math.ceil((((dt-ys)/86400000)+1)/7)}
 function doy(d){return Math.floor((d-new Date(d.getFullYear(),0,0))/86400000)}
 function utcOff(tz){try{const n=new Date(),u=new Date(n.toLocaleString('en-US',{timeZone:'UTC'})),l=new Date(n.toLocaleString('en-US',{timeZone:tz}));const df=(l-u)/3600000,h=Math.floor(Math.abs(df)),m=Math.round((Math.abs(df)-h)*60);return`UTC${df>=0?'+':'-'}${pad(h)}:${pad(m)}`}catch{return'UTC'}}
 function tick(){
   const n=new Date();
-  document.getElementById('hh').textContent=pad(n.getHours());
-  document.getElementById('mm').textContent=pad(n.getMinutes());
-  document.getElementById('ss').textContent=pad(n.getSeconds());
+  const mainClockEl = document.getElementById('mainClock');
+  if(mainClockEl) mainClockEl.textContent = `${pad(n.getHours())}:${pad(n.getMinutes())}:${pad(n.getSeconds())}`;
+  
+  // Update detail IDs if they exist
+  const hh = document.getElementById('hh'), mm = document.getElementById('mm'), ss = document.getElementById('ss');
+  if(hh) hh.textContent=pad(n.getHours());
+  if(mm) mm.textContent=pad(n.getMinutes());
+  if(ss) ss.textContent=pad(n.getSeconds());
+
   const D=['Sunday','Monday','Tuesday','Wednesday','Thursday','Friday','Saturday'];
   const M=['January','February','March','April','May','June','July','August','September','October','November','December'];
-  document.getElementById('datDisp').textContent=`${D[n.getDay()]}, ${M[n.getMonth()]} ${n.getDate()}, ${n.getFullYear()}`;
+  const datDisp = document.getElementById('datDisp');
+  if(datDisp) datDisp.textContent=`${D[n.getDay()]}, ${M[n.getMonth()]} ${n.getDate()}, ${n.getFullYear()}`;
+
   const tzs=new Intl.DateTimeFormat('en-US',{timeZoneName:'short'}).formatToParts(n).find(p=>p.type==='timeZoneName')?.value||'';
-  document.getElementById('tzName').textContent=tzs;
-  document.getElementById('utcOff').textContent=utcOff(TZ);
+  const tzName = document.getElementById('tzName');
+  if(tzName) tzName.textContent=tzs;
+  const utcOffEl = document.getElementById('utcOff');
+  if(utcOffEl) utcOffEl.textContent=utcOff(TZ);
   document.getElementById('unixTs').textContent=Math.floor(n/1000).toLocaleString();
   document.getElementById('weekNum').textContent='Week '+weekNum(n);
   document.getElementById('doy').textContent=doy(n)+' / 365';
   document.getElementById('qtr').textContent='Q'+(Math.floor(n.getMonth()/3)+1);
   document.getElementById('isoD').textContent=n.toISOString().slice(0,19).replace('T',' ');
   updateCities();
+  updateHeroTz();
 }
 function cityTime(tz){const n=new Date();const p=new Intl.DateTimeFormat('en-US',{timeZone:tz,hour:'2-digit',minute:'2-digit',hour12:false}).formatToParts(n);return{h:p.find(x=>x.type==='hour')?.value||'00',m:p.find(x=>x.type==='minute')?.value||'00'}}
+function updateHeroTz(){document.querySelectorAll('.tz-time[data-hero-tz]').forEach(el=>{const{h,m}=cityTime(el.dataset.heroTz);el.textContent=`${h}:${m}`})}
 
 // ── WORLD CITIES ─────────────────────────────────────────────────────────────
 const CITIES=[
@@ -609,10 +676,6 @@ const CITIES=[
 ];
 
 function buildCities(){const g=document.getElementById('citiesGrid');g.innerHTML='';
-  // Native Ad
-  const adCard=document.createElement('div');adCard.className='city-card native-ad';
-  adCard.innerHTML=`<div class="ad-tag">Sponsored</div><div class="city-name" style="color:#b45309">Casio G-Shock</div><div class="city-time" style="font-size:14px;margin-top:4px;color:#92400e">Shop Now →</div>`;
-  g.appendChild(adCard);
   CITIES.forEach(c=>{const{h,m}=cityTime(c.tz);const el=document.createElement('div');el.className='city-card';el.innerHTML=`<div class="city-name">${c.name}</div><div class="city-time" data-tz="${c.tz}">${h}:${m}</div><div class="city-off">${utcOff(c.tz)}</div>`;g.appendChild(el)})
 }
 function updateCities(){document.querySelectorAll('.city-time[data-tz]').forEach(el=>{const{h,m}=cityTime(el.dataset.tz);el.textContent=`${h}:${m}`});}
@@ -656,12 +719,35 @@ function submitForm(){
 }
 
 // ── BUY ME A COFFEE ───────────────────────────────────────────────────────────
-let bmcAmt='$3';
+let bmcVal=5, bmcCur='$';
 function openBmc(){document.getElementById('bmcModal').classList.add('show')}
 function closeBmc(){document.getElementById('bmcModal').classList.remove('show')}
 function closeBmcOv(e){if(e.target===document.getElementById('bmcModal'))closeBmc()}
-function selCoffee(el,amt){bmcAmt=amt;document.querySelectorAll('.ca').forEach(c=>c.classList.remove('sel'));el.classList.add('sel');document.getElementById('bmcAmt').textContent=amt}
-function supportBmc(){alert(`Thank you so much! ☕\nYou chose: ${bmcAmt}\n\nIn production this links to: buymeacoffee.com/yourusername`);closeBmc()}
+function updateBmcCur(){
+  bmcCur=document.getElementById('bmcCurr').value;
+  document.querySelectorAll('.cur').forEach(el=>el.textContent=bmcCur);
+  updateBmcDisplay();
+}
+function selCoffee(el,val){
+  bmcVal=val;
+  document.querySelectorAll('.ca').forEach(c=>c.classList.remove('sel'));
+  el.classList.add('sel');
+  document.getElementById('bmcCustom').value='';
+  updateBmcDisplay();
+}
+function useCustomBmc(val){
+  if(val && val >= 5){
+    bmcVal=val;
+    document.querySelectorAll('.ca').forEach(c=>c.classList.remove('sel'));
+    updateBmcDisplay();
+  }
+}
+function updateBmcDisplay(){document.getElementById('bmcAmtDisplay').textContent=bmcCur+bmcVal}
+function supportBmc(){
+  if(bmcVal < 5){alert(`Minimum support is ${bmcCur}5. Thank you!`);return}
+  alert(`Thank you so much! ☕\nYour support: ${bmcCur}${bmcVal}\n\nRedirecting to secure payment page...`);
+  closeBmc();
+}
 
 function calcConversion(){
   const t = document.getElementById('convTime').value;
