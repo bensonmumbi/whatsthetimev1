@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8"/>
 <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-<title>whatsthetime.com — Exact time & web services</title>
+<title>whatsthetimeworld.com — Exact time & web services</title>
 <link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=DM+Sans:wght@300;400;500;600&family=JetBrains+Mono:wght@300;400;600&display=swap" rel="stylesheet"/>
 <style>
 *,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
@@ -310,9 +310,9 @@ nav a.active{background:var(--accent);color:#fff}
   <section class="t-section" style="border-bottom:none">
     <div class="sec-title">Embed this clock</div>
     <p style="font-size:12px;color:var(--fg-muted);margin-bottom:8px">Copy the code below to add a free timezone clock widget to your site.</p>
-    <textarea readonly style="width:100%;height:60px;background:var(--surface);border:1px solid var(--border);border-radius:8px;padding:10px;font-family:var(--mono);font-size:11px;color:var(--fg-subtle)" onclick="this.select()"><iframe src="https://whatsthetime.com/widget" width="300" height="150" style="border:none;border-radius:8px"></iframe></textarea>
+    <textarea readonly style="width:100%;height:60px;background:var(--surface);border:1px solid var(--border);border-radius:8px;padding:10px;font-family:var(--mono);font-size:11px;color:var(--fg-subtle)" onclick="this.select()"><iframe src="https://whatsthetimeworld.com/widget" width="300" height="150" style="border:none;border-radius:8px"></iframe></textarea>
     <div style="margin-top:12px;background:#fffbeb;border:1px solid #fcd34d;padding:14px;border-radius:8px;font-size:12px;display:flex;align-items:center;justify-content:space-between">
-      <div><strong>Want an ad-free, white-label version?</strong><br/><span style="color:var(--fg-muted)">Remove the "Powered by whatsthetime.com" branding for a $5/mo fee.</span></div>
+      <div><strong>Want an ad-free, white-label version?</strong><br/><span style="color:var(--fg-muted)">Remove the "Powered by whatsthetimeworld.com" branding for a $5/mo fee.</span></div>
       <button class="btn-pri" style="padding:6px 12px;font-size:11px;color:#000;background:#fcd34d" onclick="scrollTo2('contact-form')">Get White-Label</button>
     </div>
   </section>
@@ -468,9 +468,9 @@ nav a.active{background:var(--accent);color:#fff}
     <div id="contact-form">
       <div class="sec-lbl">Contact</div>
       <div class="sec-hd">GET A FREE QUOTE</div>
-      <div class="sec-sub">Tell me about your project. I'll reply within 24 hours.</div>
+      <div class="sec-sub">Tell me about your project or email us at <a href="mailto:support@whatsthetimeworld.com" style="color:var(--accent);text-decoration:none;font-weight:600">support@whatsthetimeworld.com</a>. I'll reply within 24 hours.</div>
     </div>
-      <form action="https://formspree.io/f/YOUR_ID_HERE" method="POST" id="form-actual">
+      <form action="send_email.php" method="POST" id="form-actual">
         <div class="f-row">
           <div class="fg"><label>Your Name</label><input type="text" name="name" id="fname" placeholder="John Doe" required/></div>
           <div class="fg"><label>Email</label><input type="email" name="email" id="femail" placeholder="you@email.com" required/></div>
@@ -495,7 +495,7 @@ nav a.active{background:var(--accent);color:#fff}
     <div class="sec-lbl">Legal</div>
     <div class="sec-hd">PRIVACY POLICY</div>
     <p>Last updated: April 24, 2026</p>
-    <p>At whatsthetime.com, we prioritize your privacy. This policy explains how we handle your information when you use our clock tools and web development services.</p>
+    <p>At whatsthetimeworld.com, we prioritize your privacy. This policy explains how we handle your information when you use our clock tools and web development services.</p>
     
     <h2>1. Information We Collect</h2>
     <p>We do not require user accounts to use our clock tools. However, we may collect:</p>
@@ -525,7 +525,7 @@ nav a.active{background:var(--accent);color:#fff}
     <div class="sec-lbl">Legal</div>
     <div class="sec-hd">TERMS OF USE</div>
     <p>Last updated: April 24, 2026</p>
-    <p>By accessing whatsthetime.com, you agree to the following terms and conditions.</p>
+    <p>By accessing whatsthetimeworld.com, you agree to the following terms and conditions.</p>
 
     <h2>1. Acceptance of Terms</h2>
     <p>By using this website, you confirm that you have read, understood, and agreed to be bound by these Terms of Use.</p>
@@ -534,7 +534,7 @@ nav a.active{background:var(--accent);color:#fff}
     <p>The time data provided is for informational purposes only. While we strive for 100% accuracy, we are not responsible for any losses or damages resulting from inaccurate time data.</p>
 
     <h2>3. Intellectual Property</h2>
-    <p>The design, code, and content of whatsthetime.com are owned by us. You may not copy, reproduce, or distribute any part of this site without express written permission.</p>
+    <p>The design, code, and content of whatsthetimeworld.com are owned by us. You may not copy, reproduce, or distribute any part of this site without express written permission.</p>
 
     <h2>4. External Links</h2>
     <p>Our site contains links to external websites (like Hostinger or Shopify). We are not responsible for the content or privacy practices of these third-party sites.</p>
@@ -586,7 +586,7 @@ nav a.active{background:var(--accent);color:#fff}
 </div>
 
 <footer class="site-foot">
-  <span>© 2026 whatsthetime.com</span>
+  <span>© 2026 whatsthetimeworld.com</span>
   <a onclick="showPage('time')">Time</a>
   <a onclick="showPage('build')">Build Your Site</a>
   <a onclick="showPage('privacy')">Privacy Policy</a>
@@ -781,6 +781,14 @@ function calcConversion(){
 // ── INIT ─────────────────────────────────────────────────────────────────────
 buildCities();
 renderCal();tick();calcConversion();setInterval(tick,1000);
+
+// Check for form status in URL
+const urlParams = new URLSearchParams(window.location.search);
+if (urlParams.get('status') === 'success') {
+    alert('Thank you! Your message has been sent successfully. We will get back to you soon.');
+} else if (urlParams.get('status') === 'error') {
+    alert('Oops! Something went wrong and we couldn\'t send your message. Please try again later.');
+}
 </script>
 <div class="ad-sticky">Advertisement (Mobile Anchor / Desktop Bottom)</div>
 </body>
