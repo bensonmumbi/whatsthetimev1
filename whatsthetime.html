@@ -217,7 +217,7 @@ nav a.active{background:var(--accent);color:#fff}
 <body>
 
 <header>
-  <button class="logo" onclick="showPage('time')"><span style="color:var(--fg)">WHATS</span><span style="color:var(--accent)">THE</span><span style="color:var(--fg)">TIME</span></button>
+  <button class="logo" onclick="showPage('time')" aria-label="Go to world clock"><span style="color:var(--fg)">WHATS</span><span style="color:var(--accent)">THE</span><span style="color:var(--fg)">TIME</span></button>
   <nav>
     <a onclick="showPage('time')" id="nav-time" class="active">
       <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" style="width:16px;height:16px"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg> Time
@@ -300,9 +300,9 @@ nav a.active{background:var(--accent);color:#fff}
     <div class="sec-title">Calendar — <span id="calMonLbl"></span></div>
     <div class="mini-cal">
       <div class="cal-hdr">
-        <button class="cal-nav-btn" onclick="shiftMonth(-1)">‹</button>
+        <button class="cal-nav-btn" onclick="shiftMonth(-1)" aria-label="Previous month">‹</button>
         <span id="calTitle" style="font-size:13px;font-weight:600"></span>
-        <button class="cal-nav-btn" onclick="shiftMonth(1)">›</button>
+        <button class="cal-nav-btn" onclick="shiftMonth(1)" aria-label="Next month">›</button>
       </div>
       <div class="cal-grid" id="calGrid"></div>
     </div>
@@ -334,7 +334,7 @@ nav a.active{background:var(--accent);color:#fff}
           </select>
         </div>
       </div>
-      <div style="font-size:20px;color:var(--fg-subtle);margin-top:20px;text-align:center">→</div>
+      <button class="cal-nav-btn" aria-label="Swap timezones" onclick="swapConverter()" style="margin-top:20px;flex-shrink:0">⇄</button>
       <div style="flex:1;min-width:200px">
         <label style="font-size:11px;font-weight:600;text-transform:uppercase;color:var(--fg-muted);display:block;margin-bottom:6px">To</label>
         <select id="convTo" onchange="calcConversion()" style="width:100%;background:var(--bg);border:1px solid var(--border);border-radius:8px;padding:8px 12px;font-family:var(--sans);font-size:13px;color:var(--fg);outline:none">
@@ -472,10 +472,10 @@ nav a.active{background:var(--accent);color:#fff}
     </div>
       <form action="send_email.php" method="POST" id="form-actual">
         <div class="f-row">
-          <div class="fg"><label>Your Name</label><input type="text" name="name" id="fname" placeholder="John Doe" required/></div>
-          <div class="fg"><label>Email</label><input type="email" name="email" id="femail" placeholder="you@email.com" required/></div>
+          <div class="fg"><label for="fname">Your Name</label><input type="text" name="name" id="fname" placeholder="John Doe" required/></div>
+          <div class="fg"><label for="femail">Email</label><input type="email" name="email" id="femail" placeholder="you@email.com" required/></div>
         </div>
-        <div class="fg"><label>Plan / Budget</label>
+        <div class="fg"><label for="fplan">Plan / Budget</label>
           <select name="plan" id="fplan">
             <option value="">Select a plan...</option>
             <option>Starter — $500 + $399/mo</option>
@@ -484,7 +484,7 @@ nav a.active{background:var(--accent);color:#fff}
             <option>Custom / Not sure yet</option>
           </select>
         </div>
-        <div class="fg"><label>Tell me about your project</label><textarea name="message" id="fmsg" placeholder="e.g. I want a clock site with a merch page and AdSense..."></textarea></div>
+        <div class="fg"><label for="fmsg">Tell me about your project</label><textarea name="message" id="fmsg" placeholder="e.g. I want a clock site with a merch page and AdSense..."></textarea></div>
         <button type="submit" class="btn-pri" style="width:100%;padding:13px;font-size:14px">Send Message 🚀</button>
       </form>
   </div>
@@ -550,7 +550,7 @@ nav a.active{background:var(--accent);color:#fff}
 <!-- BMC MODAL -->
 <div class="modal-ov" id="bmcModal" onclick="closeBmcOv(event)">
   <div class="modal">
-    <button class="m-close" onclick="closeBmc()">×</button>
+    <button class="m-close" onclick="closeBmc()" aria-label="Close support modal">×</button>
     <div style="font-size:42px;margin-bottom:8px">☕</div>
     <h2>SUPPORT MY WORK</h2>
     <p>Every coffee keeps the site running and free for everyone!</p>
@@ -749,6 +749,10 @@ function supportBmc(){
   closeBmc();
 }
 
+function swapConverter(){
+  const f = document.getElementById('convFrom'), t = document.getElementById('convTo'), v = f.value;
+  f.value = t.value; t.value = v; calcConversion();
+}
 function calcConversion(){
   const t = document.getElementById('convTime').value;
   const from = document.getElementById('convFrom').value;
