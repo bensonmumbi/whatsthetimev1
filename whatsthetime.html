@@ -108,20 +108,22 @@ nav a.active{background:var(--accent);color:#fff}
 .sec-hd{font-family:var(--display);font-size:clamp(32px,4vw,48px);letter-spacing:1px;color:var(--fg);margin-bottom:12px;line-height:1}
 .sec-sub{font-size:14px;color:var(--fg-muted);max-width:500px;line-height:1.7;margin-bottom:38px}
 .svc-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(280px,1fr));gap:18px;margin-bottom:64px}
-.svc-card{border:1px solid var(--border);border-radius:14px;padding:24px 22px;transition:all .2s}
-.svc-card:hover{border-color:var(--accent);box-shadow:0 0 0 3px rgba(232,38,30,.05)}
+.svc-card{border:1px solid var(--border);border-radius:14px;padding:24px 22px;transition:all .3s ease}
+.svc-card:hover{border-color:var(--accent);box-shadow:0 10px 30px rgba(232,38,30,0.1);transform:translateY(-5px)}
 .svc-icon{font-size:30px;margin-bottom:12px}
 .svc-title{font-size:15px;font-weight:600;margin-bottom:6px}
 .svc-desc{font-size:13px;color:var(--fg-muted);line-height:1.6}
 .svc-tags{display:flex;flex-wrap:wrap;gap:6px;margin-top:12px}
 .tag{background:var(--surface);border-radius:4px;padding:3px 9px;font-size:11px;color:var(--fg-muted);font-weight:500}
 .steps{display:grid;grid-template-columns:repeat(auto-fill,minmax(200px,1fr));gap:14px;margin-bottom:64px;counter-reset:step}
-.step{padding:20px;border:1px solid var(--border);border-radius:12px;counter-increment:step;position:relative}
+.step{padding:20px;border:1px solid var(--border);border-radius:12px;counter-increment:step;position:relative; opacity: 0; transform: translateY(30px); transition: all .6s ease-out}
+.step.revealed{opacity: 1; transform: translateY(0)}
 .step::before{content:counter(step);font-family:var(--display);font-size:46px;color:var(--border);position:absolute;bottom:8px;right:12px;line-height:1}
 .step h4{font-size:14px;font-weight:600;margin-bottom:6px}
 .step p{font-size:12.5px;color:var(--fg-muted);line-height:1.55}
 .price-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(260px,1fr));gap:18px;margin-bottom:64px}
-.prc{border:1px solid var(--border);border-radius:16px;padding:28px 24px;position:relative;transition:all .2s}
+.prc{border:1px solid var(--border);border-radius:16px;padding:28px 24px;position:relative;transition:all .3s ease}
+.prc:hover{transform:translateY(-8px);box-shadow:0 15px 35px rgba(0,0,0,0.1);border-color:var(--accent)}
 .prc.feat{border-color:var(--accent);background:var(--dark);color:#fff}
 .prc.feat .prc-name{color:rgba(255,255,255,.5)}
 .prc.feat li{border-bottom-color:rgba(255,255,255,.08)!important;color:rgba(255,255,255,.7)}
@@ -139,8 +141,12 @@ nav a.active{background:var(--accent);color:#fff}
 .prc-btn.dk{background:var(--accent);color:#fff}
 .prc-btn.dk:hover{background:#c01f18}
 .port-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(280px,1fr));gap:14px;margin-bottom:60px}
-.port-card{border-radius:12px;overflow:hidden;cursor:pointer;transition:transform .2s}
-.port-card:hover{transform:scale(1.02)}
+.port-card{border-radius:12px;overflow:hidden;cursor:pointer;transition:all .4s cubic-bezier(0.175, 0.885, 0.32, 1.275); opacity: 1;}
+.port-card.hidden{display: none; opacity: 0;}
+.filter-btns{display:flex;gap:10px;margin-bottom:24px;flex-wrap:wrap}
+.filter-btn{background:var(--surface);border:1px solid var(--border);padding:8px 16px;border-radius:8px;font-size:12px;font-weight:600;cursor:pointer;transition:all .15s}
+.filter-btn:hover, .filter-btn.active{background:var(--accent);color:#fff;border-color:var(--accent)}
+.port-card:hover{transform:scale(1.05);box-shadow:0 15px 40px rgba(0,0,0,0.15)}
 .port-thumb{height:164px;display:flex;align-items:center;justify-content:center;font-family:var(--display);font-size:22px;letter-spacing:2px;color:#fff}
 .port-meta{background:var(--bg);padding:14px 16px;border:1px solid var(--border);border-top:none;border-radius:0 0 12px 12px}
 .port-meta h4{font-size:13.5px;font-weight:600}
@@ -161,6 +167,15 @@ nav a.active{background:var(--accent);color:#fff}
 .faq-item.open .faq-a{max-height:200px;padding-bottom:14px}
 .faq-item.open .faq-ico{transform:rotate(45deg)}
 .cbox{background:var(--surface);border-radius:16px;padding:38px;max-width:560px}
+
+/* CALCULATOR */
+.calc-container{background:var(--surface);border:1px solid var(--border);border-radius:16px;padding:30px;margin-bottom:64px}
+.calc-row{display:grid;grid-template-columns:repeat(auto-fit, minmax(200px, 1fr));gap:20px;margin-bottom:24px}
+.calc-item{display:flex;align-items:center;gap:10px;font-size:14px;cursor:pointer}
+.calc-item input[type="checkbox"]{width:18px;height:18px;accent-color:var(--accent);cursor:pointer}
+.calc-range{width:100%;accent-color:var(--accent);margin-top:10px}
+.calc-result{text-align:center;padding:20px;background:var(--bg);border:1px solid var(--border);border-radius:12px}
+.calc-total{font-family:var(--display);font-size:48px;color:var(--accent);line-height:1}
 .f-row{display:grid;grid-template-columns:1fr 1fr;gap:14px;margin-bottom:14px}
 .fg{display:flex;flex-direction:column;gap:6px;margin-bottom:14px}
 .fg label{font-size:12px;font-weight:600;text-transform:uppercase;letter-spacing:.5px;color:var(--fg-muted)}
@@ -397,6 +412,27 @@ nav a.active{background:var(--accent);color:#fff}
       <div class="step"><h4>I Deploy</h4><p>I set up your hosting, SSL, domain, analytics and hand you the keys. Done.</p></div>
     </div>
 
+    <div class="sec-lbl">Estimate</div>
+    <div class="sec-hd">PROJECT COST CALCULATOR</div>
+    <div class="sec-sub">Get an instant estimate for your custom website.</div>
+    <div class="calc-container">
+      <div class="calc-row">
+        <label class="calc-item"><input type="checkbox" id="calc-ecommerce" onchange="updateEstimate()"> E-Commerce / Shop</label>
+        <label class="calc-item"><input type="checkbox" id="calc-seo" onchange="updateEstimate()"> Advanced SEO</label>
+        <label class="calc-item"><input type="checkbox" id="calc-backend" onchange="updateEstimate()"> Custom Backend / API</label>
+        <label class="calc-item"><input type="checkbox" id="calc-design" onchange="updateEstimate()"> Premium Custom Design</label>
+      </div>
+      <div style="margin-bottom:24px">
+        <label style="font-size:14px;font-weight:600;margin-bottom:8px;display:block">Number of Pages: <span id="pages-val">1</span></label>
+        <input type="range" id="calc-pages" min="1" max="20" value="1" class="calc-range" oninput="updateEstimate()">
+      </div>
+      <div class="calc-result">
+        <div style="font-size:12px;text-transform:uppercase;color:var(--fg-subtle);margin-bottom:4px">Estimated Total</div>
+        <div class="calc-total">$<span id="calc-total-val">500</span></div>
+        <div style="font-size:11px;color:var(--fg-subtle);margin-top:8px">*This is a rough estimate. Final price may vary based on complexity.</div>
+      </div>
+    </div>
+
     <div id="pricing">
       <div class="sec-lbl">Pricing</div>
       <div class="sec-hd">PREMIUM PACKAGES</div>
@@ -441,10 +477,16 @@ nav a.active{background:var(--accent);color:#fff}
     <div class="sec-lbl">Work</div>
     <div class="sec-hd">RECENT PROJECTS</div>
     <div class="sec-sub">A sample of what I've built.</div>
+    <div class="filter-btns">
+      <button class="filter-btn active" onclick="filterPortfolio(this, 'all')">All</button>
+      <button class="filter-btn" onclick="filterPortfolio(this, 'clocks')">Clocks</button>
+      <button class="filter-btn" onclick="filterPortfolio(this, 'stores')">Stores</button>
+      <button class="filter-btn" onclick="filterPortfolio(this, 'saas')">SaaS</button>
+    </div>
     <div class="port-grid">
-      <div class="port-card"><div class="port-thumb" style="background:linear-gradient(135deg,#0d0d0d,#1a1a2e)">CLOCK APP</div><div class="port-meta"><h4>time.is Clone</h4><p>World clock + merch + services in one file</p></div></div>
-      <div class="port-card"><div class="port-thumb" style="background:linear-gradient(135deg,#e8261e,#ff6b2b)">SHOP</div><div class="port-meta"><h4>Merch Store</h4><p>T-shirts, hoodies, caps with full cart</p></div></div>
-      <div class="port-card"><div class="port-thumb" style="background:linear-gradient(135deg,#1d4ed8,#7c3aed)">SAAS</div><div class="port-meta"><h4>SaaS Landing Page</h4><p>Pricing, features, waitlist form</p></div></div>
+      <div class="port-card" data-category="clocks"><div class="port-thumb" style="background:linear-gradient(135deg,#0d0d0d,#1a1a2e)">CLOCK APP</div><div class="port-meta"><h4>time.is Clone</h4><p>World clock + merch + services in one file</p></div></div>
+      <div class="port-card" data-category="stores"><div class="port-thumb" style="background:linear-gradient(135deg,#e8261e,#ff6b2b)">SHOP</div><div class="port-meta"><h4>Merch Store</h4><p>T-shirts, hoodies, caps with full cart</p></div></div>
+      <div class="port-card" data-category="saas"><div class="port-thumb" style="background:linear-gradient(135deg,#1d4ed8,#7c3aed)">SAAS</div><div class="port-meta"><h4>SaaS Landing Page</h4><p>Pricing, features, waitlist form</p></div></div>
     </div>
 
     <div class="sec-lbl">Reviews</div>
@@ -739,6 +781,33 @@ function shiftMonth(dir){calDate.setMonth(calDate.getMonth()+dir);renderCal()}
 // ── BUILD PAGE HELPERS ────────────────────────────────────────────────────────
 function preselectPlan(plan){showPage('build');setTimeout(()=>{document.getElementById('fplan').value=plan;document.getElementById('contact-form').scrollIntoView({behavior:'smooth'})},400)}
 function toggleFaq(el){el.parentElement.classList.toggle('open')}
+
+function filterPortfolio(btn, category){
+  document.querySelectorAll('.filter-btn').forEach(b => b.classList.remove('active'));
+  btn.classList.add('active');
+
+  document.querySelectorAll('.port-card').forEach(card => {
+    if(category === 'all' || card.dataset.category === category){
+      card.classList.remove('hidden');
+    } else {
+      card.classList.add('hidden');
+    }
+  });
+}
+
+function updateEstimate(){
+  const base = 400;
+  const pages = parseInt(document.getElementById('calc-pages').value);
+  const ecommerce = document.getElementById('calc-ecommerce').checked ? 500 : 0;
+  const seo = document.getElementById('calc-seo').checked ? 200 : 0;
+  const backend = document.getElementById('calc-backend').checked ? 1000 : 0;
+  const design = document.getElementById('calc-design').checked ? 300 : 0;
+
+  const total = base + (pages * 100) + ecommerce + seo + backend + design;
+
+  document.getElementById('pages-val').textContent = pages;
+  document.getElementById('calc-total-val').textContent = total.toLocaleString();
+}
 function submitForm(){
   const name=document.getElementById('fname').value.trim();
   const email=document.getElementById('femail').value.trim();
@@ -815,6 +884,16 @@ function calcConversion(){
 // ── INIT ─────────────────────────────────────────────────────────────────────
 buildCities();
 renderCal();tick();calcConversion();setInterval(tick,1000);
+
+// Scroll animations for steps
+const observer = new IntersectionObserver((entries) => {
+  entries.forEach(entry => {
+    if(entry.isIntersecting){
+      entry.target.classList.add('revealed');
+    }
+  });
+}, {threshold: 0.1});
+document.querySelectorAll('.step').forEach(step => observer.observe(step));
 
 // Check for form status in URL
 const urlParams = new URLSearchParams(window.location.search);
