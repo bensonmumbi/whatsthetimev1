@@ -611,6 +611,14 @@ function scrollTo2(id){
 }
 
 // ── CLOCK ────────────────────────────────────────────────────────────────────
+// Performance Optimization: Cache Intl.DateTimeFormat instances to avoid redundant object creation
+const FORMATTERS = new Map();
+function getFormatter(opts) {
+  const k = JSON.stringify(opts);
+  if (!FORMATTERS.has(k)) FORMATTERS.set(k, new Intl.DateTimeFormat('en-US', opts));
+  return FORMATTERS.get(k);
+}
+
 const TZ=Intl.DateTimeFormat().resolvedOptions().timeZone;
 const mainCityEl = document.getElementById('mainCity');
 const cityName = TZ.split('/').pop().replace(/_/g,' ');
@@ -622,7 +630,20 @@ if(tzFullEl) tzFullEl.textContent = TZ;
 function pad(n){return String(n).padStart(2,'0')}
 function weekNum(d){const dt=new Date(Date.UTC(d.getFullYear(),d.getMonth(),d.getDate()));dt.setUTCDate(dt.getUTCDate()+4-(dt.getUTCDay()||7));const ys=new Date(Date.UTC(dt.getUTCFullYear(),0,1));return Math.ceil((((dt-ys)/86400000)+1)/7)}
 function doy(d){return Math.floor((d-new Date(d.getFullYear(),0,0))/86400000)}
-function utcOff(tz){try{const n=new Date(),u=new Date(n.toLocaleString('en-US',{timeZone:'UTC'})),l=new Date(n.toLocaleString('en-US',{timeZone:tz}));const df=(l-u)/3600000,h=Math.floor(Math.abs(df)),m=Math.round((Math.abs(df)-h)*60);return`UTC${df>=0?'+':'-'}${pad(h)}:${pad(m)}`}catch{return'UTC'}}
+
+// Optimized: Uses cached formatters for timezone calculations
+function utcOff(tz){
+  try {
+    const n=new Date();
+    const opts = {year:'numeric',month:'numeric',day:'numeric',hour:'numeric',minute:'numeric',second:'numeric',hour12:false};
+    const u=new Date(getFormatter({...opts, timeZone:'UTC'}).format(n));
+    const l=new Date(getFormatter({...opts, timeZone:tz}).format(n));
+    const df=(l-u)/3600000,h=Math.floor(Math.abs(df)),m=Math.round((Math.abs(df)-h)*60);
+    return`UTC${df>=0?'+':'-'}${pad(h)}:${pad(m)}`;
+  } catch { return 'UTC'; }
+}
+
+let lastMin = -1;
 function tick(){
   const n=new Date();
   const mainClockEl = document.getElementById('mainClock');
@@ -639,7 +660,7 @@ function tick(){
   const datDisp = document.getElementById('datDisp');
   if(datDisp) datDisp.textContent=`${D[n.getDay()]}, ${M[n.getMonth()]} ${n.getDate()}, ${n.getFullYear()}`;
 
-  const tzs=new Intl.DateTimeFormat('en-US',{timeZoneName:'short'}).formatToParts(n).find(p=>p.type==='timeZoneName')?.value||'';
+  const tzs=getFormatter({timeZoneName:'short'}).formatToParts(n).find(p=>p.type==='timeZoneName')?.value||'';
   const tzName = document.getElementById('tzName');
   if(tzName) tzName.textContent=tzs;
   const utcOffEl = document.getElementById('utcOff');
@@ -649,10 +670,19 @@ function tick(){
   document.getElementById('doy').textContent=doy(n)+' / 365';
   document.getElementById('qtr').textContent='Q'+(Math.floor(n.getMonth()/3)+1);
   document.getElementById('isoD').textContent=n.toISOString().slice(0,19).replace('T',' ');
-  updateCities();
-  updateHeroTz();
+
+  // Performance Optimization: Throttle secondary clock updates to once per minute
+  if (n.getMinutes() !== lastMin) {
+    updateCities();
+    updateHeroTz();
+    lastMin = n.getMinutes();
+  }
 }
-function cityTime(tz){const n=new Date();const p=new Intl.DateTimeFormat('en-US',{timeZone:tz,hour:'2-digit',minute:'2-digit',hour12:false}).formatToParts(n);return{h:p.find(x=>x.type==='hour')?.value||'00',m:p.find(x=>x.type==='minute')?.value||'00'}}
+function cityTime(tz){
+  const n=new Date();
+  const p=getFormatter({timeZone:tz,hour:'2-digit',minute:'2-digit',hour12:false}).formatToParts(n);
+  return{h:p.find(x=>x.type==='hour')?.value||'00',m:p.find(x=>x.type==='minute')?.value||'00'}
+}
 function updateHeroTz(){document.querySelectorAll('.tz-time[data-hero-tz]').forEach(el=>{const{h,m}=cityTime(el.dataset.heroTz);el.textContent=`${h}:${m}`})}
 
 // ── WORLD CITIES ─────────────────────────────────────────────────────────────
