@@ -21,6 +21,7 @@ body{font-family:var(--sans);background:var(--bg);color:var(--fg);min-height:100
 
 /* HEADER */
 header{position:sticky;top:0;z-index:200;background:rgba(255,255,255,.96);backdrop-filter:blur(12px);border-bottom:1px solid var(--border);display:flex;align-items:center;justify-content:center;padding:0 24px;height:70px}
+  :focus-visible{outline:3px solid var(--accent);outline-offset:2px}
 .logo{font-family:var(--display);font-size:28px;color:var(--accent);letter-spacing:1px;cursor:pointer;border:none;background:none;position:absolute;left:24px}
 nav{display:flex;align-items:center;gap:12px}
 nav a{font-size:16px;font-weight:600;color:var(--fg-muted);text-decoration:none;padding:10px 20px;border-radius:8px;cursor:pointer;transition:all .15s}
@@ -217,7 +218,7 @@ nav a.active{background:var(--accent);color:#fff}
 <body>
 
 <header>
-  <button class="logo" onclick="showPage('time')"><span style="color:var(--fg)">WHATS</span><span style="color:var(--accent)">THE</span><span style="color:var(--fg)">TIME</span></button>
+  <button class="logo" onclick="showPage('time')" aria-label="Go to homepage"><span style="color:var(--fg)">WHATS</span><span style="color:var(--accent)">THE</span><span style="color:var(--fg)">TIME</span></button>
   <nav>
     <a onclick="showPage('time')" id="nav-time" class="active">
       <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" style="width:16px;height:16px"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg> Time
@@ -300,9 +301,9 @@ nav a.active{background:var(--accent);color:#fff}
     <div class="sec-title">Calendar — <span id="calMonLbl"></span></div>
     <div class="mini-cal">
       <div class="cal-hdr">
-        <button class="cal-nav-btn" onclick="shiftMonth(-1)">‹</button>
+        <button class="cal-nav-btn" onclick="shiftMonth(-1)" aria-label="Previous month">‹</button>
         <span id="calTitle" style="font-size:13px;font-weight:600"></span>
-        <button class="cal-nav-btn" onclick="shiftMonth(1)">›</button>
+        <button class="cal-nav-btn" onclick="shiftMonth(1)" aria-label="Next month">›</button>
       </div>
       <div class="cal-grid" id="calGrid"></div>
     </div>
@@ -310,7 +311,10 @@ nav a.active{background:var(--accent);color:#fff}
   <section class="t-section" style="border-bottom:none">
     <div class="sec-title">Embed this clock</div>
     <p style="font-size:12px;color:var(--fg-muted);margin-bottom:8px">Copy the code below to add a free timezone clock widget to your site.</p>
-    <textarea readonly style="width:100%;height:60px;background:var(--surface);border:1px solid var(--border);border-radius:8px;padding:10px;font-family:var(--mono);font-size:11px;color:var(--fg-subtle)" onclick="this.select()"><iframe src="https://whatsthetimeworld.com/widget" width="300" height="150" style="border:none;border-radius:8px"></iframe></textarea>
+    <div style="position:relative">
+      <textarea id="embedCode" readonly style="width:100%;height:60px;background:var(--surface);border:1px solid var(--border);border-radius:8px;padding:10px 80px 10px 10px;font-family:var(--mono);font-size:11px;color:var(--fg-subtle)" onclick="this.select()"><iframe src="https://whatsthetimeworld.com/widget" width="300" height="150" style="border:none;border-radius:8px"></iframe></textarea>
+      <button class="btn-pri" id="copyBtn" style="position:absolute;right:8px;top:50%;transform:translateY(-50%);padding:6px 12px;font-size:11px" onclick="copyEmbedCode()">Copy</button>
+    </div>
     <div style="margin-top:12px;background:#fffbeb;border:1px solid #fcd34d;padding:14px;border-radius:8px;font-size:12px;display:flex;align-items:center;justify-content:space-between">
       <div><strong>Want an ad-free, white-label version?</strong><br/><span style="color:var(--fg-muted)">Remove the "Powered by whatsthetimeworld.com" branding for a $5/mo fee.</span></div>
       <button class="btn-pri" style="padding:6px 12px;font-size:11px;color:#000;background:#fcd34d" onclick="scrollTo2('contact-form')">Get White-Label</button>
@@ -472,10 +476,10 @@ nav a.active{background:var(--accent);color:#fff}
     </div>
       <form action="send_email.php" method="POST" id="form-actual">
         <div class="f-row">
-          <div class="fg"><label>Your Name</label><input type="text" name="name" id="fname" placeholder="John Doe" required/></div>
-          <div class="fg"><label>Email</label><input type="email" name="email" id="femail" placeholder="you@email.com" required/></div>
+          <div class="fg"><label for="fname">Your Name</label><input type="text" name="name" id="fname" placeholder="John Doe" required/></div>
+          <div class="fg"><label for="femail">Email</label><input type="email" name="email" id="femail" placeholder="you@email.com" required/></div>
         </div>
-        <div class="fg"><label>Plan / Budget</label>
+        <div class="fg"><label for="fplan">Plan / Budget</label>
           <select name="plan" id="fplan">
             <option value="">Select a plan...</option>
             <option>Starter — $500 + $399/mo</option>
@@ -484,7 +488,7 @@ nav a.active{background:var(--accent);color:#fff}
             <option>Custom / Not sure yet</option>
           </select>
         </div>
-        <div class="fg"><label>Tell me about your project</label><textarea name="message" id="fmsg" placeholder="e.g. I want a clock site with a merch page and AdSense..."></textarea></div>
+        <div class="fg"><label for="fmsg">Tell me about your project</label><textarea name="message" id="fmsg" placeholder="e.g. I want a clock site with a merch page and AdSense..."></textarea></div>
         <button type="submit" class="btn-pri" style="width:100%;padding:13px;font-size:14px">Send Message 🚀</button>
       </form>
   </div>
@@ -550,13 +554,13 @@ nav a.active{background:var(--accent);color:#fff}
 <!-- BMC MODAL -->
 <div class="modal-ov" id="bmcModal" onclick="closeBmcOv(event)">
   <div class="modal">
-    <button class="m-close" onclick="closeBmc()">×</button>
+    <button class="m-close" onclick="closeBmc()" aria-label="Close modal">×</button>
     <div style="font-size:42px;margin-bottom:8px">☕</div>
     <h2>SUPPORT MY WORK</h2>
     <p>Every coffee keeps the site running and free for everyone!</p>
     
     <div style="margin-bottom:20px">
-      <label style="font-size:11px;text-transform:uppercase;color:var(--fg-subtle);display:block;margin-bottom:8px">Select Currency</label>
+      <label for="bmcCurr" style="font-size:11px;text-transform:uppercase;color:var(--fg-subtle);display:block;margin-bottom:8px">Select Currency</label>
       <select id="bmcCurr" style="width:100%;padding:8px;border-radius:6px;border:1px solid var(--border)" onchange="updateBmcCur()">
         <option value="$">USD — US Dollar ($)</option>
         <option value="€">EUR — Euro (€)</option>
@@ -573,7 +577,7 @@ nav a.active{background:var(--accent);color:#fff}
     </div>
     
     <div style="margin:20px 0">
-      <label style="font-size:11px;text-transform:uppercase;color:var(--fg-subtle);display:block;margin-bottom:8px">Custom Amount (Min <span class="cur">$</span>5)</label>
+      <label for="bmcCustom" style="font-size:11px;text-transform:uppercase;color:var(--fg-subtle);display:block;margin-bottom:8px">Custom Amount (Min <span class="cur">$</span>5)</label>
       <div style="position:relative">
         <span class="cur" style="position:absolute;left:12px;top:50%;transform:translateY(-50%);font-weight:600">$</span>
         <input type="number" id="bmcCustom" min="5" placeholder="Enter amount" style="width:100%;padding:10px 10px 10px 30px;border-radius:6px;border:1px solid var(--border);font-family:var(--mono)" oninput="useCustomBmc(this.value)">
@@ -776,6 +780,26 @@ function calcConversion(){
   if(diffDays === -1) dayStr = ' (Prev day)';
 
   document.getElementById('convResult').innerHTML = `${t} in ${fromName} is <span style="color:var(--accent);font-family:var(--mono)">${pad(resDate.getHours())}:${pad(resDate.getMinutes())}</span> in ${toName}${dayStr}`;
+}
+
+function copyEmbedCode(){
+  const t = document.getElementById('embedCode');
+  const b = document.getElementById('copyBtn');
+
+  t.select();
+  try {
+    document.execCommand('copy');
+    const old = b.textContent;
+    b.textContent = 'Copied!';
+    const oldBg = b.style.background;
+    b.style.background = '#059669';
+    setTimeout(()=>{
+      b.textContent = old;
+      b.style.background = oldBg;
+    },2000);
+  } catch (err) {
+    console.error('Fallback copy failed', err);
+  }
 }
 
 // ── INIT ─────────────────────────────────────────────────────────────────────
