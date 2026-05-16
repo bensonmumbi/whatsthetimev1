@@ -662,13 +662,30 @@ function getFormatter(opts) {
 }
 
 const TZ=Intl.DateTimeFormat().resolvedOptions().timeZone;
-const mainCityEl = document.getElementById('mainCity');
+
+// DOM Cache
+const ELS = {
+  mainCity: document.getElementById('mainCity'),
+  mainCityName: document.getElementById('mainCityName'),
+  tzFull: document.getElementById('tzFull'),
+  mainClock: document.getElementById('mainClock'),
+  hh: document.getElementById('hh'),
+  mm: document.getElementById('mm'),
+  ss: document.getElementById('ss'),
+  datDisp: document.getElementById('datDisp'),
+  tzName: document.getElementById('tzName'),
+  utcOff: document.getElementById('utcOff'),
+  unixTs: document.getElementById('unixTs'),
+  weekNum: document.getElementById('weekNum'),
+  doy: document.getElementById('doy'),
+  qtr: document.getElementById('qtr'),
+  isoD: document.getElementById('isoD')
+};
+
 const cityName = TZ.split('/').pop().replace(/_/g,' ');
-if(mainCityEl) mainCityEl.textContent = cityName;
-const mainCityNameEl = document.getElementById('mainCityName');
-if(mainCityNameEl) mainCityNameEl.textContent = cityName;
-const tzFullEl = document.getElementById('tzFull');
-if(tzFullEl) tzFullEl.textContent = TZ;
+if(ELS.mainCity) ELS.mainCity.textContent = cityName;
+if(ELS.mainCityName) ELS.mainCityName.textContent = cityName;
+if(ELS.tzFull) ELS.tzFull.textContent = TZ;
 function pad(n){return String(n).padStart(2,'0')}
 function weekNum(d){const dt=new Date(Date.UTC(d.getFullYear(),d.getMonth(),d.getDate()));dt.setUTCDate(dt.getUTCDate()+4-(dt.getUTCDay()||7));const ys=new Date(Date.UTC(dt.getUTCFullYear(),0,1));return Math.ceil((((dt-ys)/86400000)+1)/7)}
 function doy(d){return Math.floor((d-new Date(d.getFullYear(),0,0))/86400000)}
@@ -687,34 +704,31 @@ function utcOff(tz){
 
 let lastMin = -1;
 function tick(){
+  if (document.hidden) return;
   const n=new Date();
-  const mainClockEl = document.getElementById('mainClock');
-  if(mainClockEl) mainClockEl.textContent = `${pad(n.getHours())}:${pad(n.getMinutes())}:${pad(n.getSeconds())}`;
+  if(ELS.mainClock) ELS.mainClock.textContent = `${pad(n.getHours())}:${pad(n.getMinutes())}:${pad(n.getSeconds())}`;
   
   // Update detail IDs if they exist
-  const hh = document.getElementById('hh'), mm = document.getElementById('mm'), ss = document.getElementById('ss');
-  if(hh) hh.textContent=pad(n.getHours());
-  if(mm) mm.textContent=pad(n.getMinutes());
-  if(ss) ss.textContent=pad(n.getSeconds());
+  if(ELS.hh) ELS.hh.textContent=pad(n.getHours());
+  if(ELS.mm) ELS.mm.textContent=pad(n.getMinutes());
+  if(ELS.ss) ELS.ss.textContent=pad(n.getSeconds());
 
-  const D=['Sunday','Monday','Tuesday','Wednesday','Thursday','Friday','Saturday'];
-  const M=['January','February','March','April','May','June','July','August','September','October','November','December'];
-  const datDisp = document.getElementById('datDisp');
-  if(datDisp) datDisp.textContent=`${D[n.getDay()]}, ${M[n.getMonth()]} ${n.getDate()}, ${n.getFullYear()}`;
+  if(ELS.unixTs) ELS.unixTs.textContent=Math.floor(n/1000).toLocaleString();
+  if(ELS.isoD) ELS.isoD.textContent=n.toISOString().slice(0,19).replace('T',' ');
 
-  const tzs=getFormatter({timeZoneName:'short'}).formatToParts(n).find(p=>p.type==='timeZoneName')?.value||'';
-  const tzName = document.getElementById('tzName');
-  if(tzName) tzName.textContent=tzs;
-  const utcOffEl = document.getElementById('utcOff');
-  if(utcOffEl) utcOffEl.textContent=utcOff(TZ);
-  document.getElementById('unixTs').textContent=Math.floor(n/1000).toLocaleString();
-  document.getElementById('weekNum').textContent='Week '+weekNum(n);
-  document.getElementById('doy').textContent=doy(n)+' / 365';
-  document.getElementById('qtr').textContent='Q'+(Math.floor(n.getMonth()/3)+1);
-  document.getElementById('isoD').textContent=n.toISOString().slice(0,19).replace('T',' ');
-
-  // Performance Optimization: Throttle secondary clock updates to once per minute
+  // Performance Optimization: Throttle secondary clock and date detail updates to once per minute
   if (n.getMinutes() !== lastMin) {
+    const D=['Sunday','Monday','Tuesday','Wednesday','Thursday','Friday','Saturday'];
+    const M=['January','February','March','April','May','June','July','August','September','October','November','December'];
+    if(ELS.datDisp) ELS.datDisp.textContent=`${D[n.getDay()]}, ${M[n.getMonth()]} ${n.getDate()}, ${n.getFullYear()}`;
+
+    const tzs=getFormatter({timeZoneName:'short'}).formatToParts(n).find(p=>p.type==='timeZoneName')?.value||'';
+    if(ELS.tzName) ELS.tzName.textContent=tzs;
+    if(ELS.utcOff) ELS.utcOff.textContent=utcOff(TZ);
+    if(ELS.weekNum) ELS.weekNum.textContent='Week '+weekNum(n);
+    if(ELS.doy) ELS.doy.textContent=doy(n)+' / 365';
+    if(ELS.qtr) ELS.qtr.textContent='Q'+(Math.floor(n.getMonth()/3)+1);
+
     updateCities();
     updateHeroTz();
     lastMin = n.getMinutes();
@@ -725,7 +739,12 @@ function cityTime(tz){
   const p=getFormatter({timeZone:tz,hour:'2-digit',minute:'2-digit',hour12:false}).formatToParts(n);
   return{h:p.find(x=>x.type==='hour')?.value||'00',m:p.find(x=>x.type==='minute')?.value||'00'}
 }
-function updateHeroTz(){document.querySelectorAll('.tz-time[data-hero-tz]').forEach(el=>{const{h,m}=cityTime(el.dataset.heroTz);el.textContent=`${h}:${m}`})}
+
+let HERO_TZ_ELS = null;
+function updateHeroTz(){
+  if (!HERO_TZ_ELS) HERO_TZ_ELS = document.querySelectorAll('.tz-time[data-hero-tz]');
+  HERO_TZ_ELS.forEach(el=>{const{h,m}=cityTime(el.dataset.heroTz);el.textContent=`${h}:${m}`});
+}
 
 // ── WORLD CITIES ─────────────────────────────────────────────────────────────
 const CITIES=[
@@ -747,10 +766,15 @@ const CITIES=[
   {name:'Sao Paulo',     tz:'America/Sao_Paulo'},
 ];
 
+let CITY_TIME_ELS = null;
 function buildCities(){const g=document.getElementById('citiesGrid');g.innerHTML='';
-  CITIES.forEach(c=>{const{h,m}=cityTime(c.tz);const el=document.createElement('div');el.className='city-card';el.innerHTML=`<div class="city-name">${c.name}</div><div class="city-time" data-tz="${c.tz}">${h}:${m}</div><div class="city-off">${utcOff(c.tz)}</div>`;g.appendChild(el)})
+  CITIES.forEach(c=>{const{h,m}=cityTime(c.tz);const el=document.createElement('div');el.className='city-card';el.innerHTML=`<div class="city-name">${c.name}</div><div class="city-time" data-tz="${c.tz}">${h}:${m}</div><div class="city-off">${utcOff(c.tz)}</div>`;g.appendChild(el)});
+  CITY_TIME_ELS = document.querySelectorAll('.city-time[data-tz]');
 }
-function updateCities(){document.querySelectorAll('.city-time[data-tz]').forEach(el=>{const{h,m}=cityTime(el.dataset.tz);el.textContent=`${h}:${m}`});}
+function updateCities(){
+  if (!CITY_TIME_ELS) CITY_TIME_ELS = document.querySelectorAll('.city-time[data-tz]');
+  CITY_TIME_ELS.forEach(el=>{const{h,m}=cityTime(el.dataset.tz);el.textContent=`${h}:${m}`});
+}
 
 
 // ── CALENDAR ─────────────────────────────────────────────────────────────────
