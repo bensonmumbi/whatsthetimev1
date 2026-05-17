@@ -14,6 +14,7 @@
 }
 html{scroll-behavior:smooth}
 body{font-family:var(--sans);background:var(--bg);color:var(--fg);min-height:100vh;-webkit-font-smoothing:antialiased}
+*:focus-visible{outline:3px solid var(--accent);outline-offset:2px}
 
 .page{display:none;animation:fadeIn .3s ease}
 .page.active{display:block}
@@ -234,10 +235,10 @@ nav a.active{background:var(--accent);color:#fff}
 <header>
   <button class="logo" onclick="showPage('time')" aria-label="Go to world clock"><span style="color:var(--fg)">WHATS</span><span style="color:var(--accent)">THE</span><span style="color:var(--fg)">TIME</span></button>
   <nav>
-    <a onclick="showPage('time')" id="nav-time" class="active">
+    <a href="javascript:void(0)" onclick="showPage('time')" id="nav-time" class="active">
       <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" style="width:16px;height:16px"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg> Time
     </a>
-    <a onclick="showPage('build')" id="nav-build">
+    <a href="javascript:void(0)" onclick="showPage('build')" id="nav-build">
       <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" style="width:16px;height:16px"><path d="M12 2L2 7l10 5 10-5-10-5zM2 17l10 5 10-5M2 12l10 5 10-5"/></svg> Build Your Site
     </a>
   </nav>
@@ -294,7 +295,15 @@ nav a.active{background:var(--accent);color:#fff}
   <section class="t-section">
     <div class="sec-title">Current Time Details</div>
     <div class="info-grid">
-      <div class="ic"><div class="ic-label">Unix Timestamp</div><div class="ic-val" id="unixTs">—</div></div>
+      <div class="ic">
+        <div class="ic-label">Unix Timestamp</div>
+        <div style="display:flex;align-items:center;justify-content:space-between">
+          <div class="ic-val" id="unixTs">—</div>
+          <button id="copyUnix" onclick="copyUnixTs()" aria-label="Copy Unix timestamp" style="background:none;border:none;cursor:pointer;color:var(--fg-subtle);display:flex;align-items:center;padding:4px;border-radius:4px;transition:all .1s">
+            <svg id="copyIcon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="width:14px;height:14px"><rect x="9" y="9" width="13" height="13" rx="2" ry="2"/><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/></svg>
+          </button>
+        </div>
+      </div>
       <div class="ic"><div class="ic-label">Week Number</div><div class="ic-val" id="weekNum">—</div></div>
       <div class="ic"><div class="ic-label">Day of Year</div><div class="ic-val" id="doy">—</div></div>
       <div class="ic"><div class="ic-label">Quarter</div><div class="ic-val" id="qtr">—</div></div>
@@ -629,11 +638,11 @@ nav a.active{background:var(--accent);color:#fff}
 
 <footer class="site-foot">
   <span>© 2026 whatsthetimeworld.com</span>
-  <a onclick="showPage('time')">Time</a>
-  <a onclick="showPage('build')">Build Your Site</a>
-  <a onclick="showPage('privacy')">Privacy Policy</a>
-  <a onclick="showPage('terms')">Terms of Use</a>
-  <a onclick="scrollTo2('contact-form')">Contact</a>
+  <a href="javascript:void(0)" onclick="showPage('time')">Time</a>
+  <a href="javascript:void(0)" onclick="showPage('build')">Build Your Site</a>
+  <a href="javascript:void(0)" onclick="showPage('privacy')">Privacy Policy</a>
+  <a href="javascript:void(0)" onclick="showPage('terms')">Terms of Use</a>
+  <a href="javascript:void(0)" onclick="scrollTo2('contact-form')">Contact</a>
 </footer>
 
 <script>
@@ -879,6 +888,35 @@ function calcConversion(){
   if(diffDays === -1) dayStr = ' (Prev day)';
 
   document.getElementById('convResult').innerHTML = `${t} in ${fromName} is <span style="color:var(--accent);font-family:var(--mono)">${pad(resDate.getHours())}:${pad(resDate.getMinutes())}</span> in ${toName}${dayStr}`;
+}
+
+function copyUnixTs() {
+  const ts = document.getElementById('unixTs').textContent.replace(/,/g, '');
+  const btn = document.getElementById('copyUnix');
+  const icon = document.getElementById('copyIcon');
+  const checkSvg = '<polyline points="20 6 9 17 4 12"></polyline>';
+  const copySvg = '<rect x="9" y="9" width="13" height="13" rx="2" ry="2"></rect><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"></path>';
+
+  const fallbackCopy = (text) => {
+    const textArea = document.createElement("textarea");
+    textArea.value = text;
+    document.body.appendChild(textArea);
+    textArea.select();
+    try { document.execCommand('copy'); } catch (err) {}
+    document.body.removeChild(textArea);
+  };
+
+  const doCopy = () => {
+    if (navigator.clipboard && navigator.clipboard.writeText) {
+      navigator.clipboard.writeText(ts).catch(() => fallbackCopy(ts));
+    } else {
+      fallbackCopy(ts);
+    }
+    icon.innerHTML = checkSvg;
+    btn.style.color = '#059669';
+    setTimeout(() => { icon.innerHTML = copySvg; btn.style.color = 'var(--fg-subtle)'; }, 2000);
+  };
+  doCopy();
 }
 
 // ── INIT ─────────────────────────────────────────────────────────────────────
