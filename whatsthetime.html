@@ -294,7 +294,13 @@ nav a.active{background:var(--accent);color:#fff}
   <section class="t-section">
     <div class="sec-title">Current Time Details</div>
     <div class="info-grid">
-      <div class="ic"><div class="ic-label">Unix Timestamp</div><div class="ic-val" id="unixTs">—</div></div>
+      <div class="ic">
+        <div class="ic-label">Unix Timestamp</div>
+        <div style="display:flex;align-items:center;justify-content:space-between">
+          <div class="ic-val" id="unixTs">—</div>
+          <button onclick="copyTs(this)" aria-label="Copy Unix timestamp" class="cal-nav-btn" style="width:20px;height:20px;font-size:10px">📋</button>
+        </div>
+      </div>
       <div class="ic"><div class="ic-label">Week Number</div><div class="ic-val" id="weekNum">—</div></div>
       <div class="ic"><div class="ic-label">Day of Year</div><div class="ic-val" id="doy">—</div></div>
       <div class="ic"><div class="ic-label">Quarter</div><div class="ic-val" id="qtr">—</div></div>
@@ -332,7 +338,7 @@ nav a.active{background:var(--accent);color:#fff}
     </div>
   </section>
 
-  <section class="t-section">
+  <section class="t-section" id="timezone-converter">
     <div class="sec-title">Timezone Converter</div>
     <div style="background:var(--surface);border:1px solid var(--border);border-radius:12px;padding:24px;display:flex;gap:16px;align-items:center;flex-wrap:wrap">
       <div style="flex:1;min-width:200px">
@@ -598,7 +604,7 @@ nav a.active{background:var(--accent);color:#fff}
     <p>Every coffee keeps the site running and free for everyone!</p>
     
     <div style="margin-bottom:20px">
-      <label style="font-size:11px;text-transform:uppercase;color:var(--fg-subtle);display:block;margin-bottom:8px">Select Currency</label>
+      <label for="bmcCurr" style="font-size:11px;text-transform:uppercase;color:var(--fg-subtle);display:block;margin-bottom:8px">Select Currency</label>
       <select id="bmcCurr" style="width:100%;padding:8px;border-radius:6px;border:1px solid var(--border)" onchange="updateBmcCur()">
         <option value="$">USD — US Dollar ($)</option>
         <option value="€">EUR — Euro (€)</option>
@@ -615,7 +621,7 @@ nav a.active{background:var(--accent);color:#fff}
     </div>
     
     <div style="margin:20px 0">
-      <label style="font-size:11px;text-transform:uppercase;color:var(--fg-subtle);display:block;margin-bottom:8px">Custom Amount (Min <span class="cur">$</span>5)</label>
+      <label for="bmcCustom" style="font-size:11px;text-transform:uppercase;color:var(--fg-subtle);display:block;margin-bottom:8px">Custom Amount (Min <span class="cur">$</span>5)</label>
       <div style="position:relative">
         <span class="cur" style="position:absolute;left:12px;top:50%;transform:translateY(-50%);font-weight:600">$</span>
         <input type="number" id="bmcCustom" min="5" placeholder="Enter amount" style="width:100%;padding:10px 10px 10px 30px;border-radius:6px;border:1px solid var(--border);font-family:var(--mono)" oninput="useCustomBmc(this.value)">
@@ -648,8 +654,34 @@ function showPage(n){
   window.scrollTo({top:0,behavior:'smooth'});
 }
 function scrollTo2(id){
-  showPage('build');
+  const el = document.getElementById(id);
+  if(el) {
+    const page = el.closest('.page');
+    if(page) showPage(page.id.replace('page-', ''));
+  }
   setTimeout(()=>document.getElementById(id).scrollIntoView({behavior:'smooth'}),350);
+}
+
+function copyTs(btn) {
+  const ts = document.getElementById('unixTs').textContent.replace(/,/g, '');
+  const cb = () => {
+    const old = btn.textContent;
+    btn.textContent = '✅';
+    setTimeout(() => btn.textContent = old, 2000);
+  };
+  if (navigator.clipboard && navigator.clipboard.writeText) {
+    navigator.clipboard.writeText(ts).then(cb).catch(() => {
+      const el = document.createElement('textarea');
+      el.value = ts; document.body.appendChild(el); el.select();
+      document.execCommand('copy'); document.body.removeChild(el);
+      cb();
+    });
+  } else {
+    const el = document.createElement('textarea');
+    el.value = ts; document.body.appendChild(el); el.select();
+    document.execCommand('copy'); document.body.removeChild(el);
+    cb();
+  }
 }
 
 // ── CLOCK ────────────────────────────────────────────────────────────────────
