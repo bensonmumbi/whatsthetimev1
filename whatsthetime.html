@@ -234,10 +234,10 @@ nav a.active{background:var(--accent);color:#fff}
 <header>
   <button class="logo" onclick="showPage('time')" aria-label="Go to world clock"><span style="color:var(--fg)">WHATS</span><span style="color:var(--accent)">THE</span><span style="color:var(--fg)">TIME</span></button>
   <nav>
-    <a onclick="showPage('time')" id="nav-time" class="active">
+    <a href="javascript:void(0)" onclick="showPage('time')" id="nav-time" class="active">
       <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" style="width:16px;height:16px"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg> Time
     </a>
-    <a onclick="showPage('build')" id="nav-build">
+    <a href="javascript:void(0)" onclick="showPage('build')" id="nav-build">
       <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" style="width:16px;height:16px"><path d="M12 2L2 7l10 5 10-5-10-5zM2 17l10 5 10-5M2 12l10 5 10-5"/></svg> Build Your Site
     </a>
   </nav>
@@ -294,7 +294,7 @@ nav a.active{background:var(--accent);color:#fff}
   <section class="t-section">
     <div class="sec-title">Current Time Details</div>
     <div class="info-grid">
-      <div class="ic"><div class="ic-label">Unix Timestamp</div><div class="ic-val" id="unixTs">—</div></div>
+      <div class="ic" style="position:relative"><div class="ic-label">Unix Timestamp</div><div class="ic-val" id="unixTs">—</div><button onclick="copyUnix(this)" aria-label="Copy Unix timestamp" style="position:absolute;top:10px;right:10px;background:none;border:none;cursor:pointer;opacity:0.4;transition:opacity 0.2s" onmouseover="this.style.opacity=1" onmouseout="this.style.opacity=0.4">📋</button></div>
       <div class="ic"><div class="ic-label">Week Number</div><div class="ic-val" id="weekNum">—</div></div>
       <div class="ic"><div class="ic-label">Day of Year</div><div class="ic-val" id="doy">—</div></div>
       <div class="ic"><div class="ic-label">Quarter</div><div class="ic-val" id="qtr">—</div></div>
@@ -332,14 +332,14 @@ nav a.active{background:var(--accent);color:#fff}
     </div>
   </section>
 
-  <section class="t-section">
+  <section class="t-section" id="timezone-converter">
     <div class="sec-title">Timezone Converter</div>
     <div style="background:var(--surface);border:1px solid var(--border);border-radius:12px;padding:24px;display:flex;gap:16px;align-items:center;flex-wrap:wrap">
       <div style="flex:1;min-width:200px">
-        <label style="font-size:11px;font-weight:600;text-transform:uppercase;color:var(--fg-muted);display:block;margin-bottom:6px">From</label>
+        <label for="convTime" style="font-size:11px;font-weight:600;text-transform:uppercase;color:var(--fg-muted);display:block;margin-bottom:6px">From</label>
         <div style="display:flex;gap:8px">
-          <input type="time" id="convTime" value="12:00" onchange="calcConversion()" style="background:var(--bg);border:1px solid var(--border);border-radius:8px;padding:8px 12px;font-family:var(--mono);font-size:14px;color:var(--fg);outline:none">
-          <select id="convFrom" onchange="calcConversion()" style="flex:1;background:var(--bg);border:1px solid var(--border);border-radius:8px;padding:8px 12px;font-family:var(--sans);font-size:13px;color:var(--fg);outline:none">
+          <input type="time" id="convTime" aria-label="Time to convert" value="12:00" onchange="calcConversion()" style="background:var(--bg);border:1px solid var(--border);border-radius:8px;padding:8px 12px;font-family:var(--mono);font-size:14px;color:var(--fg);outline:none">
+          <select id="convFrom" aria-label="From timezone" onchange="calcConversion()" style="flex:1;background:var(--bg);border:1px solid var(--border);border-radius:8px;padding:8px 12px;font-family:var(--sans);font-size:13px;color:var(--fg);outline:none">
             <option value="America/New_York" selected>New York (EST/EDT)</option>
             <option value="Europe/London">London (GMT/BST)</option>
             <option value="Asia/Tokyo">Tokyo (JST)</option>
@@ -351,7 +351,7 @@ nav a.active{background:var(--accent);color:#fff}
       </div>
       <button class="cal-nav-btn" aria-label="Swap timezones" onclick="swapConverter()" style="margin-top:20px;flex-shrink:0">⇄</button>
       <div style="flex:1;min-width:200px">
-        <label style="font-size:11px;font-weight:600;text-transform:uppercase;color:var(--fg-muted);display:block;margin-bottom:6px">To</label>
+        <label for="convTo" style="font-size:11px;font-weight:600;text-transform:uppercase;color:var(--fg-muted);display:block;margin-bottom:6px">To</label>
         <select id="convTo" onchange="calcConversion()" style="width:100%;background:var(--bg);border:1px solid var(--border);border-radius:8px;padding:8px 12px;font-family:var(--sans);font-size:13px;color:var(--fg);outline:none">
           <option value="America/New_York">New York (EST/EDT)</option>
           <option value="Europe/London" selected>London (GMT/BST)</option>
@@ -423,7 +423,7 @@ nav a.active{background:var(--accent);color:#fff}
         <label class="calc-item"><input type="checkbox" id="calc-design" onchange="updateEstimate()"> Premium Custom Design</label>
       </div>
       <div style="margin-bottom:24px">
-        <label style="font-size:14px;font-weight:600;margin-bottom:8px;display:block">Number of Pages: <span id="pages-val">1</span></label>
+        <label for="calc-pages" style="font-size:14px;font-weight:600;margin-bottom:8px;display:block">Number of Pages: <span id="pages-val">1</span></label>
         <input type="range" id="calc-pages" min="1" max="20" value="1" class="calc-range" oninput="updateEstimate()">
       </div>
       <div class="calc-result">
@@ -598,7 +598,7 @@ nav a.active{background:var(--accent);color:#fff}
     <p>Every coffee keeps the site running and free for everyone!</p>
     
     <div style="margin-bottom:20px">
-      <label style="font-size:11px;text-transform:uppercase;color:var(--fg-subtle);display:block;margin-bottom:8px">Select Currency</label>
+      <label for="bmcCurr" style="font-size:11px;text-transform:uppercase;color:var(--fg-subtle);display:block;margin-bottom:8px">Select Currency</label>
       <select id="bmcCurr" style="width:100%;padding:8px;border-radius:6px;border:1px solid var(--border)" onchange="updateBmcCur()">
         <option value="$">USD — US Dollar ($)</option>
         <option value="€">EUR — Euro (€)</option>
@@ -615,7 +615,7 @@ nav a.active{background:var(--accent);color:#fff}
     </div>
     
     <div style="margin:20px 0">
-      <label style="font-size:11px;text-transform:uppercase;color:var(--fg-subtle);display:block;margin-bottom:8px">Custom Amount (Min <span class="cur">$</span>5)</label>
+      <label for="bmcCustom" style="font-size:11px;text-transform:uppercase;color:var(--fg-subtle);display:block;margin-bottom:8px">Custom Amount (Min <span class="cur">$</span>5)</label>
       <div style="position:relative">
         <span class="cur" style="position:absolute;left:12px;top:50%;transform:translateY(-50%);font-weight:600">$</span>
         <input type="number" id="bmcCustom" min="5" placeholder="Enter amount" style="width:100%;padding:10px 10px 10px 30px;border-radius:6px;border:1px solid var(--border);font-family:var(--mono)" oninput="useCustomBmc(this.value)">
@@ -629,11 +629,11 @@ nav a.active{background:var(--accent);color:#fff}
 
 <footer class="site-foot">
   <span>© 2026 whatsthetimeworld.com</span>
-  <a onclick="showPage('time')">Time</a>
-  <a onclick="showPage('build')">Build Your Site</a>
-  <a onclick="showPage('privacy')">Privacy Policy</a>
-  <a onclick="showPage('terms')">Terms of Use</a>
-  <a onclick="scrollTo2('contact-form')">Contact</a>
+  <a href="javascript:void(0)" onclick="showPage('time')">Time</a>
+  <a href="javascript:void(0)" onclick="showPage('build')">Build Your Site</a>
+  <a href="javascript:void(0)" onclick="showPage('privacy')">Privacy Policy</a>
+  <a href="javascript:void(0)" onclick="showPage('terms')">Terms of Use</a>
+  <a href="javascript:void(0)" onclick="scrollTo2('contact-form')">Contact</a>
 </footer>
 
 <script>
@@ -879,6 +879,22 @@ function calcConversion(){
   if(diffDays === -1) dayStr = ' (Prev day)';
 
   document.getElementById('convResult').innerHTML = `${t} in ${fromName} is <span style="color:var(--accent);font-family:var(--mono)">${pad(resDate.getHours())}:${pad(resDate.getMinutes())}</span> in ${toName}${dayStr}`;
+}
+
+function copyUnix(btn){
+  const txt = document.getElementById('unixTs').textContent.replace(/,/g,'');
+  navigator.clipboard.writeText(txt).then(()=>{
+    const old = btn.textContent;
+    btn.textContent = '✅';
+    setTimeout(()=>btn.textContent = old, 1500);
+  }).catch(()=>{
+    const temp = document.createElement('textarea');
+    temp.value = txt; document.body.appendChild(temp);
+    temp.select(); document.execCommand('copy'); document.body.removeChild(temp);
+    const old = btn.textContent;
+    btn.textContent = '✅';
+    setTimeout(()=>btn.textContent = old, 1500);
+  });
 }
 
 // ── INIT ─────────────────────────────────────────────────────────────────────
