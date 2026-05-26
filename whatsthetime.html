@@ -673,6 +673,16 @@ function pad(n){return String(n).padStart(2,'0')}
 function weekNum(d){const dt=new Date(Date.UTC(d.getFullYear(),d.getMonth(),d.getDate()));dt.setUTCDate(dt.getUTCDate()+4-(dt.getUTCDay()||7));const ys=new Date(Date.UTC(dt.getUTCFullYear(),0,1));return Math.ceil((((dt-ys)/86400000)+1)/7)}
 function doy(d){return Math.floor((d-new Date(d.getFullYear(),0,0))/86400000)}
 
+const D=['Sunday','Monday','Tuesday','Wednesday','Thursday','Friday','Saturday'];
+const M=['January','February','March','April','May','June','July','August','September','October','November','December'];
+
+// Performance Optimization: Lazy-loading DOM element cache to avoid redundant document.getElementById calls
+const ELS = {};
+function getEl(id) {
+  if (!(id in ELS)) ELS[id] = document.getElementById(id);
+  return ELS[id];
+}
+
 // Optimized: Uses cached formatters for timezone calculations
 function utcOff(tz){
   try {
@@ -688,33 +698,38 @@ function utcOff(tz){
 let lastMin = -1;
 function tick(){
   const n=new Date();
-  const mainClockEl = document.getElementById('mainClock');
+  const mainClockEl = getEl('mainClock');
   if(mainClockEl) mainClockEl.textContent = `${pad(n.getHours())}:${pad(n.getMinutes())}:${pad(n.getSeconds())}`;
   
   // Update detail IDs if they exist
-  const hh = document.getElementById('hh'), mm = document.getElementById('mm'), ss = document.getElementById('ss');
+  const hh = getEl('hh'), mm = getEl('mm'), ss = getEl('ss');
   if(hh) hh.textContent=pad(n.getHours());
   if(mm) mm.textContent=pad(n.getMinutes());
   if(ss) ss.textContent=pad(n.getSeconds());
 
-  const D=['Sunday','Monday','Tuesday','Wednesday','Thursday','Friday','Saturday'];
-  const M=['January','February','March','April','May','June','July','August','September','October','November','December'];
-  const datDisp = document.getElementById('datDisp');
-  if(datDisp) datDisp.textContent=`${D[n.getDay()]}, ${M[n.getMonth()]} ${n.getDate()}, ${n.getFullYear()}`;
+  const unixTsEl = getEl('unixTs');
+  if(unixTsEl) unixTsEl.textContent=Math.floor(n/1000).toLocaleString();
+  const isoDEl = getEl('isoD');
+  if(isoDEl) isoDEl.textContent=n.toISOString().slice(0,19).replace('T',' ');
 
-  const tzs=getFormatter({timeZoneName:'short'}).formatToParts(n).find(p=>p.type==='timeZoneName')?.value||'';
-  const tzName = document.getElementById('tzName');
-  if(tzName) tzName.textContent=tzs;
-  const utcOffEl = document.getElementById('utcOff');
-  if(utcOffEl) utcOffEl.textContent=utcOff(TZ);
-  document.getElementById('unixTs').textContent=Math.floor(n/1000).toLocaleString();
-  document.getElementById('weekNum').textContent='Week '+weekNum(n);
-  document.getElementById('doy').textContent=doy(n)+' / 365';
-  document.getElementById('qtr').textContent='Q'+(Math.floor(n.getMonth()/3)+1);
-  document.getElementById('isoD').textContent=n.toISOString().slice(0,19).replace('T',' ');
-
-  // Performance Optimization: Throttle secondary clock updates to once per minute
+  // Performance Optimization: Throttle non-second updates to once per minute
   if (n.getMinutes() !== lastMin) {
+    const datDisp = getEl('datDisp');
+    if(datDisp) datDisp.textContent=`${D[n.getDay()]}, ${M[n.getMonth()]} ${n.getDate()}, ${n.getFullYear()}`;
+
+    const tzs=getFormatter({timeZoneName:'short'}).formatToParts(n).find(p=>p.type==='timeZoneName')?.value||'';
+    const tzName = getEl('tzName');
+    if(tzName) tzName.textContent=tzs;
+    const utcOffEl = getEl('utcOff');
+    if(utcOffEl) utcOffEl.textContent=utcOff(TZ);
+
+    const weekNumEl = getEl('weekNum');
+    if(weekNumEl) weekNumEl.textContent='Week '+weekNum(n);
+    const doyEl = getEl('doy');
+    if(doyEl) doyEl.textContent=doy(n)+' / 365';
+    const qtrEl = getEl('qtr');
+    if(qtrEl) qtrEl.textContent='Q'+(Math.floor(n.getMonth()/3)+1);
+
     updateCities();
     updateHeroTz();
     lastMin = n.getMinutes();
