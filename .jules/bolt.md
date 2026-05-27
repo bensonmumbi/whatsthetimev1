@@ -1,3 +1,6 @@
 ## 2026-05-15 - Caching Intl.DateTimeFormat and Throttling Updates
 **Learning:** `Intl.DateTimeFormat` instantiation is expensive and can become a bottleneck when called multiple times per second in a `requestAnimationFrame` or `setInterval` loop. Throttling DOM updates for elements that don't need high-frequency refresh (like `HH:mm` displays) significantly reduces main-thread work.
 **Action:** Always cache `Intl.DateTimeFormat` instances in a `Map` when performing repeated date formatting. Check if visual updates can be throttled based on the data's precision (e.g., only update on minute change if seconds aren't shown).
+## 2026-05-27 - Lazy DOM Caching and Object Reuse in High-Frequency Loops
+**Learning:** Repetitive `document.getElementById` calls in a 1Hz loop (like a clock `tick`) add significant overhead. Using a global `ELS` cache and a `getEl` helper reduces this. Also, reusing `Date` objects across sub-functions instead of re-instantiating them further reduces GC pressure and execution time.
+**Action:** Implement a lazy DOM element cache (`getEl`) for all frequently accessed IDs. Pass the current `Date` object to all sub-functions in the loop to avoid redundant allocations.
