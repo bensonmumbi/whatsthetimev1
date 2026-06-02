@@ -641,15 +641,15 @@ nav a.active{background:var(--accent);color:#fff}
 function showPage(n){
   document.querySelectorAll('.page').forEach(p=>p.classList.remove('active'));
   document.querySelectorAll('nav a').forEach(a=>a.classList.remove('active'));
-  const p = document.getElementById('page-'+n);
+  const p = getEl('page-'+n);
   if(p) p.classList.add('active');
-  const nav = document.getElementById('nav-'+n);
+  const nav = getEl('nav-'+n);
   if(nav) nav.classList.add('active');
   window.scrollTo({top:0,behavior:'smooth'});
 }
 function scrollTo2(id){
   showPage('build');
-  setTimeout(()=>document.getElementById(id).scrollIntoView({behavior:'smooth'}),350);
+  setTimeout(()=>getEl(id).scrollIntoView({behavior:'smooth'}),350);
 }
 
 // ── CLOCK ────────────────────────────────────────────────────────────────────
@@ -661,22 +661,34 @@ function getFormatter(opts) {
   return FORMATTERS.get(k);
 }
 
+const ELS = {};
+const getEl = (id) => {
+  if (!(id in ELS)) ELS[id] = document.getElementById(id);
+  return ELS[id];
+};
+
+const DAYS = ['Sunday','Monday','Tuesday','Wednesday','Thursday','Friday','Saturday'];
+const MONTHS = ['January','February','March','April','May','June','July','August','September','October','November','December'];
+
+let CITY_TIME_ELS = null;
+let HERO_TZ_ELS = null;
+
 const TZ=Intl.DateTimeFormat().resolvedOptions().timeZone;
-const mainCityEl = document.getElementById('mainCity');
+const mainCityEl = getEl('mainCity');
 const cityName = TZ.split('/').pop().replace(/_/g,' ');
 if(mainCityEl) mainCityEl.textContent = cityName;
-const mainCityNameEl = document.getElementById('mainCityName');
+const mainCityNameEl = getEl('mainCityName');
 if(mainCityNameEl) mainCityNameEl.textContent = cityName;
-const tzFullEl = document.getElementById('tzFull');
+const tzFullEl = getEl('tzFull');
 if(tzFullEl) tzFullEl.textContent = TZ;
 function pad(n){return String(n).padStart(2,'0')}
 function weekNum(d){const dt=new Date(Date.UTC(d.getFullYear(),d.getMonth(),d.getDate()));dt.setUTCDate(dt.getUTCDate()+4-(dt.getUTCDay()||7));const ys=new Date(Date.UTC(dt.getUTCFullYear(),0,1));return Math.ceil((((dt-ys)/86400000)+1)/7)}
 function doy(d){return Math.floor((d-new Date(d.getFullYear(),0,0))/86400000)}
 
 // Optimized: Uses cached formatters for timezone calculations
-function utcOff(tz){
+function utcOff(tz, n){
   try {
-    const n=new Date();
+    if (!n) n=new Date();
     const opts = {year:'numeric',month:'numeric',day:'numeric',hour:'numeric',minute:'numeric',second:'numeric',hour12:false};
     const u=new Date(getFormatter({...opts, timeZone:'UTC'}).format(n));
     const l=new Date(getFormatter({...opts, timeZone:tz}).format(n));
@@ -688,44 +700,46 @@ function utcOff(tz){
 let lastMin = -1;
 function tick(){
   const n=new Date();
-  const mainClockEl = document.getElementById('mainClock');
+  const mainClockEl = getEl('mainClock');
   if(mainClockEl) mainClockEl.textContent = `${pad(n.getHours())}:${pad(n.getMinutes())}:${pad(n.getSeconds())}`;
   
   // Update detail IDs if they exist
-  const hh = document.getElementById('hh'), mm = document.getElementById('mm'), ss = document.getElementById('ss');
+  const hh = getEl('hh'), mm = getEl('mm'), ss = getEl('ss');
   if(hh) hh.textContent=pad(n.getHours());
   if(mm) mm.textContent=pad(n.getMinutes());
   if(ss) ss.textContent=pad(n.getSeconds());
 
-  const D=['Sunday','Monday','Tuesday','Wednesday','Thursday','Friday','Saturday'];
-  const M=['January','February','March','April','May','June','July','August','September','October','November','December'];
-  const datDisp = document.getElementById('datDisp');
-  if(datDisp) datDisp.textContent=`${D[n.getDay()]}, ${M[n.getMonth()]} ${n.getDate()}, ${n.getFullYear()}`;
-
-  const tzs=getFormatter({timeZoneName:'short'}).formatToParts(n).find(p=>p.type==='timeZoneName')?.value||'';
-  const tzName = document.getElementById('tzName');
-  if(tzName) tzName.textContent=tzs;
-  const utcOffEl = document.getElementById('utcOff');
-  if(utcOffEl) utcOffEl.textContent=utcOff(TZ);
-  document.getElementById('unixTs').textContent=Math.floor(n/1000).toLocaleString();
-  document.getElementById('weekNum').textContent='Week '+weekNum(n);
-  document.getElementById('doy').textContent=doy(n)+' / 365';
-  document.getElementById('qtr').textContent='Q'+(Math.floor(n.getMonth()/3)+1);
-  document.getElementById('isoD').textContent=n.toISOString().slice(0,19).replace('T',' ');
+  getEl('unixTs').textContent=Math.floor(n/1000).toLocaleString();
+  getEl('isoD').textContent=n.toISOString().slice(0,19).replace('T',' ');
 
   // Performance Optimization: Throttle secondary clock updates to once per minute
   if (n.getMinutes() !== lastMin) {
-    updateCities();
-    updateHeroTz();
+    const datDisp = getEl('datDisp');
+    if(datDisp) datDisp.textContent=`${DAYS[n.getDay()]}, ${MONTHS[n.getMonth()]} ${n.getDate()}, ${n.getFullYear()}`;
+
+    const tzs=getFormatter({timeZoneName:'short'}).formatToParts(n).find(p=>p.type==='timeZoneName')?.value||'';
+    const tzName = getEl('tzName');
+    if(tzName) tzName.textContent=tzs;
+    const utcOffEl = getEl('utcOff');
+    if(utcOffEl) utcOffEl.textContent=utcOff(TZ, n);
+    getEl('weekNum').textContent='Week '+weekNum(n);
+    getEl('doy').textContent=doy(n)+' / 365';
+    getEl('qtr').textContent='Q'+(Math.floor(n.getMonth()/3)+1);
+
+    updateCities(n);
+    updateHeroTz(n);
     lastMin = n.getMinutes();
   }
 }
-function cityTime(tz){
-  const n=new Date();
+function cityTime(tz, n){
+  if (!n) n=new Date();
   const p=getFormatter({timeZone:tz,hour:'2-digit',minute:'2-digit',hour12:false}).formatToParts(n);
   return{h:p.find(x=>x.type==='hour')?.value||'00',m:p.find(x=>x.type==='minute')?.value||'00'}
 }
-function updateHeroTz(){document.querySelectorAll('.tz-time[data-hero-tz]').forEach(el=>{const{h,m}=cityTime(el.dataset.heroTz);el.textContent=`${h}:${m}`})}
+function updateHeroTz(n){
+  if (!HERO_TZ_ELS) HERO_TZ_ELS = document.querySelectorAll('.tz-time[data-hero-tz]');
+  HERO_TZ_ELS.forEach(el=>{const{h,m}=cityTime(el.dataset.heroTz, n);el.textContent=`${h}:${m}`});
+}
 
 // ── WORLD CITIES ─────────────────────────────────────────────────────────────
 const CITIES=[
@@ -747,20 +761,24 @@ const CITIES=[
   {name:'Sao Paulo',     tz:'America/Sao_Paulo'},
 ];
 
-function buildCities(){const g=document.getElementById('citiesGrid');g.innerHTML='';
-  CITIES.forEach(c=>{const{h,m}=cityTime(c.tz);const el=document.createElement('div');el.className='city-card';el.innerHTML=`<div class="city-name">${c.name}</div><div class="city-time" data-tz="${c.tz}">${h}:${m}</div><div class="city-off">${utcOff(c.tz)}</div>`;g.appendChild(el)})
+function buildCities(){const g=getEl('citiesGrid');g.innerHTML='';
+  const n=new Date();
+  CITIES.forEach(c=>{const{h,m}=cityTime(c.tz, n);const el=document.createElement('div');el.className='city-card';el.innerHTML=`<div class="city-name">${c.name}</div><div class="city-time" data-tz="${c.tz}">${h}:${m}</div><div class="city-off">${utcOff(c.tz, n)}</div>`;g.appendChild(el)})
+  CITY_TIME_ELS = null;
 }
-function updateCities(){document.querySelectorAll('.city-time[data-tz]').forEach(el=>{const{h,m}=cityTime(el.dataset.tz);el.textContent=`${h}:${m}`});}
+function updateCities(n){
+  if (!CITY_TIME_ELS) CITY_TIME_ELS = document.querySelectorAll('.city-time[data-tz]');
+  CITY_TIME_ELS.forEach(el=>{const{h,m}=cityTime(el.dataset.tz, n);el.textContent=`${h}:${m}`});
+}
 
 
 // ── CALENDAR ─────────────────────────────────────────────────────────────────
 let calDate=new Date();
 function renderCal(){
   const y=calDate.getFullYear(),mo=calDate.getMonth();
-  const MO=['January','February','March','April','May','June','July','August','September','October','November','December'];
-  document.getElementById('calTitle').textContent=`${MO[mo]} ${y}`;
-  document.getElementById('calMonLbl').textContent=`${MO[mo]} ${y}`;
-  const g=document.getElementById('calGrid');g.innerHTML='';
+  getEl('calTitle').textContent=`${MONTHS[mo]} ${y}`;
+  getEl('calMonLbl').textContent=`${MONTHS[mo]} ${y}`;
+  const g=getEl('calGrid');g.innerHTML='';
   ['Su','Mo','Tu','We','Th','Fr','Sa'].forEach(d=>{const e=document.createElement('div');e.className='cdn';e.textContent=d;g.appendChild(e)});
   const first=new Date(y,mo,1).getDay(),days=new Date(y,mo+1,0).getDate(),today=new Date();
   const prev=new Date(y,mo,0).getDate();
@@ -779,7 +797,7 @@ function renderCal(){
 function shiftMonth(dir){calDate.setMonth(calDate.getMonth()+dir);renderCal()}
 
 // ── BUILD PAGE HELPERS ────────────────────────────────────────────────────────
-function preselectPlan(plan){showPage('build');setTimeout(()=>{document.getElementById('fplan').value=plan;document.getElementById('contact-form').scrollIntoView({behavior:'smooth'})},400)}
+function preselectPlan(plan){showPage('build');setTimeout(()=>{getEl('fplan').value=plan;getEl('contact-form').scrollIntoView({behavior:'smooth'})},400)}
 function toggleFaq(el){el.parentElement.classList.toggle('open')}
 
 function filterPortfolio(btn, category){
@@ -797,33 +815,35 @@ function filterPortfolio(btn, category){
 
 function updateEstimate(){
   const base = 400;
-  const pages = parseInt(document.getElementById('calc-pages').value);
-  const ecommerce = document.getElementById('calc-ecommerce').checked ? 500 : 0;
-  const seo = document.getElementById('calc-seo').checked ? 200 : 0;
-  const backend = document.getElementById('calc-backend').checked ? 1000 : 0;
-  const design = document.getElementById('calc-design').checked ? 300 : 0;
+  const pages = parseInt(getEl('calc-pages').value);
+  const ecommerce = getEl('calc-ecommerce').checked ? 500 : 0;
+  const seo = getEl('calc-seo').checked ? 200 : 0;
+  const backend = getEl('calc-backend').checked ? 1000 : 0;
+  const design = getEl('calc-design').checked ? 300 : 0;
 
   const total = base + (pages * 100) + ecommerce + seo + backend + design;
 
-  document.getElementById('pages-val').textContent = pages;
-  document.getElementById('calc-total-val').textContent = total.toLocaleString();
+  getEl('pages-val').textContent = pages;
+  getEl('calc-total-val').textContent = total.toLocaleString();
 }
 function submitForm(){
-  const name=document.getElementById('fname').value.trim();
-  const email=document.getElementById('femail').value.trim();
+  const name=getEl('fname').value.trim();
+  const email=getEl('femail').value.trim();
   if(!name||!email){alert('Please fill in your name and email.');return}
-  const s=document.getElementById('fSuccess');
-  s.classList.add('show');
-  setTimeout(()=>s.classList.remove('show'),5000);
+  const s=getEl('fSuccess');
+  if(s){
+    s.classList.add('show');
+    setTimeout(()=>s.classList.remove('show'),5000);
+  }
 }
 
 // ── BUY ME A COFFEE ───────────────────────────────────────────────────────────
 let bmcVal=5, bmcCur='$';
-function openBmc(){document.getElementById('bmcModal').classList.add('show')}
-function closeBmc(){document.getElementById('bmcModal').classList.remove('show')}
-function closeBmcOv(e){if(e.target===document.getElementById('bmcModal'))closeBmc()}
+function openBmc(){getEl('bmcModal').classList.add('show')}
+function closeBmc(){getEl('bmcModal').classList.remove('show')}
+function closeBmcOv(e){if(e.target===getEl('bmcModal'))closeBmc()}
 function updateBmcCur(){
-  bmcCur=document.getElementById('bmcCurr').value;
+  bmcCur=getEl('bmcCurr').value;
   document.querySelectorAll('.cur').forEach(el=>el.textContent=bmcCur);
   updateBmcDisplay();
 }
@@ -831,7 +851,7 @@ function selCoffee(el,val){
   bmcVal=val;
   document.querySelectorAll('.ca').forEach(c=>c.classList.remove('sel'));
   el.classList.add('sel');
-  document.getElementById('bmcCustom').value='';
+  getEl('bmcCustom').value='';
   updateBmcDisplay();
 }
 function useCustomBmc(val){
@@ -841,7 +861,7 @@ function useCustomBmc(val){
     updateBmcDisplay();
   }
 }
-function updateBmcDisplay(){document.getElementById('bmcAmtDisplay').textContent=bmcCur+bmcVal}
+function updateBmcDisplay(){getEl('bmcAmtDisplay').textContent=bmcCur+bmcVal}
 function supportBmc(){
   if(bmcVal < 5){alert(`Minimum support is ${bmcCur}5. Thank you!`);return}
   alert(`Thank you so much! ☕\nYour support: ${bmcCur}${bmcVal}\n\nRedirecting to secure payment page...`);
@@ -849,13 +869,13 @@ function supportBmc(){
 }
 
 function swapConverter(){
-  const f = document.getElementById('convFrom'), t = document.getElementById('convTo'), v = f.value;
+  const f = getEl('convFrom'), t = getEl('convTo'), v = f.value;
   f.value = t.value; t.value = v; calcConversion();
 }
 function calcConversion(){
-  const t = document.getElementById('convTime').value;
-  const from = document.getElementById('convFrom').value;
-  const to = document.getElementById('convTo').value;
+  const t = getEl('convTime').value;
+  const from = getEl('convFrom').value;
+  const to = getEl('convTo').value;
   if(!t) return;
   const [h,m] = t.split(':');
   
@@ -868,8 +888,8 @@ function calcConversion(){
   tempDate.setHours(parseInt(h), parseInt(m), 0, 0);
   const resDate = new Date(tempDate.getTime() + diffMs);
   
-  const fromName = document.getElementById('convFrom').options[document.getElementById('convFrom').selectedIndex].text.split(' (')[0];
-  const toName = document.getElementById('convTo').options[document.getElementById('convTo').selectedIndex].text.split(' (')[0];
+  const fromName = getEl('convFrom').options[getEl('convFrom').selectedIndex].text.split(' (')[0];
+  const toName = getEl('convTo').options[getEl('convTo').selectedIndex].text.split(' (')[0];
   
   const dt1 = new Date(tempDate.getFullYear(), tempDate.getMonth(), tempDate.getDate());
   const dt2 = new Date(resDate.getFullYear(), resDate.getMonth(), resDate.getDate());
@@ -878,7 +898,7 @@ function calcConversion(){
   if(diffDays === 1) dayStr = ' (Next day)';
   if(diffDays === -1) dayStr = ' (Prev day)';
 
-  document.getElementById('convResult').innerHTML = `${t} in ${fromName} is <span style="color:var(--accent);font-family:var(--mono)">${pad(resDate.getHours())}:${pad(resDate.getMinutes())}</span> in ${toName}${dayStr}`;
+  getEl('convResult').innerHTML = `${t} in ${fromName} is <span style="color:var(--accent);font-family:var(--mono)">${pad(resDate.getHours())}:${pad(resDate.getMinutes())}</span> in ${toName}${dayStr}`;
 }
 
 // ── INIT ─────────────────────────────────────────────────────────────────────
