@@ -325,7 +325,8 @@ nav a.active{background:var(--accent);color:#fff}
   <section class="t-section" style="border-bottom:none">
     <div class="sec-title">Embed this clock</div>
     <p style="font-size:12px;color:var(--fg-muted);margin-bottom:8px">Copy the code below to add a free timezone clock widget to your site.</p>
-    <textarea readonly style="width:100%;height:60px;background:var(--surface);border:1px solid var(--border);border-radius:8px;padding:10px;font-family:var(--mono);font-size:11px;color:var(--fg-subtle)" onclick="this.select()"><iframe src="https://whatsthetimeworld.com/widget" width="300" height="150" style="border:none;border-radius:8px"></iframe></textarea>
+    <textarea id="embedCode" readonly style="width:100%;height:60px;background:var(--surface);border:1px solid var(--border);border-radius:8px;padding:10px;font-family:var(--mono);font-size:11px;color:var(--fg-subtle)" onclick="this.select()"><iframe src="https://whatsthetimeworld.com/widget" width="300" height="150" style="border:none;border-radius:8px"></iframe></textarea>
+    <button type="button" class="btn-out" style="margin-top:8px;padding:8px 16px;font-size:12px" onclick="copyEmbed(this)">Copy Code</button>
     <div style="margin-top:12px;background:#fffbeb;border:1px solid #fcd34d;padding:14px;border-radius:8px;font-size:12px;display:flex;align-items:center;justify-content:space-between">
       <div><strong>Want an ad-free, white-label version?</strong><br/><span style="color:var(--fg-muted)">Remove the "Powered by whatsthetimeworld.com" branding for a $5/mo fee.</span></div>
       <button class="btn-pri" style="padding:6px 12px;font-size:11px;color:#000;background:#fcd34d" onclick="scrollTo2('contact-form')">Get White-Label</button>
@@ -637,6 +638,31 @@ nav a.active{background:var(--accent);color:#fff}
 </footer>
 
 <script>
+function copyEmbed(btn){
+  const txt = document.getElementById('embedCode').value;
+  const old = btn.innerText;
+  const cb = () => {
+    btn.innerText = 'Copied! ✓';
+    btn.classList.remove('btn-out');
+    btn.style.backgroundColor = '#059669';
+    btn.style.color = '#fff';
+    btn.style.borderColor = '#059669';
+    setTimeout(() => {
+      btn.innerText = old;
+      btn.classList.add('btn-out');
+      btn.style.backgroundColor = '';
+      btn.style.color = '';
+      btn.style.borderColor = '';
+    }, 2000);
+  };
+  if(navigator.clipboard){
+    navigator.clipboard.writeText(txt).then(cb);
+  } else {
+    btn.previousElementSibling.select();
+    document.execCommand('copy');
+    cb();
+  }
+}
 // ── NAVIGATION ──────────────────────────────────────────────────────────────
 function showPage(n){
   document.querySelectorAll('.page').forEach(p=>p.classList.remove('active'));
