@@ -179,7 +179,7 @@ nav a.active{background:var(--accent);color:#fff}
 .f-row{display:grid;grid-template-columns:1fr 1fr;gap:14px;margin-bottom:14px}
 .fg{display:flex;flex-direction:column;gap:6px;margin-bottom:14px}
 .fg label{font-size:12px;font-weight:600;text-transform:uppercase;letter-spacing:.5px;color:var(--fg-muted)}
-.fg input,.fg textarea,.fg select{background:var(--bg);border:1px solid var(--border);border-radius:8px;padding:10px 14px;font-size:13.5px;font-family:var(--sans);color:var(--fg);transition:border-color .15s;outline:none}
+.fg input,.fg textarea,.fg select{background:var(--bg);border:1px solid var(--border);border-radius:8px;padding:10px 14px;font-size:13.5px;font-family:var(--sans);color:var(--fg);transition:border-color .15s}
 .fg input:focus,.fg textarea:focus,.fg select:focus{border-color:var(--accent)}
 .fg textarea{min-height:110px;resize:vertical}
 .f-success{display:none;background:#f0fdf4;border:1px solid #bbf7d0;border-radius:10px;padding:16px;color:#166534;font-size:13px;margin-top:14px}
@@ -197,7 +197,7 @@ nav a.active{background:var(--accent);color:#fff}
 .modal h2{font-family:var(--display);font-size:32px;margin-bottom:8px;letter-spacing:1px}
 .modal p{font-size:13.5px;color:var(--fg-muted);margin-bottom:22px;line-height:1.6}
 .ca-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:10px;margin-bottom:18px}
-.ca{border:2px solid var(--border);border-radius:10px;padding:14px 8px;cursor:pointer;transition:all .15s;text-align:center;font-family:var(--sans)}
+.ca{border:2px solid var(--border);border-radius:10px;padding:14px 8px;cursor:pointer;transition:all .15s;text-align:center;font-family:var(--sans);appearance:none;background:none;font:inherit}
 .ca:hover,.ca.sel{border-color:#FFDD00;background:#fffce0}
 .ca-icon{font-size:24px;margin-bottom:4px}
 .ca-lbl{font-size:11px;color:var(--fg-muted)}
@@ -325,7 +325,8 @@ nav a.active{background:var(--accent);color:#fff}
   <section class="t-section" style="border-bottom:none">
     <div class="sec-title">Embed this clock</div>
     <p style="font-size:12px;color:var(--fg-muted);margin-bottom:8px">Copy the code below to add a free timezone clock widget to your site.</p>
-    <textarea readonly style="width:100%;height:60px;background:var(--surface);border:1px solid var(--border);border-radius:8px;padding:10px;font-family:var(--mono);font-size:11px;color:var(--fg-subtle)" onclick="this.select()"><iframe src="https://whatsthetimeworld.com/widget" width="300" height="150" style="border:none;border-radius:8px"></iframe></textarea>
+    <textarea id="embedCode" readonly style="width:100%;height:60px;background:var(--surface);border:1px solid var(--border);border-radius:8px;padding:10px;font-family:var(--mono);font-size:11px;color:var(--fg-subtle)" onclick="this.select()"><iframe src="https://whatsthetimeworld.com/widget" width="300" height="150" style="border:none;border-radius:8px"></iframe></textarea>
+    <button id="copyBtn" class="btn-pri" style="margin-top:8px;width:100%;padding:10px;font-size:12px" onclick="copyCode()">Copy Code</button>
     <div style="margin-top:12px;background:#fffbeb;border:1px solid #fcd34d;padding:14px;border-radius:8px;font-size:12px;display:flex;align-items:center;justify-content:space-between">
       <div><strong>Want an ad-free, white-label version?</strong><br/><span style="color:var(--fg-muted)">Remove the "Powered by whatsthetimeworld.com" branding for a $5/mo fee.</span></div>
       <button class="btn-pri" style="padding:6px 12px;font-size:11px;color:#000;background:#fcd34d" onclick="scrollTo2('contact-form')">Get White-Label</button>
@@ -336,10 +337,10 @@ nav a.active{background:var(--accent);color:#fff}
     <div class="sec-title">Timezone Converter</div>
     <div style="background:var(--surface);border:1px solid var(--border);border-radius:12px;padding:24px;display:flex;gap:16px;align-items:center;flex-wrap:wrap">
       <div style="flex:1;min-width:200px">
-        <label style="font-size:11px;font-weight:600;text-transform:uppercase;color:var(--fg-muted);display:block;margin-bottom:6px">From</label>
+        <label for="convFrom" style="font-size:11px;font-weight:600;text-transform:uppercase;color:var(--fg-muted);display:block;margin-bottom:6px">From</label>
         <div style="display:flex;gap:8px">
-          <input type="time" id="convTime" value="12:00" onchange="calcConversion()" style="background:var(--bg);border:1px solid var(--border);border-radius:8px;padding:8px 12px;font-family:var(--mono);font-size:14px;color:var(--fg);outline:none">
-          <select id="convFrom" onchange="calcConversion()" style="flex:1;background:var(--bg);border:1px solid var(--border);border-radius:8px;padding:8px 12px;font-family:var(--sans);font-size:13px;color:var(--fg);outline:none">
+          <input type="time" id="convTime" aria-label="Start Time" value="12:00" onchange="calcConversion()" style="background:var(--bg);border:1px solid var(--border);border-radius:8px;padding:8px 12px;font-family:var(--mono);font-size:14px;color:var(--fg)">
+          <select id="convFrom" onchange="calcConversion()" style="flex:1;background:var(--bg);border:1px solid var(--border);border-radius:8px;padding:8px 12px;font-family:var(--sans);font-size:13px;color:var(--fg)">
             <option value="America/New_York" selected>New York (EST/EDT)</option>
             <option value="Europe/London">London (GMT/BST)</option>
             <option value="Asia/Tokyo">Tokyo (JST)</option>
@@ -351,8 +352,8 @@ nav a.active{background:var(--accent);color:#fff}
       </div>
       <button class="cal-nav-btn" aria-label="Swap timezones" onclick="swapConverter()" style="margin-top:20px;flex-shrink:0">⇄</button>
       <div style="flex:1;min-width:200px">
-        <label style="font-size:11px;font-weight:600;text-transform:uppercase;color:var(--fg-muted);display:block;margin-bottom:6px">To</label>
-        <select id="convTo" onchange="calcConversion()" style="width:100%;background:var(--bg);border:1px solid var(--border);border-radius:8px;padding:8px 12px;font-family:var(--sans);font-size:13px;color:var(--fg);outline:none">
+        <label for="convTo" style="font-size:11px;font-weight:600;text-transform:uppercase;color:var(--fg-muted);display:block;margin-bottom:6px">To</label>
+        <select id="convTo" onchange="calcConversion()" style="width:100%;background:var(--bg);border:1px solid var(--border);border-radius:8px;padding:8px 12px;font-family:var(--sans);font-size:13px;color:var(--fg)">
           <option value="America/New_York">New York (EST/EDT)</option>
           <option value="Europe/London" selected>London (GMT/BST)</option>
           <option value="Asia/Tokyo">Tokyo (JST)</option>
@@ -598,7 +599,7 @@ nav a.active{background:var(--accent);color:#fff}
     <p>Every coffee keeps the site running and free for everyone!</p>
     
     <div style="margin-bottom:20px">
-      <label style="font-size:11px;text-transform:uppercase;color:var(--fg-subtle);display:block;margin-bottom:8px">Select Currency</label>
+      <label for="bmcCurr" style="font-size:11px;text-transform:uppercase;color:var(--fg-subtle);display:block;margin-bottom:8px">Select Currency</label>
       <select id="bmcCurr" style="width:100%;padding:8px;border-radius:6px;border:1px solid var(--border)" onchange="updateBmcCur()">
         <option value="$">USD — US Dollar ($)</option>
         <option value="€">EUR — Euro (€)</option>
@@ -609,13 +610,13 @@ nav a.active{background:var(--accent);color:#fff}
     </div>
 
     <div class="ca-grid">
-      <div class="ca sel" onclick="selCoffee(this,5)"><div class="ca-icon">☕</div><div class="ca-lbl">1 Coffee</div><div class="ca-price"><span class="cur">$</span>5</div></div>
-      <div class="ca" onclick="selCoffee(this,10)"><div class="ca-icon">☕☕</div><div class="ca-lbl">2 Coffees</div><div class="ca-price"><span class="cur">$</span>10</div></div>
-      <div class="ca" onclick="selCoffee(this,20)"><div class="ca-icon">🎉</div><div class="ca-lbl">Big Support</div><div class="ca-price"><span class="cur">$</span>20</div></div>
+      <button type="button" class="ca sel" onclick="selCoffee(this,5)"><div class="ca-icon">☕</div><div class="ca-lbl">1 Coffee</div><div class="ca-price"><span class="cur">$</span>5</div></button>
+      <button type="button" class="ca" onclick="selCoffee(this,10)"><div class="ca-icon">☕☕</div><div class="ca-lbl">2 Coffees</div><div class="ca-price"><span class="cur">$</span>10</div></button>
+      <button type="button" class="ca" onclick="selCoffee(this,20)"><div class="ca-icon">🎉</div><div class="ca-lbl">Big Support</div><div class="ca-price"><span class="cur">$</span>20</div></button>
     </div>
     
     <div style="margin:20px 0">
-      <label style="font-size:11px;text-transform:uppercase;color:var(--fg-subtle);display:block;margin-bottom:8px">Custom Amount (Min <span class="cur">$</span>5)</label>
+      <label for="bmcCustom" style="font-size:11px;text-transform:uppercase;color:var(--fg-subtle);display:block;margin-bottom:8px">Custom Amount (Min <span class="cur">$</span>5)</label>
       <div style="position:relative">
         <span class="cur" style="position:absolute;left:12px;top:50%;transform:translateY(-50%);font-weight:600">$</span>
         <input type="number" id="bmcCustom" min="5" placeholder="Enter amount" style="width:100%;padding:10px 10px 10px 30px;border-radius:6px;border:1px solid var(--border);font-family:var(--mono)" oninput="useCustomBmc(this.value)">
@@ -901,6 +902,23 @@ if (urlParams.get('status') === 'success') {
     alert('Thank you! Your message has been sent successfully. We will get back to you soon.');
 } else if (urlParams.get('status') === 'error') {
     alert('Oops! Something went wrong and we couldn\'t send your message. Please try again later.');
+}
+
+function copyCode(){
+  const copyBtn = document.getElementById('copyBtn');
+  const textArea = document.getElementById('embedCode');
+  navigator.clipboard.writeText(textArea.value).then(() => {
+    const oldText = copyBtn.textContent;
+    const oldBg = copyBtn.style.background;
+    copyBtn.textContent = 'Copied! ✓';
+    copyBtn.style.background = '#059669';
+    copyBtn.style.color = '#fff';
+    setTimeout(() => {
+      copyBtn.textContent = oldText;
+      copyBtn.style.background = oldBg;
+      copyBtn.style.color = '';
+    }, 2000);
+  });
 }
 </script>
 <div class="ad-sticky">Advertisement (Mobile Anchor / Desktop Bottom)</div>
