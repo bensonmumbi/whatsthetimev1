@@ -15,6 +15,20 @@
 html{scroll-behavior:smooth}
 body{font-family:var(--sans);background:var(--bg);color:var(--fg);min-height:100vh;-webkit-font-smoothing:antialiased}
 
+:focus-visible{outline:3px solid var(--accent);outline-offset:2px}
+
+.faq-q, .ca, nav button, .site-foot button {
+  appearance: none;
+  background: none;
+  border: none;
+  font-family: inherit;
+  color: inherit;
+  cursor: pointer;
+  padding: 0;
+  text-align: inherit;
+}
+.faq-q { width: 100%; text-align: left; }
+
 .page{display:none;animation:fadeIn .3s ease}
 .page.active{display:block}
 @keyframes fadeIn{from{opacity:0;transform:translateY(8px)}to{opacity:1;transform:translateY(0)}}
@@ -23,9 +37,9 @@ body{font-family:var(--sans);background:var(--bg);color:var(--fg);min-height:100
 header{position:sticky;top:0;z-index:200;background:rgba(255,255,255,.96);backdrop-filter:blur(12px);border-bottom:1px solid var(--border);display:flex;align-items:center;justify-content:center;padding:0 24px;height:70px}
 .logo{font-family:var(--display);font-size:28px;color:var(--accent);letter-spacing:1px;cursor:pointer;border:none;background:none;position:absolute;left:24px}
 nav{display:flex;align-items:center;gap:12px}
-nav a{font-size:16px;font-weight:600;color:var(--fg-muted);text-decoration:none;padding:10px 20px;border-radius:8px;cursor:pointer;transition:all .15s}
-nav a:hover{background:var(--fg);color:#fff}
-nav a.active{background:var(--accent);color:#fff}
+nav button{font-size:16px;font-weight:600;color:var(--fg-muted);text-decoration:none;padding:10px 20px;border-radius:8px;cursor:pointer;transition:all .15s}
+nav button:hover{background:var(--fg);color:#fff}
+nav button.active{background:var(--accent);color:#fff}
 
 /* ── PAGE 1: TIME ── */
 .hero{background:#f8d7da;padding:40px;position:relative;overflow:hidden;border-bottom:1px solid #000;min-height:95vh;display:flex;flex-direction:column;justify-content:space-between;gap:20px}
@@ -179,14 +193,14 @@ nav a.active{background:var(--accent);color:#fff}
 .f-row{display:grid;grid-template-columns:1fr 1fr;gap:14px;margin-bottom:14px}
 .fg{display:flex;flex-direction:column;gap:6px;margin-bottom:14px}
 .fg label{font-size:12px;font-weight:600;text-transform:uppercase;letter-spacing:.5px;color:var(--fg-muted)}
-.fg input,.fg textarea,.fg select{background:var(--bg);border:1px solid var(--border);border-radius:8px;padding:10px 14px;font-size:13.5px;font-family:var(--sans);color:var(--fg);transition:border-color .15s;outline:none}
+.fg input,.fg textarea,.fg select{background:var(--bg);border:1px solid var(--border);border-radius:8px;padding:10px 14px;font-size:13.5px;font-family:var(--sans);color:var(--fg);transition:border-color .15s}
 .fg input:focus,.fg textarea:focus,.fg select:focus{border-color:var(--accent)}
 .fg textarea{min-height:110px;resize:vertical}
 .f-success{display:none;background:#f0fdf4;border:1px solid #bbf7d0;border-radius:10px;padding:16px;color:#166534;font-size:13px;margin-top:14px}
 .f-success.show{display:block}
 
 /* BUY ME A COFFEE */
-.bmc-btn{position:fixed;bottom:24px;right:24px;z-index:300;background:#FFDD00;color:#000;border:none;border-radius:50px;display:flex;align-items:center;gap:8px;padding:11px 20px;font-size:13px;font-weight:700;cursor:pointer;box-shadow:0 4px 20px rgba(0,0,0,.15);font-family:var(--sans);transition:all .2s}
+.bmc-btn{position:fixed;bottom:70px;right:24px;z-index:300;background:#FFDD00;color:#000;border:none;border-radius:50px;display:flex;align-items:center;gap:8px;padding:11px 20px;font-size:13px;font-weight:700;cursor:pointer;box-shadow:0 4px 20px rgba(0,0,0,.15);font-family:var(--sans);transition:all .2s}
 .bmc-btn:hover{transform:translateY(-2px);box-shadow:0 8px 28px rgba(0,0,0,.2)}
 .bmc-icon{font-size:18px}
 .modal-ov{position:fixed;inset:0;background:rgba(0,0,0,.5);z-index:600;display:none;align-items:center;justify-content:center}
@@ -208,14 +222,14 @@ nav a.active{background:var(--accent);color:#fff}
 
 /* FOOTER */
 .site-foot{border-top:1px solid var(--border);padding:18px 24px;font-size:11.5px;color:var(--fg-subtle);display:flex;align-items:center;justify-content:center;gap:18px;flex-wrap:wrap}
-.site-foot a{color:var(--fg-subtle);text-decoration:none;cursor:pointer}
-.site-foot a:hover{color:var(--fg)}
+.site-foot button{color:var(--fg-subtle);text-decoration:none;cursor:pointer}
+.site-foot button:hover{color:var(--fg)}
 
 @media(max-width:640px){
   header{justify-content:space-between;padding:0 14px;height:60px}
   .logo{position:static;font-size:22px}
   nav{gap:4px}
-  nav a{font-size:13px;padding:6px 10px}
+  nav button{font-size:13px;padding:6px 10px}
   .bld-body{padding:36px 14px}
   #page-time main{padding:0 14px 48px}
   .f-row{grid-template-columns:1fr}
@@ -234,12 +248,12 @@ nav a.active{background:var(--accent);color:#fff}
 <header>
   <button class="logo" onclick="showPage('time')" aria-label="Go to world clock"><span style="color:var(--fg)">WHATS</span><span style="color:var(--accent)">THE</span><span style="color:var(--fg)">TIME</span></button>
   <nav>
-    <a onclick="showPage('time')" id="nav-time" class="active">
+    <button type="button" onclick="showPage('time')" id="nav-time" class="active">
       <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" style="width:16px;height:16px"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg> Time
-    </a>
-    <a onclick="showPage('build')" id="nav-build">
+    </button>
+    <button type="button" onclick="showPage('build')" id="nav-build">
       <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" style="width:16px;height:16px"><path d="M12 2L2 7l10 5 10-5-10-5zM2 17l10 5 10-5M2 12l10 5 10-5"/></svg> Build Your Site
-    </a>
+    </button>
   </nav>
 </header>
 
@@ -338,8 +352,8 @@ nav a.active{background:var(--accent);color:#fff}
       <div style="flex:1;min-width:200px">
         <label style="font-size:11px;font-weight:600;text-transform:uppercase;color:var(--fg-muted);display:block;margin-bottom:6px">From</label>
         <div style="display:flex;gap:8px">
-          <input type="time" id="convTime" value="12:00" onchange="calcConversion()" style="background:var(--bg);border:1px solid var(--border);border-radius:8px;padding:8px 12px;font-family:var(--mono);font-size:14px;color:var(--fg);outline:none">
-          <select id="convFrom" onchange="calcConversion()" style="flex:1;background:var(--bg);border:1px solid var(--border);border-radius:8px;padding:8px 12px;font-family:var(--sans);font-size:13px;color:var(--fg);outline:none">
+          <input type="time" id="convTime" value="12:00" onchange="calcConversion()" style="background:var(--bg);border:1px solid var(--border);border-radius:8px;padding:8px 12px;font-family:var(--mono);font-size:14px;color:var(--fg)">
+          <select id="convFrom" onchange="calcConversion()" style="flex:1;background:var(--bg);border:1px solid var(--border);border-radius:8px;padding:8px 12px;font-family:var(--sans);font-size:13px;color:var(--fg)">
             <option value="America/New_York" selected>New York (EST/EDT)</option>
             <option value="Europe/London">London (GMT/BST)</option>
             <option value="Asia/Tokyo">Tokyo (JST)</option>
@@ -352,7 +366,7 @@ nav a.active{background:var(--accent);color:#fff}
       <button class="cal-nav-btn" aria-label="Swap timezones" onclick="swapConverter()" style="margin-top:20px;flex-shrink:0">⇄</button>
       <div style="flex:1;min-width:200px">
         <label style="font-size:11px;font-weight:600;text-transform:uppercase;color:var(--fg-muted);display:block;margin-bottom:6px">To</label>
-        <select id="convTo" onchange="calcConversion()" style="width:100%;background:var(--bg);border:1px solid var(--border);border-radius:8px;padding:8px 12px;font-family:var(--sans);font-size:13px;color:var(--fg);outline:none">
+        <select id="convTo" onchange="calcConversion()" style="width:100%;background:var(--bg);border:1px solid var(--border);border-radius:8px;padding:8px 12px;font-family:var(--sans);font-size:13px;color:var(--fg)">
           <option value="America/New_York">New York (EST/EDT)</option>
           <option value="Europe/London" selected>London (GMT/BST)</option>
           <option value="Asia/Tokyo">Tokyo (JST)</option>
@@ -500,11 +514,11 @@ nav a.active{background:var(--accent);color:#fff}
     <div class="sec-lbl">FAQ</div>
     <div class="sec-hd">QUESTIONS</div>
     <div class="faq-list">
-      <div class="faq-item"><div class="faq-q" onclick="toggleFaq(this)">Do I need to know coding? <span class="faq-ico">+</span></div><div class="faq-a">No. I handle everything. You just tell me what you want and I build it.</div></div>
-      <div class="faq-item"><div class="faq-q" onclick="toggleFaq(this)">How long does it take? <span class="faq-ico">+</span></div><div class="faq-a">A single-page site: 24–48 hours. A full multi-page site with merch and backend: 3–7 days.</div></div>
-      <div class="faq-item"><div class="faq-q" onclick="toggleFaq(this)">Can you work with my Hostinger account? <span class="faq-ico">+</span></div><div class="faq-a">Yes. I can set everything up directly on your existing Hostinger account with full guidance.</div></div>
-      <div class="faq-item"><div class="faq-q" onclick="toggleFaq(this)">Will my site work on mobile? <span class="faq-ico">+</span></div><div class="faq-a">Every site I build is fully mobile responsive and tested on Android and iOS before delivery.</div></div>
-      <div class="faq-item"><div class="faq-q" onclick="toggleFaq(this)">Do you offer support after delivery? <span class="faq-ico">+</span></div><div class="faq-a">Business plan: 1 month. Starter &amp; Pro: 2 weeks of minor fix support. Extended support available.</div></div>
+      <div class="faq-item"><button type="button" class="faq-q" onclick="toggleFaq(this)" aria-expanded="false">Do I need to know coding? <span class="faq-ico">+</span></button><div class="faq-a">No. I handle everything. You just tell me what you want and I build it.</div></div>
+      <div class="faq-item"><button type="button" class="faq-q" onclick="toggleFaq(this)" aria-expanded="false">How long does it take? <span class="faq-ico">+</span></button><div class="faq-a">A single-page site: 24–48 hours. A full multi-page site with merch and backend: 3–7 days.</div></div>
+      <div class="faq-item"><button type="button" class="faq-q" onclick="toggleFaq(this)" aria-expanded="false">Can you work with my Hostinger account? <span class="faq-ico">+</span></button><div class="faq-a">Yes. I can set everything up directly on your existing Hostinger account with full guidance.</div></div>
+      <div class="faq-item"><button type="button" class="faq-q" onclick="toggleFaq(this)" aria-expanded="false">Will my site work on mobile? <span class="faq-ico">+</span></button><div class="faq-a">Every site I build is fully mobile responsive and tested on Android and iOS before delivery.</div></div>
+      <div class="faq-item"><button type="button" class="faq-q" onclick="toggleFaq(this)" aria-expanded="false">Do you offer support after delivery? <span class="faq-ico">+</span></button><div class="faq-a">Business plan: 1 month. Starter &amp; Pro: 2 weeks of minor fix support. Extended support available.</div></div>
     </div>
 
     <div id="contact-form">
@@ -609,9 +623,9 @@ nav a.active{background:var(--accent);color:#fff}
     </div>
 
     <div class="ca-grid">
-      <div class="ca sel" onclick="selCoffee(this,5)"><div class="ca-icon">☕</div><div class="ca-lbl">1 Coffee</div><div class="ca-price"><span class="cur">$</span>5</div></div>
-      <div class="ca" onclick="selCoffee(this,10)"><div class="ca-icon">☕☕</div><div class="ca-lbl">2 Coffees</div><div class="ca-price"><span class="cur">$</span>10</div></div>
-      <div class="ca" onclick="selCoffee(this,20)"><div class="ca-icon">🎉</div><div class="ca-lbl">Big Support</div><div class="ca-price"><span class="cur">$</span>20</div></div>
+      <button type="button" class="ca sel" onclick="selCoffee(this,5)"><div class="ca-icon">☕</div><div class="ca-lbl">1 Coffee</div><div class="ca-price"><span class="cur">$</span>5</div></button>
+      <button type="button" class="ca" onclick="selCoffee(this,10)"><div class="ca-icon">☕☕</div><div class="ca-lbl">2 Coffees</div><div class="ca-price"><span class="cur">$</span>10</div></button>
+      <button type="button" class="ca" onclick="selCoffee(this,20)"><div class="ca-icon">🎉</div><div class="ca-lbl">Big Support</div><div class="ca-price"><span class="cur">$</span>20</div></button>
     </div>
     
     <div style="margin:20px 0">
@@ -629,18 +643,18 @@ nav a.active{background:var(--accent);color:#fff}
 
 <footer class="site-foot">
   <span>© 2026 whatsthetimeworld.com</span>
-  <a onclick="showPage('time')">Time</a>
-  <a onclick="showPage('build')">Build Your Site</a>
-  <a onclick="showPage('privacy')">Privacy Policy</a>
-  <a onclick="showPage('terms')">Terms of Use</a>
-  <a onclick="scrollTo2('contact-form')">Contact</a>
+  <button type="button" onclick="showPage('time')">Time</button>
+  <button type="button" onclick="showPage('build')">Build Your Site</button>
+  <button type="button" onclick="showPage('privacy')">Privacy Policy</button>
+  <button type="button" onclick="showPage('terms')">Terms of Use</button>
+  <button type="button" onclick="scrollTo2('contact-form')">Contact</button>
 </footer>
 
 <script>
 // ── NAVIGATION ──────────────────────────────────────────────────────────────
 function showPage(n){
   document.querySelectorAll('.page').forEach(p=>p.classList.remove('active'));
-  document.querySelectorAll('nav a').forEach(a=>a.classList.remove('active'));
+  document.querySelectorAll('nav button').forEach(btn=>btn.classList.remove('active'));
   const p = document.getElementById('page-'+n);
   if(p) p.classList.add('active');
   const nav = document.getElementById('nav-'+n);
@@ -780,7 +794,10 @@ function shiftMonth(dir){calDate.setMonth(calDate.getMonth()+dir);renderCal()}
 
 // ── BUILD PAGE HELPERS ────────────────────────────────────────────────────────
 function preselectPlan(plan){showPage('build');setTimeout(()=>{document.getElementById('fplan').value=plan;document.getElementById('contact-form').scrollIntoView({behavior:'smooth'})},400)}
-function toggleFaq(el){el.parentElement.classList.toggle('open')}
+function toggleFaq(el){
+  const isOpen = el.parentElement.classList.toggle('open');
+  el.setAttribute('aria-expanded', isOpen);
+}
 
 function filterPortfolio(btn, category){
   document.querySelectorAll('.filter-btn').forEach(b => b.classList.remove('active'));
