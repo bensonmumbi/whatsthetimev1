@@ -188,6 +188,7 @@ nav a.active{background:var(--accent);color:#fff}
 /* BUY ME A COFFEE */
 .bmc-btn{position:fixed;bottom:24px;right:24px;z-index:300;background:#FFDD00;color:#000;border:none;border-radius:50px;display:flex;align-items:center;gap:8px;padding:11px 20px;font-size:13px;font-weight:700;cursor:pointer;box-shadow:0 4px 20px rgba(0,0,0,.15);font-family:var(--sans);transition:all .2s}
 .bmc-btn:hover{transform:translateY(-2px);box-shadow:0 8px 28px rgba(0,0,0,.2)}
+.bmc-btn:focus-visible{outline:3px solid #FFDD00;outline-offset:2px}
 .bmc-icon{font-size:18px}
 .modal-ov{position:fixed;inset:0;background:rgba(0,0,0,.5);z-index:600;display:none;align-items:center;justify-content:center}
 .modal-ov.show{display:flex}
@@ -197,8 +198,9 @@ nav a.active{background:var(--accent);color:#fff}
 .modal h2{font-family:var(--display);font-size:32px;margin-bottom:8px;letter-spacing:1px}
 .modal p{font-size:13.5px;color:var(--fg-muted);margin-bottom:22px;line-height:1.6}
 .ca-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:10px;margin-bottom:18px}
-.ca{border:2px solid var(--border);border-radius:10px;padding:14px 8px;cursor:pointer;transition:all .15s;text-align:center;font-family:var(--sans)}
+.ca{appearance:none;background:none;border:2px solid var(--border);border-radius:10px;padding:14px 8px;cursor:pointer;transition:all .15s;text-align:center;font-family:var(--sans);color:inherit}
 .ca:hover,.ca.sel{border-color:#FFDD00;background:#fffce0}
+.ca:focus-visible{outline:3px solid #FFDD00;outline-offset:2px}
 .ca-icon{font-size:24px;margin-bottom:4px}
 .ca-lbl{font-size:11px;color:var(--fg-muted)}
 .ca-price{font-family:var(--mono);font-size:16px;font-weight:700;color:var(--fg)}
@@ -609,9 +611,9 @@ nav a.active{background:var(--accent);color:#fff}
     </div>
 
     <div class="ca-grid">
-      <div class="ca sel" onclick="selCoffee(this,5)"><div class="ca-icon">☕</div><div class="ca-lbl">1 Coffee</div><div class="ca-price"><span class="cur">$</span>5</div></div>
-      <div class="ca" onclick="selCoffee(this,10)"><div class="ca-icon">☕☕</div><div class="ca-lbl">2 Coffees</div><div class="ca-price"><span class="cur">$</span>10</div></div>
-      <div class="ca" onclick="selCoffee(this,20)"><div class="ca-icon">🎉</div><div class="ca-lbl">Big Support</div><div class="ca-price"><span class="cur">$</span>20</div></div>
+      <button type="button" class="ca sel" onclick="selCoffee(this,5)"><div class="ca-icon">☕</div><div class="ca-lbl">1 Coffee</div><div class="ca-price"><span class="cur">$</span>5</div></button>
+      <button type="button" class="ca" onclick="selCoffee(this,10)"><div class="ca-icon">☕☕</div><div class="ca-lbl">2 Coffees</div><div class="ca-price"><span class="cur">$</span>10</div></button>
+      <button type="button" class="ca" onclick="selCoffee(this,20)"><div class="ca-icon">🎉</div><div class="ca-lbl">Big Support</div><div class="ca-price"><span class="cur">$</span>20</div></button>
     </div>
     
     <div style="margin:20px 0">
