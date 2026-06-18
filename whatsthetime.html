@@ -673,15 +673,15 @@ function pad(n){return String(n).padStart(2,'0')}
 function weekNum(d){const dt=new Date(Date.UTC(d.getFullYear(),d.getMonth(),d.getDate()));dt.setUTCDate(dt.getUTCDate()+4-(dt.getUTCDay()||7));const ys=new Date(Date.UTC(dt.getUTCFullYear(),0,1));return Math.ceil((((dt-ys)/86400000)+1)/7)}
 function doy(d){return Math.floor((d-new Date(d.getFullYear(),0,0))/86400000)}
 
-// Optimized: Uses cached formatters for timezone calculations
+// Optimized: Uses cached formatters for timezone calculations.
+// Leverages Intl.DateTimeFormat 'longOffset' for faster and more reliable UTC offset retrieval.
 function utcOff(tz){
   try {
-    const n=new Date();
-    const opts = {year:'numeric',month:'numeric',day:'numeric',hour:'numeric',minute:'numeric',second:'numeric',hour12:false};
-    const u=new Date(getFormatter({...opts, timeZone:'UTC'}).format(n));
-    const l=new Date(getFormatter({...opts, timeZone:tz}).format(n));
-    const df=(l-u)/3600000,h=Math.floor(Math.abs(df)),m=Math.round((Math.abs(df)-h)*60);
-    return`UTC${df>=0?'+':'-'}${pad(h)}:${pad(m)}`;
+    const n = new Date();
+    const fmt = getFormatter({timeZone: tz, timeZoneName: 'longOffset'});
+    const parts = fmt.formatToParts(n);
+    const off = parts.find(p => p.type === 'timeZoneName')?.value || 'UTC';
+    return off.replace('GMT', 'UTC');
   } catch { return 'UTC'; }
 }
 
