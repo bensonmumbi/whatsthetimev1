@@ -23,9 +23,9 @@ body{font-family:var(--sans);background:var(--bg);color:var(--fg);min-height:100
 header{position:sticky;top:0;z-index:200;background:rgba(255,255,255,.96);backdrop-filter:blur(12px);border-bottom:1px solid var(--border);display:flex;align-items:center;justify-content:center;padding:0 24px;height:70px}
 .logo{font-family:var(--display);font-size:28px;color:var(--accent);letter-spacing:1px;cursor:pointer;border:none;background:none;position:absolute;left:24px}
 nav{display:flex;align-items:center;gap:12px}
-nav a{font-size:16px;font-weight:600;color:var(--fg-muted);text-decoration:none;padding:10px 20px;border-radius:8px;cursor:pointer;transition:all .15s}
-nav a:hover{background:var(--fg);color:#fff}
-nav a.active{background:var(--accent);color:#fff}
+nav button{font-size:16px;font-weight:600;color:var(--fg-muted);text-decoration:none;padding:10px 20px;border-radius:8px;cursor:pointer;transition:all .15s;background:none;border:none;font-family:inherit}
+nav button:hover{background:var(--fg);color:#fff}
+nav button.active{background:var(--accent);color:#fff}
 
 /* ── PAGE 1: TIME ── */
 .hero{background:#f8d7da;padding:40px;position:relative;overflow:hidden;border-bottom:1px solid #000;min-height:95vh;display:flex;flex-direction:column;justify-content:space-between;gap:20px}
@@ -161,7 +161,7 @@ nav a.active{background:var(--accent);color:#fff}
 .testi-role{font-size:11px;color:var(--fg-subtle)}
 .faq-list{max-width:640px;margin-bottom:60px}
 .faq-item{border-bottom:1px solid var(--border)}
-.faq-q{display:flex;align-items:center;justify-content:space-between;padding:16px 0;cursor:pointer;font-size:14px;font-weight:500;gap:12px}
+.faq-q{display:flex;align-items:center;justify-content:space-between;padding:16px 0;cursor:pointer;font-size:14px;font-weight:500;gap:12px;width:100%;text-align:left;background:none;border:none;font-family:inherit;appearance:none}
 .faq-ico{font-size:18px;color:var(--accent);flex-shrink:0;transition:transform .2s;display:inline-block}
 .faq-a{font-size:13px;color:var(--fg-muted);line-height:1.7;max-height:0;overflow:hidden;transition:max-height .3s ease,padding .3s}
 .faq-item.open .faq-a{max-height:200px;padding-bottom:14px}
@@ -208,14 +208,14 @@ nav a.active{background:var(--accent);color:#fff}
 
 /* FOOTER */
 .site-foot{border-top:1px solid var(--border);padding:18px 24px;font-size:11.5px;color:var(--fg-subtle);display:flex;align-items:center;justify-content:center;gap:18px;flex-wrap:wrap}
-.site-foot a{color:var(--fg-subtle);text-decoration:none;cursor:pointer}
-.site-foot a:hover{color:var(--fg)}
+.site-foot button{color:var(--fg-subtle);text-decoration:none;cursor:pointer;background:none;border:none;font-family:inherit;font-size:inherit;padding:0}
+.site-foot button:hover{color:var(--fg)}
 
 @media(max-width:640px){
   header{justify-content:space-between;padding:0 14px;height:60px}
   .logo{position:static;font-size:22px}
   nav{gap:4px}
-  nav a{font-size:13px;padding:6px 10px}
+  nav button{font-size:13px;padding:6px 10px}
   .bld-body{padding:36px 14px}
   #page-time main{padding:0 14px 48px}
   .f-row{grid-template-columns:1fr}
@@ -234,12 +234,12 @@ nav a.active{background:var(--accent);color:#fff}
 <header>
   <button class="logo" onclick="showPage('time')" aria-label="Go to world clock"><span style="color:var(--fg)">WHATS</span><span style="color:var(--accent)">THE</span><span style="color:var(--fg)">TIME</span></button>
   <nav>
-    <a onclick="showPage('time')" id="nav-time" class="active">
+    <button type="button" onclick="showPage('time')" id="nav-time" class="active">
       <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" style="width:16px;height:16px"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg> Time
-    </a>
-    <a onclick="showPage('build')" id="nav-build">
+    </button>
+    <button type="button" onclick="showPage('build')" id="nav-build">
       <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" style="width:16px;height:16px"><path d="M12 2L2 7l10 5 10-5-10-5zM2 17l10 5 10-5M2 12l10 5 10-5"/></svg> Build Your Site
-    </a>
+    </button>
   </nav>
 </header>
 
@@ -500,11 +500,11 @@ nav a.active{background:var(--accent);color:#fff}
     <div class="sec-lbl">FAQ</div>
     <div class="sec-hd">QUESTIONS</div>
     <div class="faq-list">
-      <div class="faq-item"><div class="faq-q" onclick="toggleFaq(this)">Do I need to know coding? <span class="faq-ico">+</span></div><div class="faq-a">No. I handle everything. You just tell me what you want and I build it.</div></div>
-      <div class="faq-item"><div class="faq-q" onclick="toggleFaq(this)">How long does it take? <span class="faq-ico">+</span></div><div class="faq-a">A single-page site: 24–48 hours. A full multi-page site with merch and backend: 3–7 days.</div></div>
-      <div class="faq-item"><div class="faq-q" onclick="toggleFaq(this)">Can you work with my Hostinger account? <span class="faq-ico">+</span></div><div class="faq-a">Yes. I can set everything up directly on your existing Hostinger account with full guidance.</div></div>
-      <div class="faq-item"><div class="faq-q" onclick="toggleFaq(this)">Will my site work on mobile? <span class="faq-ico">+</span></div><div class="faq-a">Every site I build is fully mobile responsive and tested on Android and iOS before delivery.</div></div>
-      <div class="faq-item"><div class="faq-q" onclick="toggleFaq(this)">Do you offer support after delivery? <span class="faq-ico">+</span></div><div class="faq-a">Business plan: 1 month. Starter &amp; Pro: 2 weeks of minor fix support. Extended support available.</div></div>
+      <div class="faq-item"><button type="button" class="faq-q" onclick="toggleFaq(this)" aria-expanded="false" aria-controls="faq-a-1">Do I need to know coding? <span class="faq-ico">+</span></button><div class="faq-a" id="faq-a-1">No. I handle everything. You just tell me what you want and I build it.</div></div>
+      <div class="faq-item"><button type="button" class="faq-q" onclick="toggleFaq(this)" aria-expanded="false" aria-controls="faq-a-2">How long does it take? <span class="faq-ico">+</span></button><div class="faq-a" id="faq-a-2">A single-page site: 24–48 hours. A full multi-page site with merch and backend: 3–7 days.</div></div>
+      <div class="faq-item"><button type="button" class="faq-q" onclick="toggleFaq(this)" aria-expanded="false" aria-controls="faq-a-3">Can you work with my Hostinger account? <span class="faq-ico">+</span></button><div class="faq-a" id="faq-a-3">Yes. I can set everything up directly on your existing Hostinger account with full guidance.</div></div>
+      <div class="faq-item"><button type="button" class="faq-q" onclick="toggleFaq(this)" aria-expanded="false" aria-controls="faq-a-4">Will my site work on mobile? <span class="faq-ico">+</span></button><div class="faq-a" id="faq-a-4">Every site I build is fully mobile responsive and tested on Android and iOS before delivery.</div></div>
+      <div class="faq-item"><button type="button" class="faq-q" onclick="toggleFaq(this)" aria-expanded="false" aria-controls="faq-a-5">Do you offer support after delivery? <span class="faq-ico">+</span></button><div class="faq-a" id="faq-a-5">Business plan: 1 month. Starter &amp; Pro: 2 weeks of minor fix support. Extended support available.</div></div>
     </div>
 
     <div id="contact-form">
@@ -629,18 +629,18 @@ nav a.active{background:var(--accent);color:#fff}
 
 <footer class="site-foot">
   <span>© 2026 whatsthetimeworld.com</span>
-  <a onclick="showPage('time')">Time</a>
-  <a onclick="showPage('build')">Build Your Site</a>
-  <a onclick="showPage('privacy')">Privacy Policy</a>
-  <a onclick="showPage('terms')">Terms of Use</a>
-  <a onclick="scrollTo2('contact-form')">Contact</a>
+  <button type="button" onclick="showPage('time')">Time</button>
+  <button type="button" onclick="showPage('build')">Build Your Site</button>
+  <button type="button" onclick="showPage('privacy')">Privacy Policy</button>
+  <button type="button" onclick="showPage('terms')">Terms of Use</button>
+  <button type="button" onclick="scrollTo2('contact-form')">Contact</button>
 </footer>
 
 <script>
 // ── NAVIGATION ──────────────────────────────────────────────────────────────
 function showPage(n){
   document.querySelectorAll('.page').forEach(p=>p.classList.remove('active'));
-  document.querySelectorAll('nav a').forEach(a=>a.classList.remove('active'));
+  document.querySelectorAll('nav button').forEach(btn=>btn.classList.remove('active'));
   const p = document.getElementById('page-'+n);
   if(p) p.classList.add('active');
   const nav = document.getElementById('nav-'+n);
@@ -780,7 +780,12 @@ function shiftMonth(dir){calDate.setMonth(calDate.getMonth()+dir);renderCal()}
 
 // ── BUILD PAGE HELPERS ────────────────────────────────────────────────────────
 function preselectPlan(plan){showPage('build');setTimeout(()=>{document.getElementById('fplan').value=plan;document.getElementById('contact-form').scrollIntoView({behavior:'smooth'})},400)}
-function toggleFaq(el){el.parentElement.classList.toggle('open')}
+function toggleFaq(el){
+  const item = el.parentElement;
+  item.classList.toggle('open');
+  const isOpen = item.classList.contains('open');
+  el.setAttribute('aria-expanded', isOpen);
+}
 
 function filterPortfolio(btn, category){
   document.querySelectorAll('.filter-btn').forEach(b => b.classList.remove('active'));
