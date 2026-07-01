@@ -653,79 +653,85 @@ function scrollTo2(id){
 }
 
 // ── CLOCK ────────────────────────────────────────────────────────────────────
-// Performance Optimization: Cache Intl.DateTimeFormat instances to avoid redundant object creation
+// Performance Optimization: Lazy DOM caching and constant hoisting
+const ELS = {};
+const getEl = (id) => {
+  if (!(id in ELS)) ELS[id] = document.getElementById(id);
+  return ELS[id];
+};
+
+const D = ['Sunday','Monday','Tuesday','Wednesday','Thursday','Friday','Saturday'];
+const M = ['January','February','March','April','May','June','July','August','September','October','November','December'];
 const FORMATTERS = new Map();
+
 function getFormatter(opts) {
   const k = JSON.stringify(opts);
   if (!FORMATTERS.has(k)) FORMATTERS.set(k, new Intl.DateTimeFormat('en-US', opts));
   return FORMATTERS.get(k);
 }
 
-const TZ=Intl.DateTimeFormat().resolvedOptions().timeZone;
-const mainCityEl = document.getElementById('mainCity');
+const TZ = Intl.DateTimeFormat().resolvedOptions().timeZone;
 const cityName = TZ.split('/').pop().replace(/_/g,' ');
-if(mainCityEl) mainCityEl.textContent = cityName;
-const mainCityNameEl = document.getElementById('mainCityName');
-if(mainCityNameEl) mainCityNameEl.textContent = cityName;
-const tzFullEl = document.getElementById('tzFull');
-if(tzFullEl) tzFullEl.textContent = TZ;
-function pad(n){return String(n).padStart(2,'0')}
+const mainCityEl = getEl('mainCity'); if(mainCityEl) mainCityEl.textContent = cityName;
+const mainCityNameEl = getEl('mainCityName'); if(mainCityNameEl) mainCityNameEl.textContent = cityName;
+const tzFullEl = getEl('tzFull'); if(tzFullEl) tzFullEl.textContent = TZ;
+
+function pad(n){return n<10?'0'+n:n}
 function weekNum(d){const dt=new Date(Date.UTC(d.getFullYear(),d.getMonth(),d.getDate()));dt.setUTCDate(dt.getUTCDate()+4-(dt.getUTCDay()||7));const ys=new Date(Date.UTC(dt.getUTCFullYear(),0,1));return Math.ceil((((dt-ys)/86400000)+1)/7)}
 function doy(d){return Math.floor((d-new Date(d.getFullYear(),0,0))/86400000)}
 
-// Optimized: Uses cached formatters for timezone calculations
-function utcOff(tz){
+// Optimized: Uses Intl.DateTimeFormat longOffset for fast, accurate UTC offsets
+function utcOff(tz, n) {
   try {
-    const n=new Date();
-    const opts = {year:'numeric',month:'numeric',day:'numeric',hour:'numeric',minute:'numeric',second:'numeric',hour12:false};
-    const u=new Date(getFormatter({...opts, timeZone:'UTC'}).format(n));
-    const l=new Date(getFormatter({...opts, timeZone:tz}).format(n));
-    const df=(l-u)/3600000,h=Math.floor(Math.abs(df)),m=Math.round((Math.abs(df)-h)*60);
-    return`UTC${df>=0?'+':'-'}${pad(h)}:${pad(m)}`;
+    const s = getFormatter({timeZone: tz, timeZoneName: 'longOffset'}).format(n || new Date());
+    const m = s.match(/[+-]\d{1,2}:?\d{2}/);
+    if (!m) return (s.includes('GMT') || s.includes('UTC')) ? 'UTC+00:00' : 'UTC';
+    return 'UTC' + m[0].replace(/([+-])(\d)(:)/, '$10$2$3').replace(/([+-])(\d)$/, '$10$2:00').replace(/([+-]\d{2})(\d{2})$/, '$1:$2');
   } catch { return 'UTC'; }
 }
 
 let lastMin = -1;
-function tick(){
-  const n=new Date();
-  const mainClockEl = document.getElementById('mainClock');
+function tick() {
+  const n = new Date();
+  const mainClockEl = getEl('mainClock');
   if(mainClockEl) mainClockEl.textContent = `${pad(n.getHours())}:${pad(n.getMinutes())}:${pad(n.getSeconds())}`;
   
-  // Update detail IDs if they exist
-  const hh = document.getElementById('hh'), mm = document.getElementById('mm'), ss = document.getElementById('ss');
-  if(hh) hh.textContent=pad(n.getHours());
-  if(mm) mm.textContent=pad(n.getMinutes());
-  if(ss) ss.textContent=pad(n.getSeconds());
+  const ss = getEl('ss'); if(ss) ss.textContent = pad(n.getSeconds());
+  const unixTs = getEl('unixTs'); if(unixTs) unixTs.textContent = Math.floor(n/1000).toLocaleString();
+  const isoD = getEl('isoD'); if(isoD) isoD.textContent = n.toISOString().slice(0,19).replace('T',' ');
 
-  const D=['Sunday','Monday','Tuesday','Wednesday','Thursday','Friday','Saturday'];
-  const M=['January','February','March','April','May','June','July','August','September','October','November','December'];
-  const datDisp = document.getElementById('datDisp');
-  if(datDisp) datDisp.textContent=`${D[n.getDay()]}, ${M[n.getMonth()]} ${n.getDate()}, ${n.getFullYear()}`;
-
-  const tzs=getFormatter({timeZoneName:'short'}).formatToParts(n).find(p=>p.type==='timeZoneName')?.value||'';
-  const tzName = document.getElementById('tzName');
-  if(tzName) tzName.textContent=tzs;
-  const utcOffEl = document.getElementById('utcOff');
-  if(utcOffEl) utcOffEl.textContent=utcOff(TZ);
-  document.getElementById('unixTs').textContent=Math.floor(n/1000).toLocaleString();
-  document.getElementById('weekNum').textContent='Week '+weekNum(n);
-  document.getElementById('doy').textContent=doy(n)+' / 365';
-  document.getElementById('qtr').textContent='Q'+(Math.floor(n.getMonth()/3)+1);
-  document.getElementById('isoD').textContent=n.toISOString().slice(0,19).replace('T',' ');
-
-  // Performance Optimization: Throttle secondary clock updates to once per minute
+  // Performance Optimization: Throttle minute-precision updates
   if (n.getMinutes() !== lastMin) {
-    updateCities();
-    updateHeroTz();
+    const hh = getEl('hh'); if(hh) hh.textContent = pad(n.getHours());
+    const mm = getEl('mm'); if(mm) mm.textContent = pad(n.getMinutes());
+
+    const datDisp = getEl('datDisp');
+    if(datDisp) datDisp.textContent = `${D[n.getDay()]}, ${M[n.getMonth()]} ${n.getDate()}, ${n.getFullYear()}`;
+
+    const tzs = getFormatter({timeZoneName: 'short'}).formatToParts(n).find(p => p.type === 'timeZoneName')?.value || '';
+    const tzName = getEl('tzName'); if(tzName) tzName.textContent = tzs;
+
+    const utcOffEl = getEl('utcOff'); if(utcOffEl) utcOffEl.textContent = utcOff(TZ, n);
+    const weekNumEl = getEl('weekNum'); if(weekNumEl) weekNumEl.textContent = 'Week ' + weekNum(n);
+    const doyEl = getEl('doy'); if(doyEl) doyEl.textContent = doy(n) + ' / 365';
+    const qtrEl = getEl('qtr'); if(qtrEl) qtrEl.textContent = 'Q' + (Math.floor(n.getMonth()/3)+1);
+
+    updateCities(n);
+    updateHeroTz(n);
     lastMin = n.getMinutes();
   }
 }
-function cityTime(tz){
-  const n=new Date();
-  const p=getFormatter({timeZone:tz,hour:'2-digit',minute:'2-digit',hour12:false}).formatToParts(n);
-  return{h:p.find(x=>x.type==='hour')?.value||'00',m:p.find(x=>x.type==='minute')?.value||'00'}
+
+function cityTime(tz, n) {
+  const p = getFormatter({timeZone: tz, hour: '2-digit', minute: '2-digit', hour12: false}).formatToParts(n || new Date());
+  return {h: p.find(x => x.type === 'hour')?.value || '00', m: p.find(x => x.type === 'minute')?.value || '00'}
 }
-function updateHeroTz(){document.querySelectorAll('.tz-time[data-hero-tz]').forEach(el=>{const{h,m}=cityTime(el.dataset.heroTz);el.textContent=`${h}:${m}`})}
+function updateHeroTz(n) {
+  document.querySelectorAll('.tz-time[data-hero-tz]').forEach(el => {
+    const {h, m} = cityTime(el.dataset.heroTz, n);
+    el.textContent = `${h}:${m}`;
+  });
+}
 
 // ── WORLD CITIES ─────────────────────────────────────────────────────────────
 const CITIES=[
@@ -747,20 +753,34 @@ const CITIES=[
   {name:'Sao Paulo',     tz:'America/Sao_Paulo'},
 ];
 
-function buildCities(){const g=document.getElementById('citiesGrid');g.innerHTML='';
-  CITIES.forEach(c=>{const{h,m}=cityTime(c.tz);const el=document.createElement('div');el.className='city-card';el.innerHTML=`<div class="city-name">${c.name}</div><div class="city-time" data-tz="${c.tz}">${h}:${m}</div><div class="city-off">${utcOff(c.tz)}</div>`;g.appendChild(el)})
+function buildCities() {
+  const g = getEl('citiesGrid'); if(!g) return;
+  g.innerHTML = '';
+  const n = new Date();
+  CITIES.forEach(c => {
+    const {h, m} = cityTime(c.tz, n);
+    const el = document.createElement('div');
+    el.className = 'city-card';
+    el.innerHTML = `<div class="city-name">${c.name}</div><div class="city-time" data-tz="${c.tz}">${h}:${m}</div><div class="city-off">${utcOff(c.tz, n)}</div>`;
+    g.appendChild(el);
+  });
 }
-function updateCities(){document.querySelectorAll('.city-time[data-tz]').forEach(el=>{const{h,m}=cityTime(el.dataset.tz);el.textContent=`${h}:${m}`});}
+function updateCities(n) {
+  document.querySelectorAll('.city-time[data-tz]').forEach(el => {
+    const {h, m} = cityTime(el.dataset.tz, n);
+    el.textContent = `${h}:${m}`;
+  });
+}
 
 
 // ── CALENDAR ─────────────────────────────────────────────────────────────────
 let calDate=new Date();
 function renderCal(){
   const y=calDate.getFullYear(),mo=calDate.getMonth();
-  const MO=['January','February','March','April','May','June','July','August','September','October','November','December'];
-  document.getElementById('calTitle').textContent=`${MO[mo]} ${y}`;
-  document.getElementById('calMonLbl').textContent=`${MO[mo]} ${y}`;
-  const g=document.getElementById('calGrid');g.innerHTML='';
+  const calTitle = getEl('calTitle'); if(calTitle) calTitle.textContent=`${M[mo]} ${y}`;
+  const calMonLbl = getEl('calMonLbl'); if(calMonLbl) calMonLbl.textContent=`${M[mo]} ${y}`;
+  const g=getEl('calGrid'); if(!g) return;
+  g.innerHTML='';
   ['Su','Mo','Tu','We','Th','Fr','Sa'].forEach(d=>{const e=document.createElement('div');e.className='cdn';e.textContent=d;g.appendChild(e)});
   const first=new Date(y,mo,1).getDay(),days=new Date(y,mo+1,0).getDate(),today=new Date();
   const prev=new Date(y,mo,0).getDate();
@@ -797,33 +817,35 @@ function filterPortfolio(btn, category){
 
 function updateEstimate(){
   const base = 400;
-  const pages = parseInt(document.getElementById('calc-pages').value);
-  const ecommerce = document.getElementById('calc-ecommerce').checked ? 500 : 0;
-  const seo = document.getElementById('calc-seo').checked ? 200 : 0;
-  const backend = document.getElementById('calc-backend').checked ? 1000 : 0;
-  const design = document.getElementById('calc-design').checked ? 300 : 0;
+  const pages = parseInt(getEl('calc-pages').value);
+  const ecommerce = getEl('calc-ecommerce').checked ? 500 : 0;
+  const seo = getEl('calc-seo').checked ? 200 : 0;
+  const backend = getEl('calc-backend').checked ? 1000 : 0;
+  const design = getEl('calc-design').checked ? 300 : 0;
 
   const total = base + (pages * 100) + ecommerce + seo + backend + design;
 
-  document.getElementById('pages-val').textContent = pages;
-  document.getElementById('calc-total-val').textContent = total.toLocaleString();
+  getEl('pages-val').textContent = pages;
+  getEl('calc-total-val').textContent = total.toLocaleString();
 }
 function submitForm(){
-  const name=document.getElementById('fname').value.trim();
-  const email=document.getElementById('femail').value.trim();
+  const name=getEl('fname').value.trim();
+  const email=getEl('femail').value.trim();
   if(!name||!email){alert('Please fill in your name and email.');return}
-  const s=document.getElementById('fSuccess');
-  s.classList.add('show');
-  setTimeout(()=>s.classList.remove('show'),5000);
+  const s=getEl('fSuccess');
+  if(s) {
+    s.classList.add('show');
+    setTimeout(()=>s.classList.remove('show'),5000);
+  }
 }
 
 // ── BUY ME A COFFEE ───────────────────────────────────────────────────────────
 let bmcVal=5, bmcCur='$';
-function openBmc(){document.getElementById('bmcModal').classList.add('show')}
-function closeBmc(){document.getElementById('bmcModal').classList.remove('show')}
-function closeBmcOv(e){if(e.target===document.getElementById('bmcModal'))closeBmc()}
+function openBmc(){getEl('bmcModal').classList.add('show')}
+function closeBmc(){getEl('bmcModal').classList.remove('show')}
+function closeBmcOv(e){if(e.target===getEl('bmcModal'))closeBmc()}
 function updateBmcCur(){
-  bmcCur=document.getElementById('bmcCurr').value;
+  bmcCur=getEl('bmcCurr').value;
   document.querySelectorAll('.cur').forEach(el=>el.textContent=bmcCur);
   updateBmcDisplay();
 }
@@ -831,7 +853,7 @@ function selCoffee(el,val){
   bmcVal=val;
   document.querySelectorAll('.ca').forEach(c=>c.classList.remove('sel'));
   el.classList.add('sel');
-  document.getElementById('bmcCustom').value='';
+  getEl('bmcCustom').value='';
   updateBmcDisplay();
 }
 function useCustomBmc(val){
@@ -841,7 +863,7 @@ function useCustomBmc(val){
     updateBmcDisplay();
   }
 }
-function updateBmcDisplay(){document.getElementById('bmcAmtDisplay').textContent=bmcCur+bmcVal}
+function updateBmcDisplay(){getEl('bmcAmtDisplay').textContent=bmcCur+bmcVal}
 function supportBmc(){
   if(bmcVal < 5){alert(`Minimum support is ${bmcCur}5. Thank you!`);return}
   alert(`Thank you so much! ☕\nYour support: ${bmcCur}${bmcVal}\n\nRedirecting to secure payment page...`);
@@ -849,13 +871,16 @@ function supportBmc(){
 }
 
 function swapConverter(){
-  const f = document.getElementById('convFrom'), t = document.getElementById('convTo'), v = f.value;
+  const f = getEl('convFrom'), t = getEl('convTo'), v = f.value;
   f.value = t.value; t.value = v; calcConversion();
 }
 function calcConversion(){
-  const t = document.getElementById('convTime').value;
-  const from = document.getElementById('convFrom').value;
-  const to = document.getElementById('convTo').value;
+  const tEl = getEl('convTime'); if(!tEl) return;
+  const t = tEl.value;
+  const fromEl = getEl('convFrom'); if(!fromEl) return;
+  const from = fromEl.value;
+  const toEl = getEl('convTo'); if(!toEl) return;
+  const to = toEl.value;
   if(!t) return;
   const [h,m] = t.split(':');
   
@@ -868,8 +893,8 @@ function calcConversion(){
   tempDate.setHours(parseInt(h), parseInt(m), 0, 0);
   const resDate = new Date(tempDate.getTime() + diffMs);
   
-  const fromName = document.getElementById('convFrom').options[document.getElementById('convFrom').selectedIndex].text.split(' (')[0];
-  const toName = document.getElementById('convTo').options[document.getElementById('convTo').selectedIndex].text.split(' (')[0];
+  const fromName = fromEl.options[fromEl.selectedIndex].text.split(' (')[0];
+  const toName = toEl.options[toEl.selectedIndex].text.split(' (')[0];
   
   const dt1 = new Date(tempDate.getFullYear(), tempDate.getMonth(), tempDate.getDate());
   const dt2 = new Date(resDate.getFullYear(), resDate.getMonth(), resDate.getDate());
@@ -878,7 +903,7 @@ function calcConversion(){
   if(diffDays === 1) dayStr = ' (Next day)';
   if(diffDays === -1) dayStr = ' (Prev day)';
 
-  document.getElementById('convResult').innerHTML = `${t} in ${fromName} is <span style="color:var(--accent);font-family:var(--mono)">${pad(resDate.getHours())}:${pad(resDate.getMinutes())}</span> in ${toName}${dayStr}`;
+  getEl('convResult').innerHTML = `${t} in ${fromName} is <span style="color:var(--accent);font-family:var(--mono)">${pad(resDate.getHours())}:${pad(resDate.getMinutes())}</span> in ${toName}${dayStr}`;
 }
 
 // ── INIT ─────────────────────────────────────────────────────────────────────
