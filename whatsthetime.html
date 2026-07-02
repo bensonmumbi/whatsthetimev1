@@ -325,7 +325,10 @@ nav a.active{background:var(--accent);color:#fff}
   <section class="t-section" style="border-bottom:none">
     <div class="sec-title">Embed this clock</div>
     <p style="font-size:12px;color:var(--fg-muted);margin-bottom:8px">Copy the code below to add a free timezone clock widget to your site.</p>
-    <textarea readonly style="width:100%;height:60px;background:var(--surface);border:1px solid var(--border);border-radius:8px;padding:10px;font-family:var(--mono);font-size:11px;color:var(--fg-subtle)" onclick="this.select()"><iframe src="https://whatsthetimeworld.com/widget" width="300" height="150" style="border:none;border-radius:8px"></iframe></textarea>
+    <div style="position:relative">
+      <textarea id="embedCode" aria-label="Embed code" readonly style="width:100%;height:60px;background:var(--surface);border:1px solid var(--border);border-radius:8px;padding:10px;font-family:var(--mono);font-size:11px;color:var(--fg-subtle);resize:none" onclick="this.select()"><iframe src="https://whatsthetimeworld.com/widget" width="300" height="150" style="border:none;border-radius:8px"></iframe></textarea>
+      <button id="copyBtn" onclick="copyEmbed()" style="position:absolute;top:8px;right:8px;background:var(--fg);color:#fff;border:none;border-radius:6px;padding:4px 10px;font-size:10px;font-weight:600;cursor:pointer;transition:all .15s">Copy</button>
+    </div>
     <div style="margin-top:12px;background:#fffbeb;border:1px solid #fcd34d;padding:14px;border-radius:8px;font-size:12px;display:flex;align-items:center;justify-content:space-between">
       <div><strong>Want an ad-free, white-label version?</strong><br/><span style="color:var(--fg-muted)">Remove the "Powered by whatsthetimeworld.com" branding for a $5/mo fee.</span></div>
       <button class="btn-pri" style="padding:6px 12px;font-size:11px;color:#000;background:#fcd34d" onclick="scrollTo2('contact-form')">Get White-Label</button>
@@ -818,7 +821,7 @@ function submitForm(){
 }
 
 // ── BUY ME A COFFEE ───────────────────────────────────────────────────────────
-let bmcVal=5, bmcCur='$';
+let bmcVal=5, bmcCur='$', copyTimeout;
 function openBmc(){document.getElementById('bmcModal').classList.add('show')}
 function closeBmc(){document.getElementById('bmcModal').classList.remove('show')}
 function closeBmcOv(e){if(e.target===document.getElementById('bmcModal'))closeBmc()}
@@ -846,6 +849,21 @@ function supportBmc(){
   if(bmcVal < 5){alert(`Minimum support is ${bmcCur}5. Thank you!`);return}
   alert(`Thank you so much! ☕\nYour support: ${bmcCur}${bmcVal}\n\nRedirecting to secure payment page...`);
   closeBmc();
+}
+
+function copyEmbed(){
+  const btn = document.getElementById('copyBtn'), area = document.getElementById('embedCode');
+  navigator.clipboard.writeText(area.value).then(()=>{
+    btn.textContent = 'Copied!';
+    if(copyTimeout) clearTimeout(copyTimeout);
+    copyTimeout = setTimeout(()=>btn.textContent='Copy', 2000);
+  }).catch(()=>{
+    area.select();
+    document.execCommand('copy');
+    btn.textContent = 'Copied!';
+    if(copyTimeout) clearTimeout(copyTimeout);
+    copyTimeout = setTimeout(()=>btn.textContent='Copy', 2000);
+  });
 }
 
 function swapConverter(){
