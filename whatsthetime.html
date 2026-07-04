@@ -653,8 +653,12 @@ function scrollTo2(id){
 }
 
 // ── CLOCK ────────────────────────────────────────────────────────────────────
-// Performance Optimization: Cache Intl.DateTimeFormat instances to avoid redundant object creation
-const FORMATTERS = new Map();
+// Performance Optimization: Cache Intl.DateTimeFormat instances and DOM elements
+const FORMATTERS = new Map(), ELS = {};
+function getEl(id) {
+  if (!(id in ELS)) ELS[id] = document.getElementById(id);
+  return ELS[id];
+}
 function getFormatter(opts) {
   const k = JSON.stringify(opts);
   if (!FORMATTERS.has(k)) FORMATTERS.set(k, new Intl.DateTimeFormat('en-US', opts));
@@ -662,70 +666,60 @@ function getFormatter(opts) {
 }
 
 const TZ=Intl.DateTimeFormat().resolvedOptions().timeZone;
-const mainCityEl = document.getElementById('mainCity');
+const D=['Sunday','Monday','Tuesday','Wednesday','Thursday','Friday','Saturday'];
+const M=['January','February','March','April','May','June','July','August','September','October','November','December'];
 const cityName = TZ.split('/').pop().replace(/_/g,' ');
+const mainCityEl = getEl('mainCity');
 if(mainCityEl) mainCityEl.textContent = cityName;
-const mainCityNameEl = document.getElementById('mainCityName');
+const mainCityNameEl = getEl('mainCityName');
 if(mainCityNameEl) mainCityNameEl.textContent = cityName;
-const tzFullEl = document.getElementById('tzFull');
+const tzFullEl = getEl('tzFull');
 if(tzFullEl) tzFullEl.textContent = TZ;
-function pad(n){return String(n).padStart(2,'0')}
+const OPTS = {hour:'2-digit',minute:'2-digit',hour12:false}, OPTS_TZ={timeZoneName:'longOffset'};
+function pad(n){return n < 10 ? '0' + n : n}
 function weekNum(d){const dt=new Date(Date.UTC(d.getFullYear(),d.getMonth(),d.getDate()));dt.setUTCDate(dt.getUTCDate()+4-(dt.getUTCDay()||7));const ys=new Date(Date.UTC(dt.getUTCFullYear(),0,1));return Math.ceil((((dt-ys)/86400000)+1)/7)}
 function doy(d){return Math.floor((d-new Date(d.getFullYear(),0,0))/86400000)}
 
-// Optimized: Uses cached formatters for timezone calculations
-function utcOff(tz){
+// Optimized: Uses cached formatters with longOffset for faster offset retrieval
+function utcOff(tz, n = new Date()){
   try {
-    const n=new Date();
-    const opts = {year:'numeric',month:'numeric',day:'numeric',hour:'numeric',minute:'numeric',second:'numeric',hour12:false};
-    const u=new Date(getFormatter({...opts, timeZone:'UTC'}).format(n));
-    const l=new Date(getFormatter({...opts, timeZone:tz}).format(n));
-    const df=(l-u)/3600000,h=Math.floor(Math.abs(df)),m=Math.round((Math.abs(df)-h)*60);
-    return`UTC${df>=0?'+':'-'}${pad(h)}:${pad(m)}`;
+    let s = getFormatter({timeZone:tz, ...OPTS_TZ}).formatToParts(n).find(p=>p.type==='timeZoneName')?.value||'';
+    if(s === 'GMT') return 'UTC+00:00';
+    return s.replace('GMT','UTC').replace(/([+-])(\d)$/, '$10$2:00').replace(/([+-]\d{2})(\d{2})$/, '$1:$2');
   } catch { return 'UTC'; }
 }
 
 let lastMin = -1;
 function tick(){
-  const n=new Date();
-  const mainClockEl = document.getElementById('mainClock');
-  if(mainClockEl) mainClockEl.textContent = `${pad(n.getHours())}:${pad(n.getMinutes())}:${pad(n.getSeconds())}`;
-  
-  // Update detail IDs if they exist
-  const hh = document.getElementById('hh'), mm = document.getElementById('mm'), ss = document.getElementById('ss');
-  if(hh) hh.textContent=pad(n.getHours());
-  if(mm) mm.textContent=pad(n.getMinutes());
-  if(ss) ss.textContent=pad(n.getSeconds());
+  const n=new Date(), min = n.getMinutes();
+  const mc = getEl("mainClock"), ss = getEl("ss"), ut = getEl("unixTs"), id = getEl("isoD");
+  if(mc) mc.textContent = `${pad(n.getHours())}:${pad(min)}:${pad(n.getSeconds())}`;
+  if(ss) ss.textContent = pad(n.getSeconds());
+  if(ut) ut.textContent = Math.floor(n/1000).toLocaleString();
+  if(id) id.textContent = n.toISOString().slice(0,19).replace('T',' ');
 
-  const D=['Sunday','Monday','Tuesday','Wednesday','Thursday','Friday','Saturday'];
-  const M=['January','February','March','April','May','June','July','August','September','October','November','December'];
-  const datDisp = document.getElementById('datDisp');
-  if(datDisp) datDisp.textContent=`${D[n.getDay()]}, ${M[n.getMonth()]} ${n.getDate()}, ${n.getFullYear()}`;
-
-  const tzs=getFormatter({timeZoneName:'short'}).formatToParts(n).find(p=>p.type==='timeZoneName')?.value||'';
-  const tzName = document.getElementById('tzName');
-  if(tzName) tzName.textContent=tzs;
-  const utcOffEl = document.getElementById('utcOff');
-  if(utcOffEl) utcOffEl.textContent=utcOff(TZ);
-  document.getElementById('unixTs').textContent=Math.floor(n/1000).toLocaleString();
-  document.getElementById('weekNum').textContent='Week '+weekNum(n);
-  document.getElementById('doy').textContent=doy(n)+' / 365';
-  document.getElementById('qtr').textContent='Q'+(Math.floor(n.getMonth()/3)+1);
-  document.getElementById('isoD').textContent=n.toISOString().slice(0,19).replace('T',' ');
-
-  // Performance Optimization: Throttle secondary clock updates to once per minute
-  if (n.getMinutes() !== lastMin) {
-    updateCities();
-    updateHeroTz();
-    lastMin = n.getMinutes();
+  if (min !== lastMin) {
+    const hh = getEl("hh"), mm = getEl("mm"), dd = getEl("datDisp"), tn = getEl("tzName"), uo = getEl("utcOff");
+    if(hh) hh.textContent = pad(n.getHours());
+    if(mm) mm.textContent = pad(min);
+    if(dd) dd.textContent = `${D[n.getDay()]}, ${M[n.getMonth()]} ${n.getDate()}, ${n.getFullYear()}`;
+    const tzs=getFormatter({timeZoneName:'short'}).formatToParts(n).find(p=>p.type==='timeZoneName')?.value||'';
+    if(tn) tn.textContent = tzs;
+    if(uo) uo.textContent = utcOff(TZ, n);
+    const wn = getEl("weekNum"), dy = getEl("doy"), qt = getEl("qtr");
+    if(wn) wn.textContent = 'Week ' + weekNum(n);
+    if(dy) dy.textContent = doy(n) + ' / 365';
+    if(qt) qt.textContent = 'Q' + (Math.floor(n.getMonth()/3)+1);
+    updateCities(n);
+    updateHeroTz(n);
+    lastMin = min;
   }
 }
-function cityTime(tz){
-  const n=new Date();
-  const p=getFormatter({timeZone:tz,hour:'2-digit',minute:'2-digit',hour12:false}).formatToParts(n);
+function cityTime(tz, n = new Date()){
+  const p=getFormatter({timeZone:tz, ...OPTS}).formatToParts(n);
   return{h:p.find(x=>x.type==='hour')?.value||'00',m:p.find(x=>x.type==='minute')?.value||'00'}
 }
-function updateHeroTz(){document.querySelectorAll('.tz-time[data-hero-tz]').forEach(el=>{const{h,m}=cityTime(el.dataset.heroTz);el.textContent=`${h}:${m}`})}
+function updateHeroTz(n){document.querySelectorAll('.tz-time[data-hero-tz]').forEach(el=>{const{h,m}=cityTime(el.dataset.heroTz, n);el.textContent=`${h}:${m}`})}
 
 // ── WORLD CITIES ─────────────────────────────────────────────────────────────
 const CITIES=[
@@ -747,10 +741,10 @@ const CITIES=[
   {name:'Sao Paulo',     tz:'America/Sao_Paulo'},
 ];
 
-function buildCities(){const g=document.getElementById('citiesGrid');g.innerHTML='';
-  CITIES.forEach(c=>{const{h,m}=cityTime(c.tz);const el=document.createElement('div');el.className='city-card';el.innerHTML=`<div class="city-name">${c.name}</div><div class="city-time" data-tz="${c.tz}">${h}:${m}</div><div class="city-off">${utcOff(c.tz)}</div>`;g.appendChild(el)})
+function buildCities(n){const g=getEl('citiesGrid'); if(!g) return; g.innerHTML='';
+  CITIES.forEach(c=>{const{h,m}=cityTime(c.tz, n);const el=document.createElement('div');el.className='city-card';el.innerHTML=`<div class="city-name">${c.name}</div><div class="city-time" data-tz="${c.tz}">${h}:${m}</div><div class="city-off">${utcOff(c.tz, n)}</div>`;g.appendChild(el)})
 }
-function updateCities(){document.querySelectorAll('.city-time[data-tz]').forEach(el=>{const{h,m}=cityTime(el.dataset.tz);el.textContent=`${h}:${m}`});}
+function updateCities(n){document.querySelectorAll('.city-time[data-tz]').forEach(el=>{const{h,m}=cityTime(el.dataset.tz, n);el.textContent=`${h}:${m}`});}
 
 
 // ── CALENDAR ─────────────────────────────────────────────────────────────────
@@ -882,7 +876,8 @@ function calcConversion(){
 }
 
 // ── INIT ─────────────────────────────────────────────────────────────────────
-buildCities();
+const initD = new Date();
+buildCities(initD);
 renderCal();tick();calcConversion();setInterval(tick,1000);
 
 // Scroll animations for steps
