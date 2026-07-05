@@ -197,7 +197,7 @@ nav a.active{background:var(--accent);color:#fff}
 .modal h2{font-family:var(--display);font-size:32px;margin-bottom:8px;letter-spacing:1px}
 .modal p{font-size:13.5px;color:var(--fg-muted);margin-bottom:22px;line-height:1.6}
 .ca-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:10px;margin-bottom:18px}
-.ca{border:2px solid var(--border);border-radius:10px;padding:14px 8px;cursor:pointer;transition:all .15s;text-align:center;font-family:var(--sans)}
+.ca{border:2px solid var(--border);border-radius:10px;padding:14px 8px;cursor:pointer;transition:all .15s;text-align:center;font-family:var(--sans);background:transparent;color:inherit;width:100%}
 .ca:hover,.ca.sel{border-color:#FFDD00;background:#fffce0}
 .ca-icon{font-size:24px;margin-bottom:4px}
 .ca-lbl{font-size:11px;color:var(--fg-muted)}
@@ -332,14 +332,14 @@ nav a.active{background:var(--accent);color:#fff}
     </div>
   </section>
 
-  <section class="t-section">
+  <section class="t-section" id="timezone-converter">
     <div class="sec-title">Timezone Converter</div>
     <div style="background:var(--surface);border:1px solid var(--border);border-radius:12px;padding:24px;display:flex;gap:16px;align-items:center;flex-wrap:wrap">
       <div style="flex:1;min-width:200px">
-        <label style="font-size:11px;font-weight:600;text-transform:uppercase;color:var(--fg-muted);display:block;margin-bottom:6px">From</label>
+        <label for="convTime" style="font-size:11px;font-weight:600;text-transform:uppercase;color:var(--fg-muted);display:block;margin-bottom:6px">From</label>
         <div style="display:flex;gap:8px">
           <input type="time" id="convTime" value="12:00" onchange="calcConversion()" style="background:var(--bg);border:1px solid var(--border);border-radius:8px;padding:8px 12px;font-family:var(--mono);font-size:14px;color:var(--fg);outline:none">
-          <select id="convFrom" onchange="calcConversion()" style="flex:1;background:var(--bg);border:1px solid var(--border);border-radius:8px;padding:8px 12px;font-family:var(--sans);font-size:13px;color:var(--fg);outline:none">
+          <select id="convFrom" aria-label="From timezone" onchange="calcConversion()" style="flex:1;background:var(--bg);border:1px solid var(--border);border-radius:8px;padding:8px 12px;font-family:var(--sans);font-size:13px;color:var(--fg);outline:none">
             <option value="America/New_York" selected>New York (EST/EDT)</option>
             <option value="Europe/London">London (GMT/BST)</option>
             <option value="Asia/Tokyo">Tokyo (JST)</option>
@@ -351,7 +351,7 @@ nav a.active{background:var(--accent);color:#fff}
       </div>
       <button class="cal-nav-btn" aria-label="Swap timezones" onclick="swapConverter()" style="margin-top:20px;flex-shrink:0">⇄</button>
       <div style="flex:1;min-width:200px">
-        <label style="font-size:11px;font-weight:600;text-transform:uppercase;color:var(--fg-muted);display:block;margin-bottom:6px">To</label>
+        <label for="convTo" style="font-size:11px;font-weight:600;text-transform:uppercase;color:var(--fg-muted);display:block;margin-bottom:6px">To</label>
         <select id="convTo" onchange="calcConversion()" style="width:100%;background:var(--bg);border:1px solid var(--border);border-radius:8px;padding:8px 12px;font-family:var(--sans);font-size:13px;color:var(--fg);outline:none">
           <option value="America/New_York">New York (EST/EDT)</option>
           <option value="Europe/London" selected>London (GMT/BST)</option>
@@ -591,14 +591,14 @@ nav a.active{background:var(--accent);color:#fff}
 
 <!-- BMC MODAL -->
 <div class="modal-ov" id="bmcModal" onclick="closeBmcOv(event)">
-  <div class="modal">
+  <div class="modal" role="dialog" aria-modal="true">
     <button class="m-close" onclick="closeBmc()" aria-label="Close support modal">×</button>
     <div style="font-size:42px;margin-bottom:8px">☕</div>
     <h2>SUPPORT MY WORK</h2>
     <p>Every coffee keeps the site running and free for everyone!</p>
     
     <div style="margin-bottom:20px">
-      <label style="font-size:11px;text-transform:uppercase;color:var(--fg-subtle);display:block;margin-bottom:8px">Select Currency</label>
+      <label for="bmcCurr" style="font-size:11px;text-transform:uppercase;color:var(--fg-subtle);display:block;margin-bottom:8px">Select Currency</label>
       <select id="bmcCurr" style="width:100%;padding:8px;border-radius:6px;border:1px solid var(--border)" onchange="updateBmcCur()">
         <option value="$">USD — US Dollar ($)</option>
         <option value="€">EUR — Euro (€)</option>
@@ -609,13 +609,13 @@ nav a.active{background:var(--accent);color:#fff}
     </div>
 
     <div class="ca-grid">
-      <div class="ca sel" onclick="selCoffee(this,5)"><div class="ca-icon">☕</div><div class="ca-lbl">1 Coffee</div><div class="ca-price"><span class="cur">$</span>5</div></div>
-      <div class="ca" onclick="selCoffee(this,10)"><div class="ca-icon">☕☕</div><div class="ca-lbl">2 Coffees</div><div class="ca-price"><span class="cur">$</span>10</div></div>
-      <div class="ca" onclick="selCoffee(this,20)"><div class="ca-icon">🎉</div><div class="ca-lbl">Big Support</div><div class="ca-price"><span class="cur">$</span>20</div></div>
+      <button class="ca sel" onclick="selCoffee(this,5)"><div class="ca-icon">☕</div><div class="ca-lbl">1 Coffee</div><div class="ca-price"><span class="cur">$</span>5</div></button>
+      <button class="ca" onclick="selCoffee(this,10)"><div class="ca-icon">☕☕</div><div class="ca-lbl">2 Coffees</div><div class="ca-price"><span class="cur">$</span>10</div></button>
+      <button class="ca" onclick="selCoffee(this,20)"><div class="ca-icon">🎉</div><div class="ca-lbl">Big Support</div><div class="ca-price"><span class="cur">$</span>20</div></button>
     </div>
     
     <div style="margin:20px 0">
-      <label style="font-size:11px;text-transform:uppercase;color:var(--fg-subtle);display:block;margin-bottom:8px">Custom Amount (Min <span class="cur">$</span>5)</label>
+      <label for="bmcCustom" style="font-size:11px;text-transform:uppercase;color:var(--fg-subtle);display:block;margin-bottom:8px">Custom Amount (Min <span class="cur">$</span>5)</label>
       <div style="position:relative">
         <span class="cur" style="position:absolute;left:12px;top:50%;transform:translateY(-50%);font-weight:600">$</span>
         <input type="number" id="bmcCustom" min="5" placeholder="Enter amount" style="width:100%;padding:10px 10px 10px 30px;border-radius:6px;border:1px solid var(--border);font-family:var(--mono)" oninput="useCustomBmc(this.value)">
@@ -648,8 +648,11 @@ function showPage(n){
   window.scrollTo({top:0,behavior:'smooth'});
 }
 function scrollTo2(id){
-  showPage('build');
-  setTimeout(()=>document.getElementById(id).scrollIntoView({behavior:'smooth'}),350);
+  const el = document.getElementById(id);
+  if(!el) return;
+  const pg = el.closest('.page')?.id.replace('page-', '') || 'build';
+  showPage(pg);
+  setTimeout(()=>el.scrollIntoView({behavior:'smooth'}),350);
 }
 
 // ── CLOCK ────────────────────────────────────────────────────────────────────
