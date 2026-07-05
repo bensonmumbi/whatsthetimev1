@@ -653,7 +653,13 @@ function scrollTo2(id){
 }
 
 // ── CLOCK ────────────────────────────────────────────────────────────────────
-// Performance Optimization: Cache Intl.DateTimeFormat instances to avoid redundant object creation
+// Performance Optimization: Lazy DOM element caching and Intl.DateTimeFormat instance caching
+const ELS = {};
+function getEl(id) {
+  if (!(id in ELS)) ELS[id] = document.getElementById(id);
+  return ELS[id];
+}
+
 const FORMATTERS = new Map();
 function getFormatter(opts) {
   const k = JSON.stringify(opts);
@@ -662,70 +668,69 @@ function getFormatter(opts) {
 }
 
 const TZ=Intl.DateTimeFormat().resolvedOptions().timeZone;
-const mainCityEl = document.getElementById('mainCity');
+const mainCityEl = getEl('mainCity');
 const cityName = TZ.split('/').pop().replace(/_/g,' ');
 if(mainCityEl) mainCityEl.textContent = cityName;
-const mainCityNameEl = document.getElementById('mainCityName');
+const mainCityNameEl = getEl('mainCityName');
 if(mainCityNameEl) mainCityNameEl.textContent = cityName;
-const tzFullEl = document.getElementById('tzFull');
+const tzFullEl = getEl('tzFull');
 if(tzFullEl) tzFullEl.textContent = TZ;
-function pad(n){return String(n).padStart(2,'0')}
+function pad(n){return n < 10 ? '0' + n : n}
 function weekNum(d){const dt=new Date(Date.UTC(d.getFullYear(),d.getMonth(),d.getDate()));dt.setUTCDate(dt.getUTCDate()+4-(dt.getUTCDay()||7));const ys=new Date(Date.UTC(dt.getUTCFullYear(),0,1));return Math.ceil((((dt-ys)/86400000)+1)/7)}
 function doy(d){return Math.floor((d-new Date(d.getFullYear(),0,0))/86400000)}
 
-// Optimized: Uses cached formatters for timezone calculations
-function utcOff(tz){
+// Optimized: Uses cached formatters and longOffset for efficient extraction
+function utcOff(tz, n = new Date()){
   try {
-    const n=new Date();
-    const opts = {year:'numeric',month:'numeric',day:'numeric',hour:'numeric',minute:'numeric',second:'numeric',hour12:false};
-    const u=new Date(getFormatter({...opts, timeZone:'UTC'}).format(n));
-    const l=new Date(getFormatter({...opts, timeZone:tz}).format(n));
-    const df=(l-u)/3600000,h=Math.floor(Math.abs(df)),m=Math.round((Math.abs(df)-h)*60);
-    return`UTC${df>=0?'+':'-'}${pad(h)}:${pad(m)}`;
+    const parts = getFormatter({timeZone:tz, timeZoneName:'longOffset'}).formatToParts(n);
+    let off = parts.find(p => p.type === 'timeZoneName').value;
+    return off === 'GMT' ? 'UTC+00:00' : off.replace('GMT', 'UTC').replace(/([+-])(\d)$/, (m, p1, p2) => p1 + '0' + p2 + ':00').replace(/([+-]\d{2})(\d{2})$/, '$1:$2');
   } catch { return 'UTC'; }
 }
+
+const D=['Sunday','Monday','Tuesday','Wednesday','Thursday','Friday','Saturday'];
+const M=['January','February','March','April','May','June','July','August','September','October','November','December'];
 
 let lastMin = -1;
 function tick(){
   const n=new Date();
-  const mainClockEl = document.getElementById('mainClock');
+  const mainClockEl = getEl('mainClock');
   if(mainClockEl) mainClockEl.textContent = `${pad(n.getHours())}:${pad(n.getMinutes())}:${pad(n.getSeconds())}`;
   
-  // Update detail IDs if they exist
-  const hh = document.getElementById('hh'), mm = document.getElementById('mm'), ss = document.getElementById('ss');
+  const hh = getEl('hh'), mm = getEl('mm'), ss = getEl('ss');
   if(hh) hh.textContent=pad(n.getHours());
   if(mm) mm.textContent=pad(n.getMinutes());
   if(ss) ss.textContent=pad(n.getSeconds());
 
-  const D=['Sunday','Monday','Tuesday','Wednesday','Thursday','Friday','Saturday'];
-  const M=['January','February','March','April','May','June','July','August','September','October','November','December'];
-  const datDisp = document.getElementById('datDisp');
-  if(datDisp) datDisp.textContent=`${D[n.getDay()]}, ${M[n.getMonth()]} ${n.getDate()}, ${n.getFullYear()}`;
+  getEl('unixTs').textContent=Math.floor(n/1000).toLocaleString();
+  getEl('isoD').textContent=n.toISOString().slice(0,19).replace('T',' ');
 
-  const tzs=getFormatter({timeZoneName:'short'}).formatToParts(n).find(p=>p.type==='timeZoneName')?.value||'';
-  const tzName = document.getElementById('tzName');
-  if(tzName) tzName.textContent=tzs;
-  const utcOffEl = document.getElementById('utcOff');
-  if(utcOffEl) utcOffEl.textContent=utcOff(TZ);
-  document.getElementById('unixTs').textContent=Math.floor(n/1000).toLocaleString();
-  document.getElementById('weekNum').textContent='Week '+weekNum(n);
-  document.getElementById('doy').textContent=doy(n)+' / 365';
-  document.getElementById('qtr').textContent='Q'+(Math.floor(n.getMonth()/3)+1);
-  document.getElementById('isoD').textContent=n.toISOString().slice(0,19).replace('T',' ');
-
-  // Performance Optimization: Throttle secondary clock updates to once per minute
+  // Performance Optimization: Throttle secondary updates to once per minute
   if (n.getMinutes() !== lastMin) {
-    updateCities();
-    updateHeroTz();
+    const datDisp = getEl('datDisp');
+    if(datDisp) datDisp.textContent=`${D[n.getDay()]}, ${M[n.getMonth()]} ${n.getDate()}, ${n.getFullYear()}`;
+
+    const tzs=getFormatter({timeZoneName:'short'}).formatToParts(n).find(p=>p.type==='timeZoneName')?.value||'';
+    const tzName = getEl('tzName');
+    if(tzName) tzName.textContent=tzs;
+
+    const utcOffEl = getEl('utcOff');
+    if(utcOffEl) utcOffEl.textContent=utcOff(TZ, n);
+
+    getEl('weekNum').textContent='Week '+weekNum(n);
+    getEl('doy').textContent=doy(n)+' / 365';
+    getEl('qtr').textContent='Q'+(Math.floor(n.getMonth()/3)+1);
+
+    updateCities(n);
+    updateHeroTz(n);
     lastMin = n.getMinutes();
   }
 }
-function cityTime(tz){
-  const n=new Date();
+function cityTime(tz, n = new Date()){
   const p=getFormatter({timeZone:tz,hour:'2-digit',minute:'2-digit',hour12:false}).formatToParts(n);
   return{h:p.find(x=>x.type==='hour')?.value||'00',m:p.find(x=>x.type==='minute')?.value||'00'}
 }
-function updateHeroTz(){document.querySelectorAll('.tz-time[data-hero-tz]').forEach(el=>{const{h,m}=cityTime(el.dataset.heroTz);el.textContent=`${h}:${m}`})}
+function updateHeroTz(n){document.querySelectorAll('.tz-time[data-hero-tz]').forEach(el=>{const{h,m}=cityTime(el.dataset.heroTz, n);el.textContent=`${h}:${m}`})}
 
 // ── WORLD CITIES ─────────────────────────────────────────────────────────────
 const CITIES=[
@@ -747,10 +752,11 @@ const CITIES=[
   {name:'Sao Paulo',     tz:'America/Sao_Paulo'},
 ];
 
-function buildCities(){const g=document.getElementById('citiesGrid');g.innerHTML='';
-  CITIES.forEach(c=>{const{h,m}=cityTime(c.tz);const el=document.createElement('div');el.className='city-card';el.innerHTML=`<div class="city-name">${c.name}</div><div class="city-time" data-tz="${c.tz}">${h}:${m}</div><div class="city-off">${utcOff(c.tz)}</div>`;g.appendChild(el)})
+function buildCities(){const g=getEl('citiesGrid');if(!g)return;g.innerHTML='';
+  const n=new Date();
+  CITIES.forEach(c=>{const{h,m}=cityTime(c.tz,n);const el=document.createElement('div');el.className='city-card';el.innerHTML=`<div class="city-name">${c.name}</div><div class="city-time" data-tz="${c.tz}">${h}:${m}</div><div class="city-off">${utcOff(c.tz,n)}</div>`;g.appendChild(el)})
 }
-function updateCities(){document.querySelectorAll('.city-time[data-tz]').forEach(el=>{const{h,m}=cityTime(el.dataset.tz);el.textContent=`${h}:${m}`});}
+function updateCities(n){document.querySelectorAll('.city-time[data-tz]').forEach(el=>{const{h,m}=cityTime(el.dataset.tz, n);el.textContent=`${h}:${m}`});}
 
 
 // ── CALENDAR ─────────────────────────────────────────────────────────────────
