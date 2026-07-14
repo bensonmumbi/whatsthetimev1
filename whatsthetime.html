@@ -325,14 +325,17 @@ nav a.active{background:var(--accent);color:#fff}
   <section class="t-section" style="border-bottom:none">
     <div class="sec-title">Embed this clock</div>
     <p style="font-size:12px;color:var(--fg-muted);margin-bottom:8px">Copy the code below to add a free timezone clock widget to your site.</p>
-    <textarea readonly style="width:100%;height:60px;background:var(--surface);border:1px solid var(--border);border-radius:8px;padding:10px;font-family:var(--mono);font-size:11px;color:var(--fg-subtle)" onclick="this.select()"><iframe src="https://whatsthetimeworld.com/widget" width="300" height="150" style="border:none;border-radius:8px"></iframe></textarea>
+    <div style="position:relative">
+      <textarea id="embedCode" readonly aria-label="Embed code" style="width:100%;height:60px;background:var(--surface);border:1px solid var(--border);border-radius:8px;padding:10px;font-family:var(--mono);font-size:11px;color:var(--fg-subtle);resize:none" onclick="this.select()"><iframe src="https://whatsthetimeworld.com/widget" width="300" height="150" style="border:none;border-radius:8px"></iframe></textarea>
+      <button id="copyBtn" onclick="copyEmbed()" style="position:absolute;top:8px;right:8px;background:var(--fg);color:#fff;border:none;border-radius:6px;padding:6px 12px;font-size:11px;font-weight:600;cursor:pointer;transition:all .1s">Copy</button>
+    </div>
     <div style="margin-top:12px;background:#fffbeb;border:1px solid #fcd34d;padding:14px;border-radius:8px;font-size:12px;display:flex;align-items:center;justify-content:space-between">
       <div><strong>Want an ad-free, white-label version?</strong><br/><span style="color:var(--fg-muted)">Remove the "Powered by whatsthetimeworld.com" branding for a $5/mo fee.</span></div>
       <button class="btn-pri" style="padding:6px 12px;font-size:11px;color:#000;background:#fcd34d" onclick="scrollTo2('contact-form')">Get White-Label</button>
     </div>
   </section>
 
-  <section class="t-section">
+  <section class="t-section" id="timezone-converter">
     <div class="sec-title">Timezone Converter</div>
     <div style="background:var(--surface);border:1px solid var(--border);border-radius:12px;padding:24px;display:flex;gap:16px;align-items:center;flex-wrap:wrap">
       <div style="flex:1;min-width:200px">
@@ -648,8 +651,14 @@ function showPage(n){
   window.scrollTo({top:0,behavior:'smooth'});
 }
 function scrollTo2(id){
-  showPage('build');
-  setTimeout(()=>document.getElementById(id).scrollIntoView({behavior:'smooth'}),350);
+  const el = document.getElementById(id);
+  if(!el) return;
+  const pg = el.closest('.page');
+  if(pg) {
+    const pgId = pg.id.replace('page-', '');
+    showPage(pgId);
+  }
+  setTimeout(()=>el.scrollIntoView({behavior:'smooth'}),350);
 }
 
 // ── CLOCK ────────────────────────────────────────────────────────────────────
@@ -851,6 +860,22 @@ function supportBmc(){
 function swapConverter(){
   const f = document.getElementById('convFrom'), t = document.getElementById('convTo'), v = f.value;
   f.value = t.value; t.value = v; calcConversion();
+}
+let copyTimeout;
+function copyEmbed(){
+  const t = document.getElementById('embedCode'), b = document.getElementById('copyBtn');
+  t.select();
+  try {
+    if (navigator.clipboard) navigator.clipboard.writeText(t.value);
+    else document.execCommand('copy');
+  } catch (e) {}
+  b.textContent = 'Copied!';
+  b.style.background = '#059669';
+  clearTimeout(copyTimeout);
+  copyTimeout = setTimeout(() => {
+    b.textContent = 'Copy';
+    b.style.background = 'var(--fg)';
+  }, 2000);
 }
 function calcConversion(){
   const t = document.getElementById('convTime').value;
