@@ -325,7 +325,10 @@ nav a.active{background:var(--accent);color:#fff}
   <section class="t-section" style="border-bottom:none">
     <div class="sec-title">Embed this clock</div>
     <p style="font-size:12px;color:var(--fg-muted);margin-bottom:8px">Copy the code below to add a free timezone clock widget to your site.</p>
-    <textarea readonly style="width:100%;height:60px;background:var(--surface);border:1px solid var(--border);border-radius:8px;padding:10px;font-family:var(--mono);font-size:11px;color:var(--fg-subtle)" onclick="this.select()"><iframe src="https://whatsthetimeworld.com/widget" width="300" height="150" style="border:none;border-radius:8px"></iframe></textarea>
+    <div style="position:relative">
+      <textarea id="embedCode" readonly style="width:100%;height:60px;background:var(--surface);border:1px solid var(--border);border-radius:8px;padding:10px;font-family:var(--mono);font-size:11px;color:var(--fg-subtle);resize:none" onclick="this.select()"><iframe src="https://whatsthetimeworld.com/widget" width="300" height="150" style="border:none;border-radius:8px"></iframe></textarea>
+      <button id="copyBtn" onclick="copyEmbed()" aria-label="Copy embed code" style="position:absolute;top:8px;right:8px;background:var(--bg);border:1px solid var(--border);border-radius:6px;padding:4px 10px;font-size:10px;font-weight:600;cursor:pointer;transition:all .15s">Copy</button>
+    </div>
     <div style="margin-top:12px;background:#fffbeb;border:1px solid #fcd34d;padding:14px;border-radius:8px;font-size:12px;display:flex;align-items:center;justify-content:space-between">
       <div><strong>Want an ad-free, white-label version?</strong><br/><span style="color:var(--fg-muted)">Remove the "Powered by whatsthetimeworld.com" branding for a $5/mo fee.</span></div>
       <button class="btn-pri" style="padding:6px 12px;font-size:11px;color:#000;background:#fcd34d" onclick="scrollTo2('contact-form')">Get White-Label</button>
@@ -637,6 +640,30 @@ nav a.active{background:var(--accent);color:#fff}
 </footer>
 
 <script>
+let copyTimeout;
+function copyEmbed() {
+  const t = document.getElementById('embedCode'), b = document.getElementById('copyBtn');
+  const code = t.value;
+  if (navigator.clipboard) {
+    navigator.clipboard.writeText(code).then(done);
+  } else {
+    t.select(); document.execCommand('copy'); done();
+  }
+  function done() {
+    b.textContent = 'Copied!';
+    b.style.backgroundColor = '#059669';
+    b.style.borderColor = '#059669';
+    b.style.color = '#fff';
+    clearTimeout(copyTimeout);
+    copyTimeout = setTimeout(() => {
+      b.textContent = 'Copy';
+      b.style.backgroundColor = 'var(--bg)';
+      b.style.borderColor = 'var(--border)';
+      b.style.color = 'var(--fg)';
+    }, 2000);
+  }
+}
+
 // ── NAVIGATION ──────────────────────────────────────────────────────────────
 function showPage(n){
   document.querySelectorAll('.page').forEach(p=>p.classList.remove('active'));
