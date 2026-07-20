@@ -655,6 +655,7 @@ function scrollTo2(id){
 // ── CLOCK ────────────────────────────────────────────────────────────────────
 // Performance Optimization: Cache Intl.DateTimeFormat instances to avoid redundant object creation
 const FORMATTERS = new Map();
+const OFFSET_CACHE = new Map();
 function getFormatter(opts) {
   const k = JSON.stringify(opts);
   if (!FORMATTERS.has(k)) FORMATTERS.set(k, new Intl.DateTimeFormat('en-US', opts));
@@ -673,16 +674,31 @@ function pad(n){return String(n).padStart(2,'0')}
 function weekNum(d){const dt=new Date(Date.UTC(d.getFullYear(),d.getMonth(),d.getDate()));dt.setUTCDate(dt.getUTCDate()+4-(dt.getUTCDay()||7));const ys=new Date(Date.UTC(dt.getUTCFullYear(),0,1));return Math.ceil((((dt-ys)/86400000)+1)/7)}
 function doy(d){return Math.floor((d-new Date(d.getFullYear(),0,0))/86400000)}
 
-// Optimized: Uses cached formatters for timezone calculations
-function utcOff(tz){
+// Optimized: Uses cached formatters and pattern matching for sub-millisecond timezone offset extraction.
+// The computed string is cached at minute precision for subsequent high-frequency lookups.
+function utcOff(tz, date){
   try {
-    const n=new Date();
-    const opts = {year:'numeric',month:'numeric',day:'numeric',hour:'numeric',minute:'numeric',second:'numeric',hour12:false};
-    const u=new Date(getFormatter({...opts, timeZone:'UTC'}).format(n));
-    const l=new Date(getFormatter({...opts, timeZone:tz}).format(n));
-    const df=(l-u)/3600000,h=Math.floor(Math.abs(df)),m=Math.round((Math.abs(df)-h)*60);
-    return`UTC${df>=0?'+':'-'}${pad(h)}:${pad(m)}`;
-  } catch { return 'UTC'; }
+    const d = date || new Date();
+    const key = tz + '_' + d.getMinutes();
+    if (OFFSET_CACHE.has(key)) return OFFSET_CACHE.get(key);
+    if (OFFSET_CACHE.size > 100) OFFSET_CACHE.clear();
+
+    let off = getFormatter({timeZone: tz, timeZoneName: 'longOffset'}).formatToParts(d).find(p => p.type === 'timeZoneName')?.value || 'UTC+00:00';
+    off = off.replace('GMT', 'UTC');
+    if (off === 'UTC') off = 'UTC+00:00';
+    else {
+      const match = off.match(/([+-])(\d+):?(\d+)?/);
+      if (match) {
+        const sign = match[1];
+        let h = match[2];
+        let m = match[3] || '00';
+        if (h.length === 1) h = '0' + h;
+        off = 'UTC' + sign + h + ':' + m;
+      }
+    }
+    OFFSET_CACHE.set(key, off);
+    return off;
+  } catch { return 'UTC+00:00'; }
 }
 
 let lastMin = -1;
@@ -706,7 +722,7 @@ function tick(){
   const tzName = document.getElementById('tzName');
   if(tzName) tzName.textContent=tzs;
   const utcOffEl = document.getElementById('utcOff');
-  if(utcOffEl) utcOffEl.textContent=utcOff(TZ);
+  if(utcOffEl) utcOffEl.textContent=utcOff(TZ, n);
   document.getElementById('unixTs').textContent=Math.floor(n/1000).toLocaleString();
   document.getElementById('weekNum').textContent='Week '+weekNum(n);
   document.getElementById('doy').textContent=doy(n)+' / 365';
@@ -748,7 +764,8 @@ const CITIES=[
 ];
 
 function buildCities(){const g=document.getElementById('citiesGrid');g.innerHTML='';
-  CITIES.forEach(c=>{const{h,m}=cityTime(c.tz);const el=document.createElement('div');el.className='city-card';el.innerHTML=`<div class="city-name">${c.name}</div><div class="city-time" data-tz="${c.tz}">${h}:${m}</div><div class="city-off">${utcOff(c.tz)}</div>`;g.appendChild(el)})
+  const n=new Date();
+  CITIES.forEach(c=>{const{h,m}=cityTime(c.tz);const el=document.createElement('div');el.className='city-card';el.innerHTML=`<div class="city-name">${c.name}</div><div class="city-time" data-tz="${c.tz}">${h}:${m}</div><div class="city-off">${utcOff(c.tz, n)}</div>`;g.appendChild(el)})
 }
 function updateCities(){document.querySelectorAll('.city-time[data-tz]').forEach(el=>{const{h,m}=cityTime(el.dataset.tz);el.textContent=`${h}:${m}`});}
 
