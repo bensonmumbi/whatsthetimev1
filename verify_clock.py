@@ -12,6 +12,9 @@ def run_test():
         with sync_playwright() as p:
             browser = p.chromium.launch()
             page = browser.new_page()
+
+            # Start a context that grants clipboard permissions if possible,
+            # or just rely on local server testing.
             page.goto("http://localhost:8000/whatsthetime.html")
 
             # Check main clock
@@ -49,11 +52,33 @@ def run_test():
                 sys.exit(1)
             print(f"UTC Offset: {utc_off}")
 
-            print("All basic clock checks passed.")
+            # Test Copy Embed Button UX
+            copy_btn = page.locator("#copyBtn")
+            initial_btn_text = copy_btn.text_content()
+            print(f"Initial Button Text: {initial_btn_text}")
+            if initial_btn_text != "Copy":
+                print("Error: Initial button text is not 'Copy'!")
+                sys.exit(1)
 
-            # Keep it running for manual check if needed
-            # page.screenshot(path="screenshot.png")
+            # Trigger Copy action
+            copy_btn.click()
+            time.sleep(0.5)
 
+            new_btn_text = copy_btn.text_content()
+            print(f"Clicked Button Text: {new_btn_text}")
+            if new_btn_text != "Copied!":
+                print("Error: Button text did not change to 'Copied!'!")
+                sys.exit(1)
+
+            # Wait for reset
+            time.sleep(2.0)
+            reset_btn_text = copy_btn.text_content()
+            print(f"Reset Button Text: {reset_btn_text}")
+            if reset_btn_text != "Copy":
+                print("Error: Button text did not reset back to 'Copy'!")
+                sys.exit(1)
+
+            print("All clock and Copy Button checks passed successfully!")
             browser.close()
     finally:
         server_process.terminate()
