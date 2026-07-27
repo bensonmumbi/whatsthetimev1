@@ -11,7 +11,8 @@ def run_test():
     try:
         with sync_playwright() as p:
             browser = p.chromium.launch()
-            page = browser.new_page()
+            context = browser.new_context(permissions=["clipboard-read", "clipboard-write"])
+            page = context.new_page()
             page.goto("http://localhost:8000/whatsthetime.html")
 
             # Check main clock
@@ -48,6 +49,24 @@ def run_test():
                 print(f"Error: UTC offset invalid: {utc_off}")
                 sys.exit(1)
             print(f"UTC Offset: {utc_off}")
+
+            # Check Embed Clock Copy Button
+            copy_btn = page.locator("#copyBtn")
+            if copy_btn.count() == 0:
+                print("Error: Copy button not found!")
+                sys.exit(1)
+
+            # Click the copy button
+            copy_btn.click()
+            time.sleep(0.5)
+
+            # Check text content changes to "Copied!"
+            btn_text = copy_btn.text_content()
+            print(f"Copy Button Text after click: {btn_text}")
+            if "Copied!" not in btn_text:
+                print("Error: Copy button text did not change to 'Copied!'")
+                sys.exit(1)
+            print("Success: Copy button feedback works.")
 
             print("All basic clock checks passed.")
 
