@@ -49,10 +49,34 @@ def run_test():
                 sys.exit(1)
             print(f"UTC Offset: {utc_off}")
 
-            print("All basic clock checks passed.")
+            # Verify Copy Button and text transition
+            copy_btn = page.locator("#copyBtn")
+            if not copy_btn.is_visible():
+                print("Error: Copy button is not visible!")
+                sys.exit(1)
 
-            # Keep it running for manual check if needed
-            # page.screenshot(path="screenshot.png")
+            initial_copy_text = copy_btn.text_content().strip()
+            if initial_copy_text != "Copy":
+                print(f"Error: Expected 'Copy' as initial text, got '{initial_copy_text}'")
+                sys.exit(1)
+
+            copy_btn.click()
+            time.sleep(0.05) # short wait for DOM / style update
+            copied_text = copy_btn.text_content().strip()
+            print(f"Text after click: {copied_text}")
+            if copied_text != "Copied!":
+                print(f"Error: Expected 'Copied!' after clicking copy button, got '{copied_text}'")
+                sys.exit(1)
+
+            # Wait for text to revert (timeout is 2000ms, wait 2.1 seconds)
+            time.sleep(2.1)
+            reverted_text = copy_btn.text_content().strip()
+            print(f"Text after timeout: {reverted_text}")
+            if reverted_text != "Copy":
+                print(f"Error: Expected copy button text to revert to 'Copy', got '{reverted_text}'")
+                sys.exit(1)
+
+            print("All basic clock and copy-mechanics checks passed.")
 
             browser.close()
     finally:
