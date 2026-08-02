@@ -49,6 +49,22 @@ def run_test():
                 sys.exit(1)
             print(f"UTC Offset: {utc_off}")
 
+            # Verify the new copy button transitions
+            copy_btn = page.locator("#copyBtn")
+            initial_text = copy_btn.text_content().strip()
+            if initial_text != "Copy":
+                print(f"Error: Copy button text is not 'Copy': {initial_text}")
+                sys.exit(1)
+
+            # Click copy button
+            copy_btn.click()
+            time.sleep(0.5)
+            copied_text = copy_btn.text_content().strip()
+            if copied_text != "Copied!":
+                print(f"Error: Copy button text did not change to 'Copied!': {copied_text}")
+                sys.exit(1)
+            print("Success: Copy button visual feedback tested successfully.")
+
             print("All basic clock checks passed.")
 
             # Keep it running for manual check if needed
