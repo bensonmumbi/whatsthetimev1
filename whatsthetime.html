@@ -661,6 +661,19 @@ function getFormatter(opts) {
   return FORMATTERS.get(k);
 }
 
+// Performance Optimization: Cache DOM element references to avoid repetitive document.getElementById lookups
+const ELS = new Map();
+function getEl(id) {
+  if (!ELS.has(id)) {
+    const el = document.getElementById(id);
+    if (el) ELS.set(id, el);
+  }
+  return ELS.get(id);
+}
+
+// Performance Optimization: Cache computed timezone offsets hourly to reduce processing overhead
+const OFFSET_CACHE = new Map();
+
 const TZ=Intl.DateTimeFormat().resolvedOptions().timeZone;
 const mainCityEl = document.getElementById('mainCity');
 const cityName = TZ.split('/').pop().replace(/_/g,' ');
@@ -673,51 +686,78 @@ function pad(n){return String(n).padStart(2,'0')}
 function weekNum(d){const dt=new Date(Date.UTC(d.getFullYear(),d.getMonth(),d.getDate()));dt.setUTCDate(dt.getUTCDate()+4-(dt.getUTCDay()||7));const ys=new Date(Date.UTC(dt.getUTCFullYear(),0,1));return Math.ceil((((dt-ys)/86400000)+1)/7)}
 function doy(d){return Math.floor((d-new Date(d.getFullYear(),0,0))/86400000)}
 
-// Optimized: Uses cached formatters for timezone calculations
+// Optimized: Uses cached formatters and hourly offset caching via longOffset formatToParts
 function utcOff(tz){
+  const nowHour = Math.floor(Date.now() / 3600000);
+  const cacheKey = tz + '_' + nowHour;
+  if (OFFSET_CACHE.has(cacheKey)) {
+    return OFFSET_CACHE.get(cacheKey);
+  }
   try {
-    const n=new Date();
-    const opts = {year:'numeric',month:'numeric',day:'numeric',hour:'numeric',minute:'numeric',second:'numeric',hour12:false};
-    const u=new Date(getFormatter({...opts, timeZone:'UTC'}).format(n));
-    const l=new Date(getFormatter({...opts, timeZone:tz}).format(n));
-    const df=(l-u)/3600000,h=Math.floor(Math.abs(df)),m=Math.round((Math.abs(df)-h)*60);
-    return`UTC${df>=0?'+':'-'}${pad(h)}:${pad(m)}`;
-  } catch { return 'UTC'; }
+    const parts = getFormatter({timeZone: tz, timeZoneName: 'longOffset'}).formatToParts(new Date());
+    const tzPart = parts.find(p => p.type === 'timeZoneName')?.value || 'GMT';
+    let formatted = tzPart.replace('GMT', 'UTC');
+    if (formatted === 'UTC') formatted = 'UTC+00:00';
+    // Format timezone offsets consistently (e.g. UTC+00:00 or UTC-05:00)
+    formatted = formatted.replace(/([+-])(\d)$/, '$10$2:00')
+                         .replace(/([+-]\d{2})(\d{2})$/, '$1:$2');
+    OFFSET_CACHE.set(cacheKey, formatted);
+    return formatted;
+  } catch {
+    return 'UTC';
+  }
 }
+
+// Hoisted constant arrays to prevent redundant array instantiation in the tick() loop
+const D_NAMES = ['Sunday','Monday','Tuesday','Wednesday','Thursday','Friday','Saturday'];
+const M_NAMES = ['January','February','March','April','May','June','July','August','September','October','November','December'];
 
 let lastMin = -1;
 function tick(){
   const n=new Date();
-  const mainClockEl = document.getElementById('mainClock');
+
+  // 1. High frequency updates (every second)
+  const mainClockEl = getEl('mainClock');
   if(mainClockEl) mainClockEl.textContent = `${pad(n.getHours())}:${pad(n.getMinutes())}:${pad(n.getSeconds())}`;
   
   // Update detail IDs if they exist
-  const hh = document.getElementById('hh'), mm = document.getElementById('mm'), ss = document.getElementById('ss');
+  const hh = getEl('hh'), mm = getEl('mm'), ss = getEl('ss');
   if(hh) hh.textContent=pad(n.getHours());
   if(mm) mm.textContent=pad(n.getMinutes());
   if(ss) ss.textContent=pad(n.getSeconds());
 
-  const D=['Sunday','Monday','Tuesday','Wednesday','Thursday','Friday','Saturday'];
-  const M=['January','February','March','April','May','June','July','August','September','October','November','December'];
-  const datDisp = document.getElementById('datDisp');
-  if(datDisp) datDisp.textContent=`${D[n.getDay()]}, ${M[n.getMonth()]} ${n.getDate()}, ${n.getFullYear()}`;
+  const unixTsEl = getEl('unixTs');
+  if(unixTsEl) unixTsEl.textContent=Math.floor(n/1000).toLocaleString();
 
-  const tzs=getFormatter({timeZoneName:'short'}).formatToParts(n).find(p=>p.type==='timeZoneName')?.value||'';
-  const tzName = document.getElementById('tzName');
-  if(tzName) tzName.textContent=tzs;
-  const utcOffEl = document.getElementById('utcOff');
-  if(utcOffEl) utcOffEl.textContent=utcOff(TZ);
-  document.getElementById('unixTs').textContent=Math.floor(n/1000).toLocaleString();
-  document.getElementById('weekNum').textContent='Week '+weekNum(n);
-  document.getElementById('doy').textContent=doy(n)+' / 365';
-  document.getElementById('qtr').textContent='Q'+(Math.floor(n.getMonth()/3)+1);
-  document.getElementById('isoD').textContent=n.toISOString().slice(0,19).replace('T',' ');
+  const isoDEl = getEl('isoD');
+  if(isoDEl) isoDEl.textContent=n.toISOString().slice(0,19).replace('T',' ');
 
-  // Performance Optimization: Throttle secondary clock updates to once per minute
-  if (n.getMinutes() !== lastMin) {
+  // 2. Low frequency updates (only on minute change)
+  const currentMin = n.getMinutes();
+  if (currentMin !== lastMin) {
+    const datDisp = getEl('datDisp');
+    if(datDisp) datDisp.textContent=`${D_NAMES[n.getDay()]}, ${M_NAMES[n.getMonth()]} ${n.getDate()}, ${n.getFullYear()}`;
+
+    const tzs=getFormatter({timeZoneName:'short'}).formatToParts(n).find(p=>p.type==='timeZoneName')?.value||'';
+    const tzName = getEl('tzName');
+    if(tzName) tzName.textContent=tzs;
+
+    const utcOffEl = getEl('utcOff');
+    if(utcOffEl) utcOffEl.textContent=utcOff(TZ);
+
+    const weekNumEl = getEl('weekNum');
+    if(weekNumEl) weekNumEl.textContent='Week '+weekNum(n);
+
+    const doyEl = getEl('doy');
+    if(doyEl) doyEl.textContent=doy(n)+' / 365';
+
+    const qtrEl = getEl('qtr');
+    if(qtrEl) qtrEl.textContent='Q'+(Math.floor(n.getMonth()/3)+1);
+
+    // Performance Optimization: Throttle secondary clock updates to once per minute
     updateCities();
     updateHeroTz();
-    lastMin = n.getMinutes();
+    lastMin = currentMin;
   }
 }
 function cityTime(tz){
