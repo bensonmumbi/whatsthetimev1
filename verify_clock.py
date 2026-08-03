@@ -49,6 +49,22 @@ def run_test():
                 sys.exit(1)
             print(f"UTC Offset: {utc_off}")
 
+            # Verify the Embed Clock copy functionality
+            copy_btn = page.locator("#copyBtn")
+            copy_btn.click()
+            time.sleep(0.5)
+            copied_text = copy_btn.text_content()
+            print(f"Copy Button text after click: {copied_text}")
+            if copied_text != "Copied!":
+                print(f"Error: Copy button text is not 'Copied!': {copied_text}")
+                sys.exit(1)
+
+            aria_label = copy_btn.get_attribute("aria-label")
+            print(f"Copy Button aria-label: {aria_label}")
+            if aria_label != "Embed code copied successfully":
+                print(f"Error: Copy button aria-label was not updated correctly!")
+                sys.exit(1)
+
             print("All basic clock checks passed.")
 
             # Keep it running for manual check if needed
