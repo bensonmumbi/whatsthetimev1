@@ -49,6 +49,29 @@ def run_test():
                 sys.exit(1)
             print(f"UTC Offset: {utc_off}")
 
+            # Verify the Embed Widget Copy Button
+            copy_btn = page.locator("#copyBtn")
+            if not copy_btn.is_visible():
+                print("Error: Copy button not visible!")
+                sys.exit(1)
+
+            # Click the Copy button to trigger visual feedback
+            copy_btn.click()
+            time.sleep(0.5)
+            btn_text = copy_btn.text_content()
+            print(f"Copy button text after click: {btn_text}")
+            if "Copied!" not in btn_text:
+                print("Error: Copy button visual feedback failed!")
+                sys.exit(1)
+
+            # Wait for timeout to reset the button text
+            time.sleep(2.0)
+            btn_text_after_reset = copy_btn.text_content()
+            print(f"Copy button text after reset: {btn_text_after_reset}")
+            if "Copy" not in btn_text_after_reset:
+                print("Error: Copy button text did not reset!")
+                sys.exit(1)
+
             print("All basic clock checks passed.")
 
             # Keep it running for manual check if needed
