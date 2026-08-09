@@ -49,7 +49,37 @@ def run_test():
                 sys.exit(1)
             print(f"UTC Offset: {utc_off}")
 
-            print("All basic clock checks passed.")
+            # Check Embed Clock Copy Button Interaction
+            copy_btn = page.locator("#copyBtn")
+            if copy_btn.count() == 0:
+                print("Error: Copy button not found!")
+                sys.exit(1)
+
+            initial_btn_text = copy_btn.text_content()
+            print(f"Copy Button Initial Text: {initial_btn_text}")
+            if initial_btn_text != "Copy":
+                print(f"Error: Copy button initial text is invalid: {initial_btn_text}")
+                sys.exit(1)
+
+            # Click copy button
+            copy_btn.click()
+            clicked_btn_text = copy_btn.text_content()
+            print(f"Copy Button Text After Click: {clicked_btn_text}")
+            if clicked_btn_text != "Copied!":
+                print(f"Error: Copy button did not change text to 'Copied!': {clicked_btn_text}")
+                sys.exit(1)
+
+            # Wait for text to revert
+            time.sleep(2.5)
+            reverted_btn_text = copy_btn.text_content()
+            print(f"Copy Button Text After Timeout: {reverted_btn_text}")
+            if reverted_btn_text != "Copy":
+                print(f"Error: Copy button did not revert back to 'Copy': {reverted_btn_text}")
+                sys.exit(1)
+
+            print("Success: Copy button interaction works perfectly.")
+
+            print("All basic clock and UX checks passed.")
 
             # Keep it running for manual check if needed
             # page.screenshot(path="screenshot.png")
