@@ -673,16 +673,30 @@ function pad(n){return String(n).padStart(2,'0')}
 function weekNum(d){const dt=new Date(Date.UTC(d.getFullYear(),d.getMonth(),d.getDate()));dt.setUTCDate(dt.getUTCDate()+4-(dt.getUTCDay()||7));const ys=new Date(Date.UTC(dt.getUTCFullYear(),0,1));return Math.ceil((((dt-ys)/86400000)+1)/7)}
 function doy(d){return Math.floor((d-new Date(d.getFullYear(),0,0))/86400000)}
 
-// Optimized: Uses cached formatters for timezone calculations
+// Optimized hourly memoization cache for computed timezone offsets
+const OFFSET_CACHE = new Map();
+
+// Optimized: Uses cached formatters and Intl.DateTimeFormat formatToParts with hourly memoization
 function utcOff(tz){
+  // Generate hourly cache key to avoid expensive formatToParts parsing 50k+ times/sec
+  const hr = Math.floor(Date.now() / 3600000);
+  const key = tz + '_' + hr;
+  if (OFFSET_CACHE.has(key)) return OFFSET_CACHE.get(key);
+
   try {
-    const n=new Date();
-    const opts = {year:'numeric',month:'numeric',day:'numeric',hour:'numeric',minute:'numeric',second:'numeric',hour12:false};
-    const u=new Date(getFormatter({...opts, timeZone:'UTC'}).format(n));
-    const l=new Date(getFormatter({...opts, timeZone:tz}).format(n));
-    const df=(l-u)/3600000,h=Math.floor(Math.abs(df)),m=Math.round((Math.abs(df)-h)*60);
-    return`UTC${df>=0?'+':'-'}${pad(h)}:${pad(m)}`;
-  } catch { return 'UTC'; }
+    const formatter = getFormatter({timeZone: tz, timeZoneName: 'longOffset'});
+    const parts = formatter.formatToParts(new Date());
+    const tzNamePart = parts.find(p => p.type === 'timeZoneName')?.value || '';
+
+    // Format is 'GMT-04:00' or 'GMT+01:00' or 'GMT'
+    let off = tzNamePart.replace('GMT', 'UTC');
+    if (off === 'UTC') off = 'UTC+00:00';
+
+    OFFSET_CACHE.set(key, off);
+    return off;
+  } catch {
+    return 'UTC';
+  }
 }
 
 let lastMin = -1;
