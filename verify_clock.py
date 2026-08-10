@@ -49,7 +49,25 @@ def run_test():
                 sys.exit(1)
             print(f"UTC Offset: {utc_off}")
 
-            print("All basic clock checks passed.")
+            # Check Widget Copy Button and Interaction
+            copy_btn = page.locator("#copyBtn")
+            copy_btn_text_initial = copy_btn.text_content()
+            if copy_btn_text_initial != "Copy":
+                print(f"Error: Copy button text should be 'Copy', but found: {copy_btn_text_initial}")
+                sys.exit(1)
+            print(f"Copy button found with correct label: {copy_btn_text_initial}")
+
+            # Click copy button
+            copy_btn.click()
+            time.sleep(0.5)
+
+            copy_btn_text_after = copy_btn.text_content()
+            if copy_btn_text_after != "Copied!":
+                print(f"Error: Copy button text after click should be 'Copied!', but found: {copy_btn_text_after}")
+                sys.exit(1)
+            print(f"Success: Copy button transitioned to '{copy_btn_text_after}' on click.")
+
+            print("All basic clock and copy button checks passed.")
 
             # Keep it running for manual check if needed
             # page.screenshot(path="screenshot.png")
