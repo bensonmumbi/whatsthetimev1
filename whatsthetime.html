@@ -661,6 +661,9 @@ function getFormatter(opts) {
   return FORMATTERS.get(k);
 }
 
+// Performance Optimization: Cache timezone offsets hourly to avoid redundant format/calculation overhead
+const OFFSET_CACHE = new Map();
+
 const TZ=Intl.DateTimeFormat().resolvedOptions().timeZone;
 const mainCityEl = document.getElementById('mainCity');
 const cityName = TZ.split('/').pop().replace(/_/g,' ');
@@ -673,15 +676,24 @@ function pad(n){return String(n).padStart(2,'0')}
 function weekNum(d){const dt=new Date(Date.UTC(d.getFullYear(),d.getMonth(),d.getDate()));dt.setUTCDate(dt.getUTCDate()+4-(dt.getUTCDay()||7));const ys=new Date(Date.UTC(dt.getUTCFullYear(),0,1));return Math.ceil((((dt-ys)/86400000)+1)/7)}
 function doy(d){return Math.floor((d-new Date(d.getFullYear(),0,0))/86400000)}
 
-// Optimized: Uses cached formatters for timezone calculations
+// Optimized: Uses Intl.DateTimeFormat with longOffset and caches calculated offsets hourly
 function utcOff(tz){
+  const n = new Date();
+  const cacheKey = tz + '_' + Math.floor(n.getTime() / 3600000);
+  if (OFFSET_CACHE.has(cacheKey)) return OFFSET_CACHE.get(cacheKey);
+
   try {
-    const n=new Date();
-    const opts = {year:'numeric',month:'numeric',day:'numeric',hour:'numeric',minute:'numeric',second:'numeric',hour12:false};
-    const u=new Date(getFormatter({...opts, timeZone:'UTC'}).format(n));
-    const l=new Date(getFormatter({...opts, timeZone:tz}).format(n));
-    const df=(l-u)/3600000,h=Math.floor(Math.abs(df)),m=Math.round((Math.abs(df)-h)*60);
-    return`UTC${df>=0?'+':'-'}${pad(h)}:${pad(m)}`;
+    const parts = getFormatter({timeZone:tz, timeZoneName:'longOffset'}).formatToParts(n);
+    const tzPart = parts.find(p=>p.type==='timeZoneName')?.value||'GMT';
+    if(tzPart === 'GMT') {
+      OFFSET_CACHE.set(cacheKey, 'UTC+00:00');
+      return 'UTC+00:00';
+    }
+    const val = tzPart.replace('GMT', 'UTC')
+                      .replace(/([+-])(\d)$/, '$10$2:00')
+                      .replace(/([+-]\d{2})(\d{2})$/, '$1:$2');
+    OFFSET_CACHE.set(cacheKey, val);
+    return val;
   } catch { return 'UTC'; }
 }
 
