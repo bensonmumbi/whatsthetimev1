@@ -7,6 +7,7 @@
 <link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=DM+Sans:wght@300;400;500;600&family=JetBrains+Mono:wght@300;400;600&display=swap" rel="stylesheet"/>
 <style>
 *,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+*:focus-visible { outline: 2px solid var(--accent) !important; outline-offset: 2px !important; }
 :root{
   --bg:#ffffff;--fg:#0d0d0d;--fg-muted:#555;--fg-subtle:#999;
   --border:#e5e5e5;--accent:#e8261e;--surface:#f5f5f5;--dark:#0d0d0d;
@@ -234,10 +235,10 @@ nav a.active{background:var(--accent);color:#fff}
 <header>
   <button class="logo" onclick="showPage('time')" aria-label="Go to world clock"><span style="color:var(--fg)">WHATS</span><span style="color:var(--accent)">THE</span><span style="color:var(--fg)">TIME</span></button>
   <nav>
-    <a onclick="showPage('time')" id="nav-time" class="active">
+    <a href="javascript:void(0)" onclick="showPage('time')" id="nav-time" class="active">
       <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" style="width:16px;height:16px"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg> Time
     </a>
-    <a onclick="showPage('build')" id="nav-build">
+    <a href="javascript:void(0)" onclick="showPage('build')" id="nav-build">
       <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" style="width:16px;height:16px"><path d="M12 2L2 7l10 5 10-5-10-5zM2 17l10 5 10-5M2 12l10 5 10-5"/></svg> Build Your Site
     </a>
   </nav>
@@ -598,7 +599,7 @@ nav a.active{background:var(--accent);color:#fff}
     <p>Every coffee keeps the site running and free for everyone!</p>
     
     <div style="margin-bottom:20px">
-      <label style="font-size:11px;text-transform:uppercase;color:var(--fg-subtle);display:block;margin-bottom:8px">Select Currency</label>
+      <label for="bmcCurr" style="font-size:11px;text-transform:uppercase;color:var(--fg-subtle);display:block;margin-bottom:8px">Select Currency</label>
       <select id="bmcCurr" style="width:100%;padding:8px;border-radius:6px;border:1px solid var(--border)" onchange="updateBmcCur()">
         <option value="$">USD — US Dollar ($)</option>
         <option value="€">EUR — Euro (€)</option>
@@ -615,7 +616,7 @@ nav a.active{background:var(--accent);color:#fff}
     </div>
     
     <div style="margin:20px 0">
-      <label style="font-size:11px;text-transform:uppercase;color:var(--fg-subtle);display:block;margin-bottom:8px">Custom Amount (Min <span class="cur">$</span>5)</label>
+      <label for="bmcCustom" style="font-size:11px;text-transform:uppercase;color:var(--fg-subtle);display:block;margin-bottom:8px">Custom Amount (Min <span class="cur">$</span>5)</label>
       <div style="position:relative">
         <span class="cur" style="position:absolute;left:12px;top:50%;transform:translateY(-50%);font-weight:600">$</span>
         <input type="number" id="bmcCustom" min="5" placeholder="Enter amount" style="width:100%;padding:10px 10px 10px 30px;border-radius:6px;border:1px solid var(--border);font-family:var(--mono)" oninput="useCustomBmc(this.value)">
@@ -629,11 +630,11 @@ nav a.active{background:var(--accent);color:#fff}
 
 <footer class="site-foot">
   <span>© 2026 whatsthetimeworld.com</span>
-  <a onclick="showPage('time')">Time</a>
-  <a onclick="showPage('build')">Build Your Site</a>
-  <a onclick="showPage('privacy')">Privacy Policy</a>
-  <a onclick="showPage('terms')">Terms of Use</a>
-  <a onclick="scrollTo2('contact-form')">Contact</a>
+  <a href="javascript:void(0)" onclick="showPage('time')">Time</a>
+  <a href="javascript:void(0)" onclick="showPage('build')">Build Your Site</a>
+  <a href="javascript:void(0)" onclick="showPage('privacy')">Privacy Policy</a>
+  <a href="javascript:void(0)" onclick="showPage('terms')">Terms of Use</a>
+  <a href="javascript:void(0)" onclick="scrollTo2('contact-form')">Contact</a>
 </footer>
 
 <script>
