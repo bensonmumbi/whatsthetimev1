@@ -49,6 +49,19 @@ def run_test():
                 sys.exit(1)
             print(f"UTC Offset: {utc_off}")
 
+            # Check copy button
+            copy_btn = page.locator("#copyBtn")
+            if copy_btn.count() == 0:
+                print("Error: Copy button not found!")
+                sys.exit(1)
+            copy_btn.click()
+            time.sleep(0.5)
+            btn_text = copy_btn.text_content()
+            if btn_text != "Copied!":
+                print(f"Error: Expected button text 'Copied!', got '{btn_text}'")
+                sys.exit(1)
+            print("Success: Copy button interaction verified.")
+
             print("All basic clock checks passed.")
 
             # Keep it running for manual check if needed
