@@ -161,7 +161,7 @@ nav a.active{background:var(--accent);color:#fff}
 .testi-role{font-size:11px;color:var(--fg-subtle)}
 .faq-list{max-width:640px;margin-bottom:60px}
 .faq-item{border-bottom:1px solid var(--border)}
-.faq-q{display:flex;align-items:center;justify-content:space-between;padding:16px 0;cursor:pointer;font-size:14px;font-weight:500;gap:12px}
+.faq-q{display:flex;align-items:center;justify-content:space-between;padding:16px 0;cursor:pointer;font-size:14px;font-weight:500;gap:12px;width:100%;text-align:left;background:none;border:none;font-family:inherit;color:inherit}
 .faq-ico{font-size:18px;color:var(--accent);flex-shrink:0;transition:transform .2s;display:inline-block}
 .faq-a{font-size:13px;color:var(--fg-muted);line-height:1.7;max-height:0;overflow:hidden;transition:max-height .3s ease,padding .3s}
 .faq-item.open .faq-a{max-height:200px;padding-bottom:14px}
@@ -500,11 +500,11 @@ nav a.active{background:var(--accent);color:#fff}
     <div class="sec-lbl">FAQ</div>
     <div class="sec-hd">QUESTIONS</div>
     <div class="faq-list">
-      <div class="faq-item"><div class="faq-q" onclick="toggleFaq(this)">Do I need to know coding? <span class="faq-ico">+</span></div><div class="faq-a">No. I handle everything. You just tell me what you want and I build it.</div></div>
-      <div class="faq-item"><div class="faq-q" onclick="toggleFaq(this)">How long does it take? <span class="faq-ico">+</span></div><div class="faq-a">A single-page site: 24–48 hours. A full multi-page site with merch and backend: 3–7 days.</div></div>
-      <div class="faq-item"><div class="faq-q" onclick="toggleFaq(this)">Can you work with my Hostinger account? <span class="faq-ico">+</span></div><div class="faq-a">Yes. I can set everything up directly on your existing Hostinger account with full guidance.</div></div>
-      <div class="faq-item"><div class="faq-q" onclick="toggleFaq(this)">Will my site work on mobile? <span class="faq-ico">+</span></div><div class="faq-a">Every site I build is fully mobile responsive and tested on Android and iOS before delivery.</div></div>
-      <div class="faq-item"><div class="faq-q" onclick="toggleFaq(this)">Do you offer support after delivery? <span class="faq-ico">+</span></div><div class="faq-a">Business plan: 1 month. Starter &amp; Pro: 2 weeks of minor fix support. Extended support available.</div></div>
+      <div class="faq-item"><button type="button" class="faq-q" aria-expanded="false" onclick="toggleFaq(this)">Do I need to know coding? <span class="faq-ico">+</span></button><div class="faq-a">No. I handle everything. You just tell me what you want and I build it.</div></div>
+      <div class="faq-item"><button type="button" class="faq-q" aria-expanded="false" onclick="toggleFaq(this)">How long does it take? <span class="faq-ico">+</span></button><div class="faq-a">A single-page site: 24–48 hours. A full multi-page site with merch and backend: 3–7 days.</div></div>
+      <div class="faq-item"><button type="button" class="faq-q" aria-expanded="false" onclick="toggleFaq(this)">Can you work with my Hostinger account? <span class="faq-ico">+</span></button><div class="faq-a">Yes. I can set everything up directly on your existing Hostinger account with full guidance.</div></div>
+      <div class="faq-item"><button type="button" class="faq-q" aria-expanded="false" onclick="toggleFaq(this)">Will my site work on mobile? <span class="faq-ico">+</span></button><div class="faq-a">Every site I build is fully mobile responsive and tested on Android and iOS before delivery.</div></div>
+      <div class="faq-item"><button type="button" class="faq-q" aria-expanded="false" onclick="toggleFaq(this)">Do you offer support after delivery? <span class="faq-ico">+</span></button><div class="faq-a">Business plan: 1 month. Starter &amp; Pro: 2 weeks of minor fix support. Extended support available.</div></div>
     </div>
 
     <div id="contact-form">
@@ -780,7 +780,7 @@ function shiftMonth(dir){calDate.setMonth(calDate.getMonth()+dir);renderCal()}
 
 // ── BUILD PAGE HELPERS ────────────────────────────────────────────────────────
 function preselectPlan(plan){showPage('build');setTimeout(()=>{document.getElementById('fplan').value=plan;document.getElementById('contact-form').scrollIntoView({behavior:'smooth'})},400)}
-function toggleFaq(el){el.parentElement.classList.toggle('open')}
+function toggleFaq(el){const isOpen=el.parentElement.classList.toggle('open');el.setAttribute('aria-expanded',isOpen?'true':'false')}
 
 function filterPortfolio(btn, category){
   document.querySelectorAll('.filter-btn').forEach(b => b.classList.remove('active'));
