@@ -51,6 +51,15 @@ def run_test():
 
             print("All basic clock checks passed.")
 
+            # Check keyboard navigation on header links
+            nav_link = page.locator("#nav-build")
+            nav_link.focus()
+            focused_id = page.evaluate("document.activeElement.id")
+            if focused_id != "nav-build":
+                print(f"Error: Expected #nav-build to be focused, got {focused_id}")
+                sys.exit(1)
+            print("Success: Header navigation link is keyboard focusable.")
+
             # Keep it running for manual check if needed
             # page.screenshot(path="screenshot.png")
 
