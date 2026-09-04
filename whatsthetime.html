@@ -673,15 +673,19 @@ function pad(n){return String(n).padStart(2,'0')}
 function weekNum(d){const dt=new Date(Date.UTC(d.getFullYear(),d.getMonth(),d.getDate()));dt.setUTCDate(dt.getUTCDate()+4-(dt.getUTCDay()||7));const ys=new Date(Date.UTC(dt.getUTCFullYear(),0,1));return Math.ceil((((dt-ys)/86400000)+1)/7)}
 function doy(d){return Math.floor((d-new Date(d.getFullYear(),0,0))/86400000)}
 
-// Optimized: Uses cached formatters for timezone calculations
-function utcOff(tz){
+// Performance Optimization: Fast UTC offset using Intl longOffset and hourly offset caching
+const OFFSET_CACHE = new Map();
+function utcOff(tz, date = new Date()){
   try {
-    const n=new Date();
-    const opts = {year:'numeric',month:'numeric',day:'numeric',hour:'numeric',minute:'numeric',second:'numeric',hour12:false};
-    const u=new Date(getFormatter({...opts, timeZone:'UTC'}).format(n));
-    const l=new Date(getFormatter({...opts, timeZone:tz}).format(n));
-    const df=(l-u)/3600000,h=Math.floor(Math.abs(df)),m=Math.round((Math.abs(df)-h)*60);
-    return`UTC${df>=0?'+':'-'}${pad(h)}:${pad(m)}`;
+    const hourKey = tz + '_' + date.getFullYear() + '_' + date.getMonth() + '_' + date.getDate() + '_' + date.getHours();
+    if (OFFSET_CACHE.has(hourKey)) return OFFSET_CACHE.get(hourKey);
+    const fmt = getFormatter({ timeZone: tz, timeZoneName: 'longOffset' });
+    const parts = fmt.formatToParts(date);
+    const tzName = parts.find(p => p.type === 'timeZoneName')?.value || '';
+    const res = tzName === 'GMT' ? 'UTC+00:00' : tzName.replace('GMT', 'UTC');
+    if (OFFSET_CACHE.size > 50) OFFSET_CACHE.clear();
+    OFFSET_CACHE.set(hourKey, res);
+    return res;
   } catch { return 'UTC'; }
 }
 
