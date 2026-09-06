@@ -51,6 +51,22 @@ def run_test():
 
             print("All basic clock checks passed.")
 
+            # Check keyboard focus navigation on nav links
+            page.focus(".logo")
+            page.keyboard.press("Tab")
+            nav_time_focused = page.evaluate("document.activeElement.id")
+            if nav_time_focused != "nav-time":
+                print(f"Error: Expected nav-time focus, got {nav_time_focused}")
+                sys.exit(1)
+
+            page.keyboard.press("Tab")
+            nav_build_focused = page.evaluate("document.activeElement.id")
+            if nav_build_focused != "nav-build":
+                print(f"Error: Expected nav-build focus, got {nav_build_focused}")
+                sys.exit(1)
+
+            print("Keyboard navigation focus check passed.")
+
             # Keep it running for manual check if needed
             # page.screenshot(path="screenshot.png")
 
