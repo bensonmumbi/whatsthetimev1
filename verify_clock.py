@@ -51,8 +51,26 @@ def run_test():
 
             print("All basic clock checks passed.")
 
-            # Keep it running for manual check if needed
-            # page.screenshot(path="screenshot.png")
+            # Check nav link keyboard accessibility
+            nav_time = page.locator("#nav-time")
+            nav_build = page.locator("#nav-build")
+
+            nav_time.focus()
+            page.keyboard.press("Tab")
+            focused_handle = page.evaluate("document.activeElement.id")
+            if focused_handle != "nav-build":
+                print(f"Error: Keyboard Tab navigation failed! Expected nav-build, got: {focused_handle}")
+                sys.exit(1)
+            print("Success: Keyboard Tab navigation between header links passed.")
+
+            # Test activating link with Enter key
+            page.keyboard.press("Enter")
+            time.sleep(0.5)
+            is_build_active = page.evaluate("document.getElementById('page-build').classList.contains('active')")
+            if not is_build_active:
+                print("Error: Activating nav-build via Enter key failed!")
+                sys.exit(1)
+            print("Success: Enter key activation on nav link passed.")
 
             browser.close()
     finally:
