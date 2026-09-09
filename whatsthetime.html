@@ -477,11 +477,11 @@ nav a.active{background:var(--accent);color:#fff}
     <div class="sec-lbl">Work</div>
     <div class="sec-hd">RECENT PROJECTS</div>
     <div class="sec-sub">A sample of what I've built.</div>
-    <div class="filter-btns">
-      <button class="filter-btn active" onclick="filterPortfolio(this, 'all')">All</button>
-      <button class="filter-btn" onclick="filterPortfolio(this, 'clocks')">Clocks</button>
-      <button class="filter-btn" onclick="filterPortfolio(this, 'stores')">Stores</button>
-      <button class="filter-btn" onclick="filterPortfolio(this, 'saas')">SaaS</button>
+    <div class="filter-btns" role="group" aria-label="Filter portfolio by category">
+      <button class="filter-btn active" aria-pressed="true" onclick="filterPortfolio(this, 'all')">All</button>
+      <button class="filter-btn" aria-pressed="false" onclick="filterPortfolio(this, 'clocks')">Clocks</button>
+      <button class="filter-btn" aria-pressed="false" onclick="filterPortfolio(this, 'stores')">Stores</button>
+      <button class="filter-btn" aria-pressed="false" onclick="filterPortfolio(this, 'saas')">SaaS</button>
     </div>
     <div class="port-grid">
       <div class="port-card" data-category="clocks"><div class="port-thumb" style="background:linear-gradient(135deg,#0d0d0d,#1a1a2e)">CLOCK APP</div><div class="port-meta"><h4>time.is Clone</h4><p>World clock + merch + services in one file</p></div></div>
@@ -783,8 +783,12 @@ function preselectPlan(plan){showPage('build');setTimeout(()=>{document.getEleme
 function toggleFaq(el){el.parentElement.classList.toggle('open')}
 
 function filterPortfolio(btn, category){
-  document.querySelectorAll('.filter-btn').forEach(b => b.classList.remove('active'));
+  document.querySelectorAll('.filter-btn').forEach(b => {
+    b.classList.remove('active');
+    b.setAttribute('aria-pressed', 'false');
+  });
   btn.classList.add('active');
+  btn.setAttribute('aria-pressed', 'true');
 
   document.querySelectorAll('.port-card').forEach(card => {
     if(category === 'all' || card.dataset.category === category){
