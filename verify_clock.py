@@ -49,6 +49,19 @@ def run_test():
                 sys.exit(1)
             print(f"UTC Offset: {utc_off}")
 
+            # Check FAQ accordion functionality and accessibility
+            page.evaluate("showPage('build')")
+            first_faq = page.locator(".faq-q").first
+            if first_faq.get_attribute("aria-expanded") != "false":
+                print("Error: FAQ aria-expanded initial state should be false!")
+                sys.exit(1)
+
+            first_faq.click()
+            if first_faq.get_attribute("aria-expanded") != "true":
+                print("Error: FAQ aria-expanded state should be true after click!")
+                sys.exit(1)
+            print("Success: FAQ accordion accessibility checks passed.")
+
             print("All basic clock checks passed.")
 
             # Keep it running for manual check if needed
