@@ -49,6 +49,32 @@ def run_test():
                 sys.exit(1)
             print(f"UTC Offset: {utc_off}")
 
+            # Navigate to 'Build' page where FAQ resides
+            page.locator("#nav-build").click()
+
+            # Check FAQ accordion buttons & aria-expanded state
+            faq_buttons = page.locator(".faq-q").all()
+            if len(faq_buttons) == 0:
+                print("Error: No FAQ buttons found!")
+                sys.exit(1)
+
+            first_faq = page.locator(".faq-q").first
+            if first_faq.get_attribute("aria-expanded") != "false":
+                print("Error: Initial FAQ aria-expanded state should be false!")
+                sys.exit(1)
+
+            first_faq.click()
+            if first_faq.get_attribute("aria-expanded") != "true":
+                print("Error: FAQ aria-expanded state should be true after click!")
+                sys.exit(1)
+
+            first_faq.click()
+            if first_faq.get_attribute("aria-expanded") != "false":
+                print("Error: FAQ aria-expanded state should be false after second click!")
+                sys.exit(1)
+
+            print("FAQ accordion aria-expanded state check passed.")
+
             print("All basic clock checks passed.")
 
             # Keep it running for manual check if needed
