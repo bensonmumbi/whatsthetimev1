@@ -49,6 +49,15 @@ def run_test():
                 sys.exit(1)
             print(f"UTC Offset: {utc_off}")
 
+            # Check navigation link keyboard focusable state
+            nav_link = page.locator("#nav-build")
+            nav_link.focus()
+            is_focused = page.evaluate("document.activeElement.id === 'nav-build'")
+            if not is_focused:
+                print("Error: #nav-build is not focused!")
+                sys.exit(1)
+            print("Keyboard navigation focus check passed.")
+
             print("All basic clock checks passed.")
 
             # Keep it running for manual check if needed
