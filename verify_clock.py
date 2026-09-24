@@ -49,6 +49,18 @@ def run_test():
                 sys.exit(1)
             print(f"UTC Offset: {utc_off}")
 
+            # Check keyboard navigation on nav-build link
+            nav_build = page.locator("#nav-build")
+            nav_build.focus()
+            page.keyboard.press("Enter")
+            time.sleep(0.5)
+
+            active_page = page.locator(".page.active")
+            if active_page.get_attribute("id") != "page-build":
+                print("Error: Navigating via keyboard failed!")
+                sys.exit(1)
+            print("Success: Keyboard navigation activated 'Build Your Site' page.")
+
             print("All basic clock checks passed.")
 
             # Keep it running for manual check if needed
