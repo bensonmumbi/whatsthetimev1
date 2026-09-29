@@ -49,6 +49,15 @@ def run_test():
                 sys.exit(1)
             print(f"UTC Offset: {utc_off}")
 
+            # Check keyboard accessibility of navigation links
+            nav_links = page.locator("nav a").all()
+            for nav_link in nav_links:
+                href = nav_link.get_attribute("href")
+                if not href:
+                    print(f"Error: Navigation link is missing href attribute: {nav_link.text_content()}")
+                    sys.exit(1)
+
+            print("Success: Navigation links have valid href attributes for keyboard navigation.")
             print("All basic clock checks passed.")
 
             # Keep it running for manual check if needed
