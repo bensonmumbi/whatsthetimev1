@@ -51,6 +51,18 @@ def run_test():
 
             print("All basic clock checks passed.")
 
+            # Test Keyboard navigation on header nav links
+            nav_build = page.locator("#nav-build")
+            nav_build.focus()
+            page.keyboard.press("Enter")
+            time.sleep(0.5)
+
+            page_build = page.locator("#page-build")
+            if "active" not in page_build.get_attribute("class"):
+                print("Error: Keyboard Enter navigation to Build page failed!")
+                sys.exit(1)
+            print("Success: Keyboard Enter navigation worked for header link.")
+
             # Keep it running for manual check if needed
             # page.screenshot(path="screenshot.png")
 
