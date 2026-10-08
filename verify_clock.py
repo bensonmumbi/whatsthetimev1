@@ -51,8 +51,26 @@ def run_test():
 
             print("All basic clock checks passed.")
 
-            # Keep it running for manual check if needed
-            # page.screenshot(path="screenshot.png")
+            # Check FAQ accordion buttons & aria-expanded state
+            page.click("#nav-build")
+            page.wait_for_selector(".faq-q")
+            faq_btn = page.locator(".faq-q").first
+
+            if faq_btn.get_attribute("aria-expanded") != "false":
+                print("Error: FAQ button initial aria-expanded is not 'false'")
+                sys.exit(1)
+
+            faq_btn.click()
+            if faq_btn.get_attribute("aria-expanded") != "true":
+                print("Error: FAQ button aria-expanded is not 'true' after click")
+                sys.exit(1)
+
+            faq_btn.click()
+            if faq_btn.get_attribute("aria-expanded") != "false":
+                print("Error: FAQ button aria-expanded is not 'false' after second click")
+                sys.exit(1)
+
+            print("Success: FAQ accordion ARIA toggle check passed.")
 
             browser.close()
     finally:
