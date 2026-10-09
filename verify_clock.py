@@ -51,6 +51,25 @@ def run_test():
 
             print("All basic clock checks passed.")
 
+            # Switch to Build page where FAQ is located
+            page.locator("#nav-build").click()
+            time.sleep(0.5)
+
+            # Check FAQ accordion functionality and aria-expanded attribute
+            faq_btn = page.locator(".faq-q").first
+            if faq_btn.count() > 0:
+                initial_expanded = faq_btn.get_attribute("aria-expanded")
+                if initial_expanded != "false":
+                    print(f"Error: FAQ initial aria-expanded expected 'false', got '{initial_expanded}'")
+                    sys.exit(1)
+
+                faq_btn.click()
+                new_expanded = faq_btn.get_attribute("aria-expanded")
+                if new_expanded != "true":
+                    print(f"Error: FAQ aria-expanded expected 'true' after click, got '{new_expanded}'")
+                    sys.exit(1)
+                print("Success: FAQ accordion aria-expanded state toggles correctly.")
+
             # Keep it running for manual check if needed
             # page.screenshot(path="screenshot.png")
 
