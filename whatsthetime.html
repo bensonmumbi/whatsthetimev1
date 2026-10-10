@@ -336,10 +336,10 @@ nav a.active{background:var(--accent);color:#fff}
     <div class="sec-title">Timezone Converter</div>
     <div style="background:var(--surface);border:1px solid var(--border);border-radius:12px;padding:24px;display:flex;gap:16px;align-items:center;flex-wrap:wrap">
       <div style="flex:1;min-width:200px">
-        <label style="font-size:11px;font-weight:600;text-transform:uppercase;color:var(--fg-muted);display:block;margin-bottom:6px">From</label>
+        <label for="convFrom" style="font-size:11px;font-weight:600;text-transform:uppercase;color:var(--fg-muted);display:block;margin-bottom:6px">From</label>
         <div style="display:flex;gap:8px">
-          <input type="time" id="convTime" value="12:00" onchange="calcConversion()" style="background:var(--bg);border:1px solid var(--border);border-radius:8px;padding:8px 12px;font-family:var(--mono);font-size:14px;color:var(--fg);outline:none">
-          <select id="convFrom" onchange="calcConversion()" style="flex:1;background:var(--bg);border:1px solid var(--border);border-radius:8px;padding:8px 12px;font-family:var(--sans);font-size:13px;color:var(--fg);outline:none">
+          <input type="time" id="convTime" value="12:00" aria-label="Time to convert" oninput="calcConversion()" onchange="calcConversion()" style="background:var(--bg);border:1px solid var(--border);border-radius:8px;padding:8px 12px;font-family:var(--mono);font-size:14px;color:var(--fg);outline:none">
+          <select id="convFrom" aria-label="From timezone" onchange="calcConversion()" style="flex:1;background:var(--bg);border:1px solid var(--border);border-radius:8px;padding:8px 12px;font-family:var(--sans);font-size:13px;color:var(--fg);outline:none">
             <option value="America/New_York" selected>New York (EST/EDT)</option>
             <option value="Europe/London">London (GMT/BST)</option>
             <option value="Asia/Tokyo">Tokyo (JST)</option>
@@ -351,8 +351,8 @@ nav a.active{background:var(--accent);color:#fff}
       </div>
       <button class="cal-nav-btn" aria-label="Swap timezones" onclick="swapConverter()" style="margin-top:20px;flex-shrink:0">⇄</button>
       <div style="flex:1;min-width:200px">
-        <label style="font-size:11px;font-weight:600;text-transform:uppercase;color:var(--fg-muted);display:block;margin-bottom:6px">To</label>
-        <select id="convTo" onchange="calcConversion()" style="width:100%;background:var(--bg);border:1px solid var(--border);border-radius:8px;padding:8px 12px;font-family:var(--sans);font-size:13px;color:var(--fg);outline:none">
+        <label for="convTo" style="font-size:11px;font-weight:600;text-transform:uppercase;color:var(--fg-muted);display:block;margin-bottom:6px">To</label>
+        <select id="convTo" aria-label="To timezone" onchange="calcConversion()" style="width:100%;background:var(--bg);border:1px solid var(--border);border-radius:8px;padding:8px 12px;font-family:var(--sans);font-size:13px;color:var(--fg);outline:none">
           <option value="America/New_York">New York (EST/EDT)</option>
           <option value="Europe/London" selected>London (GMT/BST)</option>
           <option value="Asia/Tokyo">Tokyo (JST)</option>
