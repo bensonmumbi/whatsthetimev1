@@ -49,6 +49,19 @@ def run_test():
                 sys.exit(1)
             print(f"UTC Offset: {utc_off}")
 
+            # Check Embed Code Copy Button
+            copy_btn = page.locator("#copyEmbedBtn")
+            if copy_btn.count() == 0:
+                print("Error: Copy embed button not found!")
+                sys.exit(1)
+
+            copy_btn.click()
+            time.sleep(0.5)
+            if "✓ Copied!" not in copy_btn.text_content():
+                print(f"Error: Copy embed button visual feedback failed: {copy_btn.text_content()}")
+                sys.exit(1)
+            print("Success: Copy embed code button working with visual feedback.")
+
             print("All basic clock checks passed.")
 
             # Keep it running for manual check if needed
