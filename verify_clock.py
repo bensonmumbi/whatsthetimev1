@@ -49,6 +49,13 @@ def run_test():
                 sys.exit(1)
             print(f"UTC Offset: {utc_off}")
 
+            # Check Timezone Converter calculation
+            conv_res = page.locator("#convResult").text_content()
+            if "in London" not in conv_res:
+                print(f"Error: Timezone converter result invalid: {conv_res}")
+                sys.exit(1)
+            print(f"Timezone Converter Result: {conv_res}")
+
             print("All basic clock checks passed.")
 
             # Keep it running for manual check if needed
