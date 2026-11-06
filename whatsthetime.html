@@ -590,15 +590,15 @@ nav a.active{background:var(--accent);color:#fff}
 <button class="bmc-btn" onclick="openBmc()"><span class="bmc-icon">☕</span> Buy Me a Coffee</button>
 
 <!-- BMC MODAL -->
-<div class="modal-ov" id="bmcModal" onclick="closeBmcOv(event)">
+<div class="modal-ov" id="bmcModal" onclick="closeBmcOv(event)" role="dialog" aria-modal="true" aria-labelledby="bmcTitle">
   <div class="modal">
     <button class="m-close" onclick="closeBmc()" aria-label="Close support modal">×</button>
     <div style="font-size:42px;margin-bottom:8px">☕</div>
-    <h2>SUPPORT MY WORK</h2>
+    <h2 id="bmcTitle">SUPPORT MY WORK</h2>
     <p>Every coffee keeps the site running and free for everyone!</p>
     
     <div style="margin-bottom:20px">
-      <label style="font-size:11px;text-transform:uppercase;color:var(--fg-subtle);display:block;margin-bottom:8px">Select Currency</label>
+      <label for="bmcCurr" style="font-size:11px;text-transform:uppercase;color:var(--fg-subtle);display:block;margin-bottom:8px">Select Currency</label>
       <select id="bmcCurr" style="width:100%;padding:8px;border-radius:6px;border:1px solid var(--border)" onchange="updateBmcCur()">
         <option value="$">USD — US Dollar ($)</option>
         <option value="€">EUR — Euro (€)</option>
@@ -615,7 +615,7 @@ nav a.active{background:var(--accent);color:#fff}
     </div>
     
     <div style="margin:20px 0">
-      <label style="font-size:11px;text-transform:uppercase;color:var(--fg-subtle);display:block;margin-bottom:8px">Custom Amount (Min <span class="cur">$</span>5)</label>
+      <label for="bmcCustom" style="font-size:11px;text-transform:uppercase;color:var(--fg-subtle);display:block;margin-bottom:8px">Custom Amount (Min <span class="cur">$</span>5)</label>
       <div style="position:relative">
         <span class="cur" style="position:absolute;left:12px;top:50%;transform:translateY(-50%);font-weight:600">$</span>
         <input type="number" id="bmcCustom" min="5" placeholder="Enter amount" style="width:100%;padding:10px 10px 10px 30px;border-radius:6px;border:1px solid var(--border);font-family:var(--mono)" oninput="useCustomBmc(this.value)">
@@ -818,10 +818,22 @@ function submitForm(){
 }
 
 // ── BUY ME A COFFEE ───────────────────────────────────────────────────────────
-let bmcVal=5, bmcCur='$';
-function openBmc(){document.getElementById('bmcModal').classList.add('show')}
-function closeBmc(){document.getElementById('bmcModal').classList.remove('show')}
+let bmcVal=5, bmcCur='$', bmcTrigger=null;
+function openBmc(){
+  bmcTrigger=document.activeElement;
+  const modal=document.getElementById('bmcModal');
+  modal.classList.add('show');
+  modal.querySelector('.m-close')?.focus();
+}
+function closeBmc(){
+  const modal=document.getElementById('bmcModal');
+  if(modal.classList.contains('show')){
+    modal.classList.remove('show');
+    if(bmcTrigger&&typeof bmcTrigger.focus==='function'){bmcTrigger.focus();bmcTrigger=null;}
+  }
+}
 function closeBmcOv(e){if(e.target===document.getElementById('bmcModal'))closeBmc()}
+document.addEventListener('keydown',e=>{if(e.key==='Escape'&&document.getElementById('bmcModal')?.classList.contains('show'))closeBmc();});
 function updateBmcCur(){
   bmcCur=document.getElementById('bmcCurr').value;
   document.querySelectorAll('.cur').forEach(el=>el.textContent=bmcCur);
